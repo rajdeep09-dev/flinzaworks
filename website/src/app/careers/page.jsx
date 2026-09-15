@@ -3,171 +3,227 @@
 import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 
-const ExpandOnHoverList = dynamic(
-  () => import('@/components/ExpandOnHoverList'),
+const CamoLiquidButton = dynamic(
+  () => import('@/components/CamoLiquidButton'),
   { ssr: false }
 );
 
-const BRAND_PURPLE = '#7C3AED';
-const BRAND_PURPLE_DARK = '#2E1065';
-const BRAND_CYAN = '#06B6D4';
+const roles = [
+  {
+    id: 'paid-media',
+    team: 'Paid Media',
+    type: 'Full-Time',
+    title: 'Paid Media Strategist',
+    blurb: 'Own Meta & TikTok budgets for 4–6 DTC brands spending $50K+ a month. You build the test plan, read the data honestly, and scale what converts — with a strategist pod and our testing engine behind you.',
+    location: 'Remote · EU/US overlap',
+    salary: '$60,000–$85,000/yr + performance bonus',
+    do: [
+      'Run full-funnel Meta & TikTok campaigns for 4–6 brands',
+      'Ship weekly test plans: angles, audiences, budgets',
+      'Move accounts from ROAS reporting to profit contribution',
+    ],
+    need: [
+      '2+ years managing $50K+/mo paid social spend',
+      'Fluent in CAC, MER, contribution margin — not vanity metrics',
+      'Comfortable killing your own darlings when data says so',
+    ],
+  },
+  {
+    id: 'creative-strategist',
+    team: 'Creative',
+    type: 'Full-Time',
+    title: 'Creative Strategist',
+    blurb: 'Turn performance data into ad angles, hooks, and scripts. You brief and iterate UGC and AI UGC that stops the scroll, and you think in hook rate, CTR, and thumb-stop ratio.',
+    location: 'Remote · Any timezone',
+    salary: '$55,000–$75,000/yr + creative win bonuses',
+    do: [
+      'Mine analytics and comments for winning angles',
+      'Brief, script, and iterate 10+ concepts per week',
+      'Pair with editors and AI UGC producers to ship fast',
+    ],
+    need: [
+      'Portfolio of direct-response creative that scaled',
+      'Obsession with hooks and the first 1.5 seconds',
+      'Ability to write like a human, not a brand deck',
+    ],
+  },
+  {
+    id: 'ai-ugc',
+    team: 'Creative',
+    type: 'Full-Time',
+    title: 'AI UGC Producer',
+    blurb: 'Produce unlimited creator-style video with AI avatars, voice, and editing pipelines. You multiply our creative output 10x without creator bottlenecks or missed deadlines.',
+    location: 'Remote · Any timezone',
+    salary: '$45,000–$65,000/yr + output bonuses',
+    do: [
+      'Build and maintain AI avatar + voice pipelines',
+      'Edit and version ads at volume on 48-hour cycles',
+      'Keep quality bar high while output goes vertical',
+    ],
+    need: [
+      'Hands-on with AI video/voice tooling (HeyGen, ElevenLabs, etc.)',
+      'Strong editing instincts (CapCut / Premiere / Resolve)',
+      'Systems thinking: templates, presets, repeatability',
+    ],
+  },
+  {
+    id: 'growth-analyst',
+    team: 'Growth',
+    type: 'Full-Time',
+    title: 'Growth Analyst',
+    blurb: 'Own attribution, dashboards, and reporting. You turn messy multi-touch data into decisions the team can act on this week — not decks nobody reads.',
+    location: 'Remote · EU overlap',
+    salary: '$50,000–$70,000/yr + profit share',
+    do: [
+      'Build and maintain real-time client dashboards',
+      'Model profit contribution per channel and creative',
+      'Surface the 3–5 leaks bleeding each account',
+    ],
+    need: [
+      'SQL + Looker Studio / Tableau fluency',
+      'Experience with MMPs, pixels, server-side tracking',
+      'Allergic to vanity metrics; allergic to slow answers',
+    ],
+  },
+  {
+    id: 'cro-designer',
+    team: 'Conversion',
+    type: 'Full-Time',
+    title: 'CRO / Landing Page Designer',
+    blurb: 'Design and ship conversion-focused landing pages and funnels. You obsess over the audit-to-first-dollar journey and ship tests on 48-hour cycles.',
+    location: 'Remote · Any timezone',
+    salary: '$50,000–$72,000/yr + lift bonuses',
+    do: [
+      'Design LPs, PDPs, and funnel flows that convert',
+      'Run structured A/B programs with the analyst pod',
+      'Translate brand kits into performance-first layouts',
+    ],
+    need: [
+      'Portfolio of LPs with proven conversion lifts',
+      'Figma mastery + working knowledge of Webflow/Next.js',
+      'Instinct for hierarchy, speed, and friction removal',
+    ],
+  },
+  {
+    id: 'account-lead',
+    team: 'Client Growth',
+    type: 'Full-Time',
+    title: 'Account Lead (Client Growth)',
+    blurb: 'Be the trusted voice for our brands. Run weekly optimization calls, keep Slack buzzing, and turn results into long-term partnerships and expansions.',
+    location: 'Hybrid · Remote + quarterly onsites',
+    salary: '$55,000–$80,000/yr + retention commission',
+    do: [
+      'Own communication for 4–6 brand relationships',
+      'Run weekly calls that clients actually look forward to',
+      'Spot expansion opportunities before clients ask',
+    ],
+    need: [
+      '2+ years in agency account or growth management',
+      'Writes crisp updates; presents with confidence',
+      'Commercial instinct: retention and expansion are the game',
+    ],
+  },
+];
 
-/* ── Finder-style "drop your CV into the folder" upload UI ── */
-function ResumeFolder() {
+function PinIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 21s-7-5.1-7-11a7 7 0 1 1 14 0c0 5.9-7 11-7 11Z" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="10" r="2.6" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function CashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="2.5" y="6" width="19" height="12" rx="2.4" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function CvDropzone({ file, setFile }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
-  const [file, setFile] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
 
   const accept = (incoming) => {
     const picked = incoming && incoming[0];
-    if (!picked) return;
-    setFile({ name: picked.name, size: picked.size });
-    setSubmitted(false);
+    if (picked) setFile({ name: picked.name, size: picked.size });
   };
 
-  const open = dragging || !!file;
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 22,
-      }}
-    >
+    <div>
       <div
         onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
         onDrop={(e) => { e.preventDefault(); setDragging(false); accept(e.dataTransfer.files); }}
-        onClick={() => !file && inputRef.current?.click()}
+        onClick={() => inputRef.current?.click()}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !file) inputRef.current?.click(); }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
         aria-label="Upload your CV or resume"
         style={{
-          position: 'relative',
-          width: 340,
-          height: 232,
-          cursor: file ? 'default' : 'pointer',
-          perspective: 900,
-          filter: dragging ? 'drop-shadow(0 24px 40px rgba(124,58,237,0.35))' : 'drop-shadow(0 16px 30px rgba(15,15,20,0.18))',
-          transition: 'filter 0.3s ease',
+          borderRadius: 18,
+          padding: '22px 20px',
+          border: `1.5px dashed ${dragging ? 'rgb(23,132,155)' : 'rgba(9,9,11,0.18)'}`,
+          background: dragging ? 'rgba(224,242,246,0.55)' : 'rgba(255,255,255,0.55)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          transition: 'border-color 0.2s ease, background 0.2s ease',
         }}
       >
-        {/* Folder tab */}
-        <div
+        <span
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 18,
-            width: 132,
-            height: 34,
-            background: `linear-gradient(135deg, ${BRAND_PURPLE_DARK}, ${BRAND_PURPLE})`,
-            borderRadius: '12px 12px 0 0',
-            zIndex: 1,
-          }}
-        />
-
-        {/* Folder back panel */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 20,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `linear-gradient(160deg, ${BRAND_PURPLE} 0%, ${BRAND_PURPLE_DARK} 100%)`,
-            borderRadius: 18,
-            zIndex: 1,
-          }}
-        />
-
-        {/* Paper sheets inside */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 26,
-            right: 26,
-            bottom: 26,
-            height: 168,
+            width: 40,
+            height: 40,
             borderRadius: 12,
-            background: 'linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%)',
-            boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
-            zIndex: 2,
-            transform: open ? 'translateY(-26px) scale(1.01)' : 'translateY(6px) scale(0.98)',
-            opacity: open ? 1 : 0.55,
-            transition: 'transform 0.42s cubic-bezier(0.2,0,0,1), opacity 0.3s ease',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 9,
-            padding: '22px 22px',
-            boxSizing: 'border-box',
-            overflow: 'hidden',
-          }}
-        >
-          {file ? (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 0 3px rgba(34,197,94,0.18)' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#09090b', fontFamily: "'Plus Jakarta Sans', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 210 }}>
-                  {file.name}
-                </span>
-              </div>
-              <span style={{ fontSize: 11.5, color: '#71717a', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                {(file.size / 1024).toFixed(0)} KB · filed in your application
-              </span>
-              {[70, 100, 88, 96, 60].map((w, i) => (
-                <div key={i} style={{ height: 7, borderRadius: 4, width: `${w}%`, background: i === 0 ? 'rgba(124,58,237,0.5)' : 'rgba(9,9,11,0.1)' }} />
-              ))}
-            </>
-          ) : (
-            <>
-              <div style={{ height: 9, width: '55%', borderRadius: 4, background: 'rgba(124,58,237,0.45)' }} />
-              {[100, 92, 98, 74, 88, 60].map((w, i) => (
-                <div key={i} style={{ height: 7, borderRadius: 4, width: `${w}%`, background: 'rgba(9,9,11,0.09)' }} />
-              ))}
-            </>
-          )}
-        </div>
-
-        {/* Folder front flap */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 132,
-            background: `linear-gradient(160deg, rgba(124,58,237,0.96) 0%, rgba(46,16,101,0.98) 100%)`,
-            borderRadius: '16px 16px 18px 18px',
-            zIndex: 3,
-            transformOrigin: 'bottom center',
-            transform: open ? 'rotateX(-24deg) translateY(10px)' : 'rotateX(0deg)',
-            transition: 'transform 0.42s cubic-bezier(0.2,0,0,1)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22)',
+            flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            background: 'linear-gradient(135deg, #56C1D3, #17849B)',
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: 700,
+            boxShadow: '0 8px 18px -6px rgba(23,132,155,0.5)',
           }}
         >
-          <span
+          ↑
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#09090b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {file ? file.name : 'Drop your CV here, or click to browse'}
+          </div>
+          <div style={{ fontSize: 12, color: '#71717a', marginTop: 2 }}>
+            {file ? `${(file.size / 1024).toFixed(0)} KB · attached` : 'PDF or DOC · up to 10MB'}
+          </div>
+        </div>
+        {file && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setFile(null); if (inputRef.current) inputRef.current.value = ''; }}
             style={{
-              fontSize: 13.5,
-              fontWeight: 700,
-              letterSpacing: '0.02em',
-              color: 'rgba(255,255,255,0.94)',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              textAlign: 'center',
-              padding: '0 18px',
+              marginLeft: 'auto',
+              border: 'none',
+              background: 'rgba(9,9,11,0.06)',
+              borderRadius: 999,
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#52525b',
+              cursor: 'pointer',
+              flexShrink: 0,
             }}
           >
-            {file ? 'CV received ✓' : dragging ? 'Drop it here' : 'Drop your CV here'}
-          </span>
-        </div>
-
+            Remove
+          </button>
+        )}
         <input
           ref={inputRef}
           type="file"
@@ -176,226 +232,307 @@ function ResumeFolder() {
           onChange={(e) => accept(e.target.files)}
         />
       </div>
+    </div>
+  );
+}
 
-      {/* Actions / helper */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, minHeight: 76 }}>
-        {!file ? (
-          <p style={{ fontSize: 13.5, color: '#71717a', margin: 0, textAlign: 'center', maxWidth: 340, lineHeight: 1.55, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Drag your resume in, or click the folder to browse. PDF or DOC up to 10MB.
-          </p>
-        ) : !submitted ? (
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button
-              type="button"
-              onClick={() => setSubmitted(true)}
-              style={{
-                appearance: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '12px 26px',
-                borderRadius: 999,
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#fff',
-                background: `linear-gradient(135deg, ${BRAND_PURPLE}, ${BRAND_CYAN})`,
-                boxShadow: '0 10px 26px -8px rgba(124,58,237,0.6)',
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              Submit application
-            </button>
-            <button
-              type="button"
-              onClick={() => { setFile(null); if (inputRef.current) inputRef.current.value = ''; }}
-              style={{
-                appearance: 'none',
-                cursor: 'pointer',
-                padding: '12px 20px',
-                borderRadius: 999,
-                fontSize: 14,
-                fontWeight: 600,
-                color: '#52525b',
-                background: 'rgba(9,9,11,0.04)',
-                border: '1px solid rgba(9,9,11,0.08)',
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              Replace
-            </button>
+function ApplyBox({ role, onClose }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [link, setLink] = useState('');
+  const [cv, setCv] = useState(null);
+  const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !cv) {
+      setError('Add your name, email, and CV so we can actually reply to you.');
+      return;
+    }
+    setError('');
+    setSubmitted(true);
+  };
+
+  const fieldStyle = {
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '12px 14px',
+    borderRadius: 12,
+    border: '1px solid rgba(9,9,11,0.12)',
+    background: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    color: '#09090b',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    outline: 'none',
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 300,
+        background: 'rgba(9, 11, 16, 0.45)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: 620,
+          maxHeight: '88vh',
+          overflowY: 'auto',
+          borderRadius: 28,
+          padding: '36px 34px 32px',
+          boxSizing: 'border-box',
+          background: 'linear-gradient(155deg, rgba(255,255,255,0.92) 0%, rgba(240,250,252,0.88) 100%)',
+          backdropFilter: 'blur(34px) saturate(190%)',
+          WebkitBackdropFilter: 'blur(34px) saturate(190%)',
+          border: '1px solid rgba(255,255,255,0.8)',
+          boxShadow: '0 50px 120px -40px rgba(9,11,16,0.55), inset 0 1.5px 2px rgba(255,255,255,0.9)',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+              {[role.team, role.type].map((chip) => (
+                <span key={chip} style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#0E7C93', background: 'rgba(23,132,155,0.1)', border: '1px solid rgba(23,132,155,0.25)', borderRadius: 999, padding: '4px 12px' }}>
+                  {chip}
+                </span>
+              ))}
+            </div>
+            <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 6px', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
+              {role.title}
+            </h3>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: '#52525b', fontWeight: 600 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><PinIcon />{role.location}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#0E7C93' }}><CashIcon />{role.salary}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            style={{ border: 'none', background: 'rgba(9,9,11,0.05)', borderRadius: 999, width: 34, height: 34, cursor: 'pointer', fontSize: 15, color: '#52525b', flexShrink: 0 }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {submitted ? (
+          <div style={{ padding: '48px 12px', textAlign: 'center' }}>
+            <div style={{ fontSize: 40, marginBottom: 14 }}>✓</div>
+            <h4 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 10px', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
+              Application received
+            </h4>
+            <p style={{ fontSize: 14.5, color: '#52525b', lineHeight: 1.6, margin: 0 }}>
+              Thanks {name.split(' ')[0]} — we read every application ourselves. Expect a reply within 3 business days.
+            </p>
           </div>
         ) : (
-          <p style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, margin: 0, textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Application filed. We&apos;ll be in touch within 3 business days.
-          </p>
+          <>
+            {/* Role detail */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 22, margin: '22px 0 26px' }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 10 }}>What you&apos;ll do</div>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {role.do.map((item) => (
+                    <li key={item} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: '#3f3f46' }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #56C1D3, #17849B)', marginTop: 6, flexShrink: 0 }} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 10 }}>What we&apos;re looking for</div>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {role.need.map((item) => (
+                    <li key={item} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: '#3f3f46' }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #56C1D3, #17849B)', marginTop: 6, flexShrink: 0 }} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Application form */}
+            <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+                <input style={fieldStyle} placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
+                <input style={fieldStyle} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <input style={fieldStyle} placeholder="Portfolio / LinkedIn / GitHub (optional)" value={link} onChange={(e) => setLink(e.target.value)} />
+              <CvDropzone file={cv} setFile={setCv} />
+              {error && (
+                <p style={{ margin: 0, fontSize: 13, color: '#b91c1c', fontWeight: 600 }}>{error}</p>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }} onClick={(e) => e.preventDefault()}>
+                <div style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }}>
+                  <div onClick={submit}>
+                    <CamoLiquidButton
+                      label="Submit Application"
+                      link="#apply"
+                      showDots={false}
+                      dotsAnimate={false}
+                      textColor="rgb(255,255,255)"
+                      camoDark="rgb(10,62,76)"
+                      camoMid="rgb(23,132,155)"
+                      camoLight="rgb(127,209,222)"
+                      borderGlowA="rgb(127,209,222)"
+                      borderGlowB="rgb(46,147,172)"
+                    />
+                  </div>
+                </div>
+              </div>
+            </form>
+          </>
         )}
       </div>
     </div>
   );
 }
 
-const roleGroups = [
-  {
-    items: [
-      { no: '01', title: 'Paid Media Strategist', text: 'Own Meta & TikTok budgets for 4–6 DTC brands. Build test plans, read the data honestly, and scale what converts. 2+ years managing $50K+/mo spend.' },
-      { no: '02', title: 'Creative Strategist', text: 'Turn performance data into ad angles and hooks. Brief, script, and iterate UGC that stops the scroll. You think in CTR, hook rate, and ROAS.' },
-      { no: '03', title: 'AI UGC Producer', text: 'Produce unlimited creator-style video with AI avatars and editing. Ship 10x more creative angles without the creator bottleneck.' },
-    ],
-  },
-  {
-    items: [
-      { no: '04', title: 'Growth Analyst', text: 'Own attribution, dashboards, and reporting. Turn messy multi-touch data into decisions the team can act on this week. SQL + Looker Studio.' },
-      { no: '05', title: 'CRO / Landing Page Designer', text: 'Design and ship conversion-focused landing pages and funnels. Obsess over the audit-to-first-dollar journey.' },
-      { no: '06', title: 'Account Lead (Client Growth)', text: 'Be the trusted voice for our brands. Run weekly optimization calls, keep Slack buzzing, and turn results into long-term partnerships.' },
-    ],
-  },
-];
-
 export default function CareersPage() {
+  const [openRole, setOpenRole] = useState(null);
+  const [hovered, setHovered] = useState(null);
+
   return (
     <main
       style={{
         width: '100%',
         minHeight: '100vh',
-        background: 'radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #fbfcfd 55%, #f4f5f7 100%)',
+        background: 'radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #fbfcfd 55%, #f0f7f9 100%)',
         color: '#09090b',
         fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
     >
+      <style jsx global>{`
+        .flinza-role-row .flinza-role-blurb {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          transition: color 0.25s ease;
+        }
+        .flinza-role-row:hover .flinza-role-blurb {
+          -webkit-line-clamp: unset;
+          overflow: visible;
+        }
+      `}</style>
+
       {/* ── Header ── */}
-      <section
-        style={{
-          maxWidth: 900,
-          margin: '0 auto',
-          padding: '120px 24px 56px',
-          textAlign: 'center',
-        }}
-      >
-        <p
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            color: BRAND_PURPLE,
-            margin: '0 0 16px',
-          }}
-        >
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '120px 24px 56px', textAlign: 'center' }}>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#0E7C93', margin: '0 0 16px' }}>
           Careers
         </p>
-        <h1
-          style={{
-            fontSize: 'clamp(38px, 6vw, 68px)',
-            fontWeight: 800,
-            letterSpacing: '-0.04em',
-            lineHeight: 1.03,
-            margin: '0 0 20px',
-            fontFamily: "'Nohemi', sans-serif",
-          }}
-        >
+        <h1 style={{ fontSize: 'clamp(38px, 6vw, 68px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.03, margin: '0 0 20px', fontFamily: "'Nohemi', sans-serif" }}>
           Build the growth engine<br />behind brands that scale.
         </h1>
-        <p
-          style={{
-            fontSize: 'clamp(15px, 1.7vw, 19px)',
-            lineHeight: 1.6,
-            color: '#52525b',
-            margin: '0 auto',
-            maxWidth: 620,
-          }}
-        >
-          We&apos;re a remote-first ecommerce growth agency. Fast testers, honest readers of data, allergic to vanity metrics. If that sounds like you, pick a role and drop your CV in the folder.
+        <p style={{ fontSize: 'clamp(15px, 1.7vw, 19px)', lineHeight: 1.6, color: '#52525b', margin: '0 auto', maxWidth: 620 }}>
+          We&apos;re a remote-first ecommerce growth agency. Fast testers, honest readers of data, allergic to vanity metrics. If that sounds like you — pick a role and apply in one click.
         </p>
       </section>
 
       {/* ── Open roles ── */}
-      <section
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '0 24px 24px',
-        }}
-      >
-        <div style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 0 }}>
-          <h2
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: '#71717a',
-              margin: '0 0 18px',
-            }}
-          >
-            Open roles
+      <section style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '0 24px 40px' }}>
+        <div style={{ width: '100%', maxWidth: 1060 }}>
+          <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#71717a', margin: '0 0 18px' }}>
+            Open roles · {roles.length}
           </h2>
-          {roleGroups.map((group, gi) => (
-            <ExpandOnHoverList
-              key={gi}
-              sLNo01={group.items[0].no}
-              title01={group.items[0].title}
-              text01={group.items[0].text}
-              sLNo02={group.items[1].no}
-              title02={group.items[1].title}
-              text02={group.items[1].text}
-              sLNo03={group.items[2].no}
-              title03={group.items[2].title}
-              text03={group.items[2].text}
-              openColor="rgb(14,14,14)"
-              closeColor="rgb(172,172,172)"
-              topBottomDividerColor="rgba(230,230,230,0.8)"
-              style={{ width: '100%' }}
-            />
-          ))}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {roles.map((role, i) => (
+              <div
+                key={role.id}
+                className="flinza-role-row"
+                onMouseEnter={() => setHovered(role.id)}
+                onMouseLeave={() => setHovered(null)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 28,
+                  padding: '30px 26px',
+                  borderRadius: 22,
+                  borderTop: i === 0 ? '1px solid rgba(9,9,11,0.08)' : undefined,
+                  borderBottom: '1px solid rgba(9,9,11,0.08)',
+                  background: hovered === role.id ? 'linear-gradient(120deg, rgba(255,255,255,0.85), rgba(224,242,246,0.55))' : 'transparent',
+                  backdropFilter: hovered === role.id ? 'blur(18px) saturate(170%)' : undefined,
+                  WebkitBackdropFilter: hovered === role.id ? 'blur(18px) saturate(170%)' : undefined,
+                  boxShadow: hovered === role.id ? '0 24px 60px -28px rgba(14,124,147,0.35)' : undefined,
+                  transition: 'background 0.3s ease, box-shadow 0.3s ease',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setOpenRole(role)}
+              >
+                {/* Left: chips, title, blurb */}
+                <div style={{ flex: '1 1 460px', minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#3f3f46', background: 'rgba(9,9,11,0.05)', border: '1px solid rgba(9,9,11,0.08)', borderRadius: 999, padding: '5px 14px' }}>
+                      {role.team}
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#3f3f46', background: 'rgba(9,9,11,0.05)', border: '1px solid rgba(9,9,11,0.08)', borderRadius: 999, padding: '5px 14px' }}>
+                      {role.type}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.025em', margin: '0 0 10px', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
+                    {role.title}
+                  </h3>
+                  <p className="flinza-role-blurb" style={{ fontSize: 14.5, lineHeight: 1.6, color: '#52525b', margin: 0 }}>
+                    {role.blurb}
+                  </p>
+                </div>
+
+                {/* Middle: location + salary */}
+                <div style={{ flex: '0 1 300px', display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 34 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: '#52525b', fontWeight: 600 }}>
+                    <PinIcon />{role.location}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, color: '#0E7C93', fontWeight: 700 }}>
+                    <CashIcon />{role.salary}
+                  </span>
+                </div>
+
+                {/* Right: view role pill */}
+                <div style={{ flexShrink: 0, paddingTop: 34 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 700, color: '#09090b', background: hovered === role.id ? 'rgba(255,255,255,0.95)' : 'rgba(9,9,11,0.04)', border: '1px solid rgba(9,9,11,0.08)', borderRadius: 999, padding: '10px 18px', transition: 'background 0.25s ease' }}>
+                    View role
+                    <span aria-hidden="true" style={{ fontSize: 15, lineHeight: 1 }}>›</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Apply: folder upload ── */}
-      <section
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '40px 24px 96px',
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: 720,
-            borderRadius: 32,
-            padding: '56px 40px 48px',
-            boxSizing: 'border-box',
-            background: 'linear-gradient(158deg, rgba(255,255,255,0.9) 0%, rgba(248,249,251,0.86) 100%)',
-            backdropFilter: 'blur(30px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-            border: '1px solid rgba(9,9,11,0.07)',
-            boxShadow: '0 40px 90px -40px rgba(15,15,20,0.28), inset 0 1px 0 rgba(255,255,255,0.8)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 28,
-            textAlign: 'center',
-          }}
-        >
-          <div>
-            <h2
-              style={{
-                fontSize: 'clamp(24px, 3vw, 34px)',
-                fontWeight: 800,
-                letterSpacing: '-0.03em',
-                margin: '0 0 12px',
-                fontFamily: "'Nohemi', sans-serif",
-              }}
-            >
-              File your application
-            </h2>
-            <p style={{ fontSize: 15, color: '#52525b', margin: 0, lineHeight: 1.6, maxWidth: 460 }}>
-              No cover letter required. Drop your CV into the folder below — tell us which role in the file name if you like.
-            </p>
-          </div>
-
-          <ResumeFolder />
+      {/* ── Apply CTA ── */}
+      <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, padding: '24px 24px 96px', textAlign: 'center' }}>
+        <p style={{ fontSize: 14.5, color: '#71717a', margin: 0, maxWidth: 460, lineHeight: 1.6 }}>
+          Don&apos;t see your role? Send us something that proves you can move a number — we read everything.
+        </p>
+        <div style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }} onClick={() => setOpenRole(roles[0])}>
+          <CamoLiquidButton
+            label="Apply Now"
+            link="#apply"
+            showDots={false}
+            dotsAnimate={false}
+            textColor="rgb(255,255,255)"
+            camoDark="rgb(10,62,76)"
+            camoMid="rgb(23,132,155)"
+            camoLight="rgb(127,209,222)"
+            borderGlowA="rgb(127,209,222)"
+            borderGlowB="rgb(46,147,172)"
+          />
         </div>
       </section>
 
@@ -403,19 +540,15 @@ export default function CareersPage() {
       <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 72 }}>
         <a
           href="/"
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: '#71717a',
-            textDecoration: 'none',
-            transition: 'color 0.2s ease',
-          }}
+          style={{ fontSize: 14, fontWeight: 600, color: '#71717a', textDecoration: 'none', transition: 'color 0.2s ease' }}
           onMouseEnter={(e) => { e.currentTarget.style.color = '#09090b'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = '#71717a'; }}
         >
           ← Back to home
         </a>
       </div>
+
+      {openRole && <ApplyBox role={openRole} onClose={() => setOpenRole(null)} />}
     </main>
   );
 }

@@ -75,8 +75,8 @@ const FlipperRow3 = dynamic(
   }
 );
 
-const ClotheslineGallery = dynamic(
-  () => import('@/components/ClotheslineGallery'),
+const DiaFooter = dynamic(
+  () => import('@/components/DiaFooter'),
   {
     ssr: false,
     loading: () => null,
@@ -449,10 +449,10 @@ export default function Page() {
         }}
       >
         <EtherealShadow
-          color1="rgba(240, 243, 250, 0.95)"
-          color2="#7C3AED"
-          color3="#06B6D4"
-          shadowOpacity={0.32}
+          color1="rgba(246, 251, 252, 0.95)"
+          color2="#7FD1DE"
+          color3="#2E93AC"
+          shadowOpacity={0.38}
           animation={{ preview: false, scale: 0, speed: 0, duration: 8 }}
           noise={{ opacity: 0.38, scale: 0.85 }}
         />
@@ -492,7 +492,7 @@ export default function Page() {
             edge={0.4}
             liquify={0.07}
             patternScale={2}
-            imageSource="/images/uploaded_logo.png"
+            imageSource="/images/flinza_logo_hd.png"
           />
         </a>
       </header>
@@ -531,7 +531,7 @@ export default function Page() {
           blur={0}
           glow={3.8}
           blueRing={5.2}
-          blueColor="#00a6ff"
+          blueColor="#3FB9CE"
           shimmer={true}
           rimWave={0.6}
           entryAnimation={true}
@@ -571,7 +571,7 @@ export default function Page() {
           Flinza Works — We Test. We Scale. We Grow.
         </h1>
 
-        {/* Bottom CTA row — brand-recolored CamoLiquidButton (primary) + glass secondary link */}
+        {/* Bottom CTA row — single brand-recolored CamoLiquidButton */}
         <div
           style={{
             position: 'absolute',
@@ -593,7 +593,7 @@ export default function Page() {
             style={{
               transform: 'scale(0.58)',
               transformOrigin: 'center center',
-              filter: 'drop-shadow(0 14px 32px rgba(76, 29, 149, 0.28))',
+              filter: 'drop-shadow(0 14px 32px rgba(14, 124, 147, 0.3))',
               pointerEvents: (camoDismissed || scrolledPastHero || !isLoaded) ? 'none' : 'auto',
             }}
           >
@@ -603,50 +603,13 @@ export default function Page() {
               showDots={false}
               dotsAnimate={false}
               textColor="rgb(255,255,255)"
-              camoDark="rgb(46,16,101)"
-              camoMid="rgb(124,58,237)"
-              camoLight="rgb(6,182,212)"
-              borderGlowA="rgb(167,139,250)"
-              borderGlowB="rgb(6,182,212)"
+              camoDark="rgb(10,62,76)"
+              camoMid="rgb(23,132,155)"
+              camoLight="rgb(127,209,222)"
+              borderGlowA="rgb(127,209,222)"
+              borderGlowB="rgb(46,147,172)"
             />
           </div>
-
-          <a
-            href="/contact"
-            style={{
-              pointerEvents: (camoDismissed || scrolledPastHero || !isLoaded) ? 'none' : 'auto',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '13px 24px',
-              borderRadius: 999,
-              fontSize: 15,
-              fontWeight: 600,
-              letterSpacing: '-0.01em',
-              color: '#09090b',
-              textDecoration: 'none',
-              backgroundColor: 'rgba(255,255,255,0.7)',
-              border: '1px solid rgba(9,9,11,0.1)',
-              backdropFilter: 'blur(14px)',
-              WebkitBackdropFilter: 'blur(14px)',
-              boxShadow: '0 8px 24px -8px rgba(0,0,0,0.18)',
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.9)';
-              e.currentTarget.style.boxShadow = '0 14px 30px -10px rgba(76,29,149,0.35)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)';
-              e.currentTarget.style.boxShadow = '0 8px 24px -8px rgba(0,0,0,0.18)';
-            }}
-          >
-            Get in touch
-            <span aria-hidden="true">→</span>
-          </a>
         </div>
       </section>
 
@@ -668,16 +631,16 @@ export default function Page() {
         }}
       >
         <TableOfContent
-          title1="HERO"
+          title1="HOME"
           link1="#hero"
-          title2="STORIES"
+          title2="WORK"
           link2="#stories"
           title3="SERVICES"
           link3="#services"
-          title4="SOLUTIONS"
-          link4="#service-row-1"
+          title4="VOICES"
+          link4="#testimonials"
           title5="CONTACT"
-          link5="/contact"
+          link5="#contact"
           lineColor="rgba(40, 45, 55, 0.75)"
           linkColor="#09090b"
           linkFontSize={13}
@@ -715,18 +678,18 @@ export default function Page() {
             padding: '6px 16px',
             borderRadius: 999,
             backgroundColor: 'rgba(255, 255, 255, 0.75)',
-            border: '1px solid rgba(124, 58, 237, 0.25)',
+            border: '1px solid rgba(23, 132, 155, 0.3)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(124, 58, 237, 0.08)',
+            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.1)',
             marginBottom: 18,
           }}>
             <span style={{
               width: 6,
               height: 6,
               borderRadius: '50%',
-              backgroundColor: '#7C3AED',
-              boxShadow: '0 0 8px #7C3AED',
+              backgroundColor: '#17849B',
+              boxShadow: '0 0 8px #17849B',
             }} />
             <span style={{
               fontSize: 12,
@@ -785,32 +748,32 @@ export default function Page() {
             alignItems: 'center',
             transform: 'rotate(-4deg)',
           }}>
-            <svg width="180" height="210" viewBox="0 0 180 210" fill="none" style={{ overflow: 'visible' }}>
+            <svg width="240" height="300" viewBox="0 0 240 300" fill="none" style={{ overflow: 'visible' }}>
               <text
-                x="80" y="24"
+                x="78" y="28"
                 textAnchor="middle"
                 style={{
                   fontFamily: "'Caveat', cursive",
-                  fontSize: 27,
+                  fontSize: 28,
                   fontWeight: 700,
                   fill: '#09090b',
                   letterSpacing: '0.02em',
                 }}
               >What We Do</text>
-              {/* Smooth natural flowing S-curve */}
+              {/* Long flowing curve with a loop-de-loop, sweeping down and out to the right */}
               <path
-                d="M 68 38 C 30 65, 20 105, 45 135 C 65 160, 48 180, 80 195 C 105 205, 135 198, 158 190"
+                d="M 70 46 C 16 92, 6 160, 58 196 C 104 228, 150 206, 132 168 C 116 134, 62 146, 66 196 C 70 250, 140 290, 200 272 C 214 268, 222 262, 226 254"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing towards vertical card */}
+              {/* Arrowhead pointing right into the grid */}
               <path
-                d="M 142 180 L 160 190 L 146 202"
+                d="M 208 244 L 228 256 L 206 268"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -828,32 +791,32 @@ export default function Page() {
             pointerEvents: 'none',
             transform: 'rotate(2deg)',
           }}>
-            <svg width="150" height="110" viewBox="0 0 150 110" fill="none" style={{ overflow: 'visible' }}>
+            <svg width="180" height="240" viewBox="0 0 180 240" fill="none" style={{ overflow: 'visible' }}>
               <text
-                x="75" y="22"
+                x="90" y="26"
                 textAnchor="middle"
                 style={{
                   fontFamily: "'Caveat', cursive",
-                  fontSize: 26,
+                  fontSize: 27,
                   fontWeight: 700,
                   fill: '#09090b',
                   letterSpacing: '0.02em',
                 }}
               >The Vision</text>
-              {/* Graceful smooth serpentine wave pointing straight down into square card */}
+              {/* Long serpentine ribbon coiling downward with a tight curl before the arrow */}
               <path
-                d="M 78 30 C 62 48, 88 64, 72 80 C 66 86, 75 92, 75 98"
+                d="M 92 40 C 54 68, 118 92, 80 120 C 48 144, 96 152, 96 176 C 96 196, 70 198, 74 214 C 77 226, 88 228, 90 232"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing down */}
+              {/* Arrowhead pointing down into the square card */}
               <path
-                d="M 67 88 L 75 100 L 83 88"
+                d="M 80 224 L 90 238 L 100 224"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -871,32 +834,32 @@ export default function Page() {
             pointerEvents: 'none',
             transform: 'rotate(3deg)',
           }}>
-            <svg width="180" height="200" viewBox="0 0 180 200" fill="none" style={{ overflow: 'visible' }}>
+            <svg width="240" height="300" viewBox="0 0 240 300" fill="none" style={{ overflow: 'visible' }}>
               <text
-                x="95" y="24"
+                x="122" y="28"
                 textAnchor="middle"
                 style={{
                   fontFamily: "'Caveat', cursive",
-                  fontSize: 26,
+                  fontSize: 27,
                   fontWeight: 700,
                   fill: '#09090b',
                   letterSpacing: '0.02em',
                 }}
               >How We Do</text>
-              {/* Smooth 3-wave serpentine curve flowing down and curving left */}
+              {/* Long three-wave serpentine with an opening curl, flowing down and hooking left */}
               <path
-                d="M 90 38 C 65 60, 68 90, 95 110 C 122 130, 80 155, 95 175 C 98 180, 82 188, 38 188"
+                d="M 170 44 C 150 70, 196 78, 196 104 C 196 140, 224 168, 176 196 C 130 224, 196 248, 140 274 C 104 292, 44 288, 18 262"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing left into basketball card */}
+              {/* Arrowhead pointing left into the grid */}
               <path
-                d="M 52 178 L 36 188 L 52 198"
+                d="M 38 250 L 16 262 L 38 276"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -914,32 +877,32 @@ export default function Page() {
             pointerEvents: 'none',
             transform: 'rotate(-2deg)',
           }}>
-            <svg width="260" height="110" viewBox="0 0 260 110" fill="none" style={{ overflow: 'visible' }}>
+            <svg width="360" height="170" viewBox="0 0 360 170" fill="none" style={{ overflow: 'visible' }}>
               <text
-                x="70" y="32"
+                x="76" y="40"
                 textAnchor="middle"
                 style={{
                   fontFamily: "'Caveat', cursive",
-                  fontSize: 26,
+                  fontSize: 27,
                   fontWeight: 700,
                   fill: '#09090b',
                   letterSpacing: '0.02em',
                 }}
               >The Results</text>
-              {/* Long elegant parabolic arc swooping up towards the bottom of the card */}
+              {/* Long arc that starts in a tight spiral loop, then swoops up and away to the right */}
               <path
-                d="M 40 50 C 90 85, 170 90, 220 50 C 232 40, 240 28, 245 16"
+                d="M 40 96 C 12 92, 12 60, 40 62 C 62 64, 66 92, 44 100 C 110 150, 214 158, 292 110 C 322 92, 342 60, 346 32"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
               />
               {/* Arrowhead pointing up-right */}
               <path
-                d="M 230 26 L 246 14 L 248 34"
+                d="M 330 36 L 348 28 L 346 50"
                 stroke="#09090b"
-                strokeWidth="2.5"
+                strokeWidth="2.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -949,6 +912,7 @@ export default function Page() {
 
           {/* Enlarged Flush Rectangular Puzzle Grid */}
           <div
+            className="flinza-story-grid"
             style={{
               width: '100%',
               height: 740,
@@ -1220,22 +1184,22 @@ export default function Page() {
           width: '100%',
           maxWidth: 1360,
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))',
           gap: 24,
           boxSizing: 'border-box',
         }}>
           {/* Card 1: Sarah Jenkins */}
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.88)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 24,
-            border: '1px solid rgba(0, 0, 0, 0.08)',
+          <div className="flinza-glass-card" style={{
+            background: 'linear-gradient(150deg, rgba(255,255,255,0.72) 0%, rgba(240,250,252,0.5) 45%, rgba(224,242,246,0.42) 100%)',
+            backdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
+            borderRadius: 28,
+            border: '1px solid rgba(255, 255, 255, 0.75)',
             padding: '28px 24px',
             display: 'flex',
             flexDirection: 'column',
             gap: 20,
-            boxShadow: '0 18px 42px -12px rgba(0, 0, 0, 0.06)',
+            boxShadow: '0 24px 60px -18px rgba(14, 124, 147, 0.18), inset 0 1.5px 2px rgba(255,255,255,0.9), inset 0 -12px 28px rgba(23,132,155,0.06)',
             boxSizing: 'border-box',
           }}>
             {/* Header: User Info + Stars */}
@@ -1280,10 +1244,10 @@ export default function Page() {
               color: '#3f3f46',
               fontStyle: 'italic',
               margin: 0,
-              backgroundColor: 'rgba(244, 244, 245, 0.65)',
+              backgroundColor: 'rgba(255, 255, 255, 0.55)',
               padding: '14px 16px',
               borderRadius: 14,
-              borderLeft: '3px solid #25D366',
+              borderLeft: '3px solid rgba(23, 132, 155, 0.85)',
             }}>
               “Finally, an agency that moves fast. Weekly optimization calls, real-time Slack access, and they actually challenge our assumptions instead of just executing orders.”
             </p>
@@ -1305,17 +1269,17 @@ export default function Page() {
           </div>
 
           {/* Card 2: Marcus Brody */}
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.88)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 24,
-            border: '1px solid rgba(0, 0, 0, 0.08)',
+          <div className="flinza-glass-card" style={{
+            background: 'linear-gradient(150deg, rgba(255,255,255,0.72) 0%, rgba(240,250,252,0.5) 45%, rgba(224,242,246,0.42) 100%)',
+            backdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
+            borderRadius: 28,
+            border: '1px solid rgba(255, 255, 255, 0.75)',
             padding: '28px 24px',
             display: 'flex',
             flexDirection: 'column',
             gap: 20,
-            boxShadow: '0 18px 42px -12px rgba(0, 0, 0, 0.06)',
+            boxShadow: '0 24px 60px -18px rgba(14, 124, 147, 0.18), inset 0 1.5px 2px rgba(255,255,255,0.9), inset 0 -12px 28px rgba(23,132,155,0.06)',
             boxSizing: 'border-box',
           }}>
             {/* Header: User Info + Stars */}
@@ -1360,10 +1324,10 @@ export default function Page() {
               color: '#3f3f46',
               fontStyle: 'italic',
               margin: 0,
-              backgroundColor: 'rgba(244, 244, 245, 0.65)',
+              backgroundColor: 'rgba(255, 255, 255, 0.55)',
               padding: '14px 16px',
               borderRadius: 14,
-              borderLeft: '3px solid #25D366',
+              borderLeft: '3px solid rgba(23, 132, 155, 0.85)',
             }}>
               “Not order takers. They pushed back on our creative direction, tested their hypothesis, and proved us wrong. Revenue up 89% in 12 weeks.”
             </p>
@@ -1385,17 +1349,17 @@ export default function Page() {
           </div>
 
           {/* Card 3: Elena Rostova */}
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.88)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 24,
-            border: '1px solid rgba(0, 0, 0, 0.08)',
+          <div className="flinza-glass-card" style={{
+            background: 'linear-gradient(150deg, rgba(255,255,255,0.72) 0%, rgba(240,250,252,0.5) 45%, rgba(224,242,246,0.42) 100%)',
+            backdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
+            borderRadius: 28,
+            border: '1px solid rgba(255, 255, 255, 0.75)',
             padding: '28px 24px',
             display: 'flex',
             flexDirection: 'column',
             gap: 20,
-            boxShadow: '0 18px 42px -12px rgba(0, 0, 0, 0.06)',
+            boxShadow: '0 24px 60px -18px rgba(14, 124, 147, 0.18), inset 0 1.5px 2px rgba(255,255,255,0.9), inset 0 -12px 28px rgba(23,132,155,0.06)',
             boxSizing: 'border-box',
           }}>
             {/* Header: User Info + Stars */}
@@ -1440,10 +1404,10 @@ export default function Page() {
               color: '#3f3f46',
               fontStyle: 'italic',
               margin: 0,
-              backgroundColor: 'rgba(244, 244, 245, 0.65)',
+              backgroundColor: 'rgba(255, 255, 255, 0.55)',
               padding: '14px 16px',
               borderRadius: 14,
-              borderLeft: '3px solid #25D366',
+              borderLeft: '3px solid rgba(23, 132, 155, 0.85)',
             }}>
               “We burned $40K on pretty ads that didn't convert. These guys tested 30 angles in two weeks and found our winner. ROAS went from 1.8x to 4.2x.”
             </p>
@@ -1609,7 +1573,7 @@ export default function Page() {
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          zIndex: 1,
+          zIndex: 30,
         }}
       >
         <p style={{
@@ -1629,13 +1593,19 @@ export default function Page() {
           cardEmailSize={28}
           buttonBGColorDefault="rgb(255,255,255)"
           buttonColorDefault="rgb(9,9,11)"
-          buttonHoverBGColorHover="rgb(9,9,11)"
-          buttonHoverColorHover="rgb(255,255,255)"
+          buttonHoverBGColorHover="rgb(224,242,246)"
+          buttonHoverColorHover="rgb(9,9,11)"
+          iconDefaultIconColor="rgb(9,9,11)"
+          iconHoverIconColor="rgb(14,124,147)"
+          buttonHoverBorder={{ borderColor: 'rgb(23,132,155)', borderStyle: 'solid', borderWidth: 1 }}
         />
       </section>
 
       {/* ════════════════════════════════════════════════════════════
            FOOTER — Dark Liquid Glass Rounded Container on Website Background
+      ════════════════════════════════════════════════════════════ */}
+      {/* ════════════════════════════════════════════════════════════
+           FOOTER — Transparent: slim content row over DiaFooter gradient glow
       ════════════════════════════════════════════════════════════ */}
       <footer
         id="contact"
@@ -1644,200 +1614,82 @@ export default function Page() {
         style={{
           width: '100%',
           position: 'relative',
-          padding: '40px 24px 80px',
-          boxSizing: 'border-box',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
           backgroundColor: 'transparent',
           zIndex: 2,
+          marginTop: 10,
         }}
       >
-        {/* Dark Liquid Glass Card Container matching reference */}
+        {/* Slim transparent content row */}
         <div
           style={{
-            width: '100%',
             maxWidth: 1360,
-            borderRadius: 44,
-            background: 'linear-gradient(158deg, rgba(40, 43, 54, 0.42) 0%, rgba(18, 20, 27, 0.5) 46%, rgba(10, 11, 16, 0.58) 100%)',
-            backdropFilter: 'blur(44px) saturate(190%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(44px) saturate(190%) brightness(1.04)',
-            border: '1px solid rgba(255, 255, 255, 0.16)',
-            boxShadow: '0 40px 120px -30px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3), inset 0 -1px 1px rgba(0, 0, 0, 0.35)',
-            padding: '72px 56px 48px',
+            margin: '0 auto',
+            padding: '0 28px',
             boxSizing: 'border-box',
             display: 'flex',
-            flexDirection: 'column',
             justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            flexWrap: 'wrap',
+            gap: '28px 48px',
             position: 'relative',
-            overflow: 'hidden',
+            zIndex: 3,
           }}
         >
-          {/* Subtle Optical Refraction Sheen at Top Edge */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: '10%',
-              right: '10%',
-              height: 1,
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%)',
-              pointerEvents: 'none',
-            }}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <img src="/images/flinza_logo_hd.png" alt="" width={40} height={40} style={{ display: 'block' }} />
+              <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.03em', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
+                Flinza Works
+              </span>
+            </div>
+            <span style={{ fontSize: 13.5, color: '#71717a', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              We test. We scale. We grow. Repeat.
+            </span>
+          </div>
+
+          <nav aria-label="Footer navigation" style={{ display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap' }}>
+            {[
+              { label: 'Work', href: '#stories' },
+              { label: 'Services', href: '#services' },
+              { label: 'Voices', href: '#testimonials' },
+              { label: 'FAQ', href: '#faq' },
+              { label: 'Careers', href: '/careers' },
+              { label: 'Contact', href: '/contact' },
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                style={{ fontSize: 14, fontWeight: 600, color: '#52525b', textDecoration: 'none', letterSpacing: '-0.01em', transition: 'color 0.2s ease' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#0E7C93'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#52525b'; }}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <div style={{ fontSize: 12.5, color: '#a1a1aa', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            © {new Date().getFullYear()} Flinza Works · hello@flinzaworks.com
+          </div>
+        </div>
+
+        {/* DiaFooter — animated gradient glow rising from the bottom edge */}
+        <div style={{ height: 320, position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
+          <DiaFooter
+            preset="Custom"
+            mode="Bars"
+            bars={11}
+            overlap={26}
+            peak={0.96}
+            valley={0.42}
+            blur={22}
+            intensity={105}
+            opacity={0.95}
+            colors={['#EAF7F9', '#9ADCE8', '#56C1D3', '#2E93AC', '#17849B', '#0A3E4C']}
+            reveal="scroll"
+            ariaLabel="Flinza gradient glow"
+            style={{ width: '100%', height: '100%' }}
           />
-
-          {/* Top Section: Headline on Left, Editorial Body on Right */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              flexWrap: 'wrap',
-              gap: 36,
-              width: '100%',
-              marginBottom: 20,
-            }}
-          >
-            {/* Left Headline */}
-            <h2
-              style={{
-                fontSize: 'clamp(34px, 4.8vw, 60px)',
-                fontWeight: 700,
-                letterSpacing: '-0.04em',
-                lineHeight: 1.06,
-                color: '#ffffff',
-                margin: 0,
-                maxWidth: 580,
-                fontFamily: "'Nohemi', sans-serif",
-              }}
-            >
-              We Test. We Scale. We Grow.
-            </h2>
-
-            {/* Right Paragraph */}
-            <p
-              style={{
-                fontSize: 'clamp(14px, 1.2vw, 16px)',
-                fontWeight: 400,
-                lineHeight: 1.68,
-                color: 'rgba(255, 255, 255, 0.68)',
-                margin: 0,
-                maxWidth: 480,
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-              }}
-            >
-              Flinza Works is a data-driven ecommerce growth agency. We audit your funnel, test creative on 48-hour cycles, and scale what actually converts — so every dollar moves profit, not just revenue.
-            </p>
-          </div>
-
-          {/* Center Section: Clothesline Gallery */}
-          <div
-            style={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '30px 0 30px',
-              overflow: 'visible',
-            }}
-          >
-            <div
-              style={{
-                width: '100%',
-                maxWidth: 1288,
-                height: 501,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                transform: 'scale(min(1, calc((100vw - 160px) / 1288)))',
-                transformOrigin: 'center center',
-              }}
-            >
-              <ClotheslineGallery
-                style={{
-                  width: 1288,
-                  height: 501,
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Bottom Section: Slogan on Left, Nav Links on Right */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              flexWrap: 'wrap',
-              gap: 28,
-              width: '100%',
-              paddingTop: 16,
-            }}
-          >
-            {/* Left Slogan */}
-            <div
-              style={{
-                fontSize: 'clamp(15px, 1.4vw, 17px)',
-                fontWeight: 600,
-                lineHeight: 1.35,
-                color: '#ffffff',
-                fontFamily: "'Nohemi', sans-serif",
-                letterSpacing: '-0.02em',
-              }}
-            >
-              <div>
-                We Test.{' '}
-                <span style={{ color: 'rgba(255, 255, 255, 0.4)' }}>We Scale.</span>
-              </div>
-              <div>
-                We Grow.{' '}
-                <span style={{ color: 'rgba(255, 255, 255, 0.4)' }}>Repeat.</span>
-              </div>
-            </div>
-
-            {/* Right Nav Links */}
-            <nav
-              aria-label="Footer navigation"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 40,
-                flexWrap: 'wrap',
-              }}
-            >
-              {[
-                { label: 'Home', href: '#hero' },
-                { label: 'Work', href: '#stories' },
-                { label: 'About', href: '#services' },
-                { label: 'Careers', href: '/careers' },
-                { label: 'Contact', href: '/contact' },
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  style={{
-                    fontSize: 14.5,
-                    fontWeight: 500,
-                    color: 'rgba(255, 255, 255, 0.65)',
-                    textDecoration: 'none',
-                    letterSpacing: '-0.01em',
-                    transition: 'color 0.2s ease, transform 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#ffffff';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = 'rgba(255, 255, 255, 0.65)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-          </div>
         </div>
       </footer>
     </main>

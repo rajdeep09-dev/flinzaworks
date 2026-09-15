@@ -58,6 +58,40 @@ export default function FlipperRow3({ cards = [], id, className, style }) {
           height: 100% !important;
           transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
+        /* Readability: deeper bottom scrim + text shadow on expanded copy */
+        .flipper3-item .framer-1nx3bq {
+          background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(4, 8, 12, 0.78) 100%) !important;
+        }
+        .flipper3-item .framer-12m30f5,
+        .flipper3-item .framer-82idcm {
+          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+        }
+        /* Mini cards inside expanded tile: dark liquid glass */
+        .flipper3-item .framer-hfp146,
+        .flipper3-item .framer-ucarym {
+          background: rgba(10, 14, 20, 0.6) !important;
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          backdrop-filter: blur(14px) saturate(160%);
+          -webkit-backdrop-filter: blur(14px) saturate(160%);
+          box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.5);
+          overflow: hidden;
+        }
+        @keyframes flinzaMiniIn {
+          from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.94);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        .flipper3-item .framer-s9jRj.framer-v-utodvr .framer-hfp146 {
+          animation: flinzaMiniIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+        }
+        .flipper3-item .framer-s9jRj.framer-v-utodvr .framer-ucarym {
+          animation: flinzaMiniIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
         @media (max-width: 860px) {
           .flipper3-row {
             flex-direction: column !important;

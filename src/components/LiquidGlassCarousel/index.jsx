@@ -403,256 +403,101 @@ return /*#__PURE__*/_jsxs("div",{style:{...style,position:"relative",width:"100%
     ]
   }),
 
-  /* Focused State: Left Information - Written Directly on Background (No Box / No Canvas) */
+  /* Focused State: Left — minimal editorial */
   /*#__PURE__*/_jsxs("div",{
     style:{
       position:"absolute",
       left:"max(28px, 4vw)",
       top:"50%",
       transform:focused?"translateY(-50%)":"translateY(-45%)",
-      width:"min(380px, 29vw)",
-      maxWidth:"calc(50vw - 260px)",
+      width:"min(400px, 32vw)",
+      maxWidth:"calc(50vw - 240px)",
       zIndex:15,
       opacity:focused?1:0,
       pointerEvents:focused?"auto":"none",
-      transition:"opacity .6s cubic-bezier(0.16, 1, 0.3, 1), transform .6s cubic-bezier(0.16, 1, 0.3, 1)",
+      transition:"opacity .7s cubic-bezier(0.16, 1, 0.3, 1), transform .7s cubic-bezier(0.16, 1, 0.3, 1)",
       boxSizing:"border-box",
       background:"transparent",
       padding:0,
     },
     children:[
-      /* Project Number Prominently on Background */
-      /*#__PURE__*/_jsxs("div",{style:{
-        display:"flex",
-        alignItems:"baseline",
-        gap:12,
-        marginBottom:14,
-      },children:[
-        /*#__PURE__*/_jsx("span",{style:{
-          fontSize:38,
-          fontWeight:800,
-          letterSpacing:"-0.04em",
-          color:"#09090b",
-          lineHeight:1,
-        },children:String(active+1).padStart(2,"0")}),
-        /*#__PURE__*/_jsxs("div",{style:{display:"flex",flexDirection:"column",gap:2},children:[
-          /*#__PURE__*/_jsxs("span",{style:{
-            fontSize:11.5,
-            fontWeight:750,
-            letterSpacing:"0.12em",
-            color:"#4f46e5",
-            textTransform:"uppercase",
-          },children:["PROJECT ",String(active+1).padStart(2,"0")," / ",String(Math.max(projects.length,5)).padStart(2,"0")]}),
-          /*#__PURE__*/_jsx("span",{style:{
-            fontSize:10.5,
-            fontWeight:600,
-            letterSpacing:"0.06em",
-            color:"#71717a",
-            textTransform:"uppercase",
-          },children:caseStudy.tag.split("//")[1]?.trim() || "ENTERPRISE INTELLIGENCE"})
-        ]})
+      /* Micro index row */
+      /*#__PURE__*/_jsxs("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:24},children:[
+        /*#__PURE__*/_jsx("span",{style:{fontSize:12,fontWeight:700,letterSpacing:"0.28em",color:"#0E7C93",fontVariantNumeric:"tabular-nums"},children:String(active+1).padStart(2,"0")}),
+        /*#__PURE__*/_jsx("span",{style:{width:28,height:1,background:"rgba(9,9,11,0.18)"}}),
+        /*#__PURE__*/_jsx("span",{style:{fontSize:10.5,fontWeight:600,letterSpacing:"0.18em",color:"#a1a1aa",textTransform:"uppercase"},children:caseStudy.tag.split("//")[1]?.trim() || "Case Study"})
       ]}),
 
-      /* Heading Directly on Background */
+      /* Title */
       /*#__PURE__*/_jsx("h2",{style:{
-        fontSize:30,
-        fontWeight:800,
-        letterSpacing:"-0.03em",
-        color:"#09090b",
-        lineHeight:1.12,
-        margin:"0 0 12px 0",
-      },children:"What We Did"}),
-
-      /* Paragraph Description Directly on Background */
-      /*#__PURE__*/_jsx("p",{style:{
-        fontSize:14,
-        lineHeight:1.65,
-        color:"#3f3f46",
-        margin:"0 0 22px 0",
-        fontWeight:400,
-      },children:caseStudy.whatWeDid}),
-
-      /* Deliverables Label */
-      /*#__PURE__*/_jsx("div",{style:{
-        fontSize:11,
+        fontSize:34,
         fontWeight:750,
-        letterSpacing:"0.12em",
-        color:"#71717a",
-        textTransform:"uppercase",
-        marginBottom:12,
-      },children:"DELIVERABLES"}),
+        letterSpacing:"-0.035em",
+        color:"#09090b",
+        lineHeight:1.14,
+        margin:"0 0 16px 0",
+      },children:caseStudy.title}),
 
-      /* Deliverables List Directly on Background */
-      /*#__PURE__*/_jsx("div",{style:{display:"flex",flexDirection:"column",gap:10},children:
-        caseStudy.deliverables.map((item,i)=>/*#__PURE__*/_jsxs("div",{key:i,style:{display:"flex",alignItems:"flex-start",gap:10,fontSize:13,color:"#18181b",fontWeight:500,lineHeight:1.45},children:[
-          /*#__PURE__*/_jsx("span",{style:{width:7,height:7,borderRadius:"50%",background:"linear-gradient(135deg, #06b6d4, #6366f1)",marginTop:6,flexShrink:0,boxShadow:"0 0 8px rgba(6,182,212,0.6)"}}),
-          /*#__PURE__*/_jsx("span",{children:item})
-        ]}))
-      }),
-
-      /* Stack Badges */
-      /*#__PURE__*/_jsx("div",{style:{display:"flex",flexWrap:"wrap",gap:7,marginTop:24,paddingTop:16,borderTop:"1px solid rgba(0,0,0,0.08)"},children:
-        caseStudy.stack.map((tech,i)=>/*#__PURE__*/_jsx("span",{key:i,style:{
-          padding:"4px 10px",
-          borderRadius:6,
-          background:"rgba(0,0,0,0.04)",
-          border:"1px solid rgba(0,0,0,0.06)",
-          fontSize:11.5,
-          color:"#3f3f46",
-          fontWeight:600,
-        },children:tech}))
-      })
+      /* Description */
+      /*#__PURE__*/_jsx("p",{style:{
+        fontSize:14.5,
+        lineHeight:1.7,
+        color:"#52525b",
+        margin:0,
+        fontWeight:400,
+        maxWidth:360,
+      },children:caseStudy.whatWeDid})
     ]
   }),
 
-  /* Focused State: Right Information - Written Directly on Background with Liquid Glass Graph */
+  /* Focused State: Right — minimal impact */
   /*#__PURE__*/_jsxs("div",{
     style:{
       position:"absolute",
       right:"max(28px, 4vw)",
       top:"50%",
       transform:focused?"translateY(-50%)":"translateY(-45%)",
-      width:"min(380px, 29vw)",
-      maxWidth:"calc(50vw - 260px)",
+      width:"min(400px, 32vw)",
+      maxWidth:"calc(50vw - 240px)",
       zIndex:15,
       opacity:focused?1:0,
       pointerEvents:focused?"auto":"none",
-      transition:"opacity .6s cubic-bezier(0.16, 1, 0.3, 1), transform .6s cubic-bezier(0.16, 1, 0.3, 1)",
+      transition:"opacity .7s cubic-bezier(0.16, 1, 0.3, 1), transform .7s cubic-bezier(0.16, 1, 0.3, 1)",
       boxSizing:"border-box",
       background:"transparent",
       padding:0,
+      textAlign:"right",
     },
     children:[
-      /* Verified Impact & Live Benchmark directly on BG */
-      /*#__PURE__*/_jsxs("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10},children:[
-        /*#__PURE__*/_jsx("div",{style:{
-          fontSize:11,
-          fontWeight:750,
-          letterSpacing:"0.12em",
-          color:"#0891b2",
-          textTransform:"uppercase",
-        },children:"VERIFIED IMPACT"}),
-        /*#__PURE__*/_jsxs("div",{style:{display:"flex",alignItems:"center",gap:6,fontSize:11,fontWeight:600,color:"#10b981"},children:[
-          /*#__PURE__*/_jsx("span",{style:{width:7,height:7,borderRadius:"50%",background:"#10b981",boxShadow:"0 0 8px rgba(16,185,129,0.7)",animation:"pulse 2s infinite"}}),
-          "Live Benchmark"
+      /* Verified Impact micro label */
+      /*#__PURE__*/_jsx("div",{style:{fontSize:10.5,fontWeight:600,letterSpacing:"0.24em",color:"#a1a1aa",textTransform:"uppercase",marginBottom:16},children:"Verified Impact"}),
+
+      /* Primary metric */
+      /*#__PURE__*/_jsx("div",{style:{fontSize:64,fontWeight:800,letterSpacing:"-0.05em",color:"#09090b",lineHeight:0.92,fontVariantNumeric:"tabular-nums"},children:caseStudy.results.primary}),
+
+      /* Primary label */
+      /*#__PURE__*/_jsx("div",{style:{fontSize:12.5,fontWeight:500,color:"#71717a",marginTop:10,marginBottom:30,letterSpacing:"0.01em"},children:caseStudy.results.primaryLabel}),
+
+      /* Minimal sparkline */
+      /*#__PURE__*/_jsxs("svg",{width:180,height:44,viewBox:"0 0 260 60",preserveAspectRatio:"none",style:{overflow:"visible",display:"block",marginLeft:"auto",marginBottom:30},children:[
+        /*#__PURE__*/_jsx("path",{d:caseStudy.results.sparkline,fill:"none",stroke:"#17849B",strokeWidth:1.5,strokeLinecap:"round",strokeLinejoin:"round",vectorEffect:"non-scaling-stroke"}),
+        /*#__PURE__*/_jsx("circle",{cx:260,cy:3,r:3,fill:"#17849B"})
+      ]}),
+
+      /* Secondary metrics — bare row */
+      /*#__PURE__*/_jsxs("div",{style:{display:"flex",justifyContent:"flex-end",gap:38,marginBottom:28},children:[
+        /*#__PURE__*/_jsxs("div",{style:{textAlign:"right"},children:[
+          /*#__PURE__*/_jsx("div",{style:{fontSize:22,fontWeight:750,letterSpacing:"-0.03em",color:"#09090b",fontVariantNumeric:"tabular-nums"},children:caseStudy.results.metricA}),
+          /*#__PURE__*/_jsx("div",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"#a1a1aa",textTransform:"uppercase",marginTop:6},children:caseStudy.results.metricALabel})
+        ]}),
+        /*#__PURE__*/_jsxs("div",{style:{textAlign:"right"},children:[
+          /*#__PURE__*/_jsx("div",{style:{fontSize:22,fontWeight:750,letterSpacing:"-0.03em",color:"#09090b",fontVariantNumeric:"tabular-nums"},children:caseStudy.results.metricB}),
+          /*#__PURE__*/_jsx("div",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.1em",color:"#a1a1aa",textTransform:"uppercase",marginTop:6},children:caseStudy.results.metricBLabel})
         ]})
       ]}),
 
-      /* Big Impact Metric Directly on Background */
-      /*#__PURE__*/_jsx("div",{style:{
-        fontSize:46,
-        fontWeight:850,
-        letterSpacing:"-0.04em",
-        background:"linear-gradient(135deg, #09090b 40%, #4f46e5 100%)",
-        WebkitBackgroundClip:"text",
-        WebkitTextFillColor:"transparent",
-        lineHeight:1.05,
-      },children:caseStudy.results.primary}),
-
-      /* Impact Label Directly on Background */
-      /*#__PURE__*/_jsx("div",{style:{
-        fontSize:12.5,
-        fontWeight:650,
-        color:"#52525b",
-        textTransform:"uppercase",
-        letterSpacing:"0.06em",
-        marginTop:4,
-        marginBottom:18,
-      },children:caseStudy.results.primaryLabel}),
-
-      /* Liquid Glass Graph Card with Optical Refraction */
-      /*#__PURE__*/_jsxs("div",{
-        style:{
-          position:"relative",
-          borderRadius:20,
-          padding:"16px 18px",
-          background:"linear-gradient(135deg, rgba(255, 255, 255, 0.38) 0%, rgba(246, 248, 252, 0.18) 100%)",
-          backdropFilter:"blur(24px) saturate(190%)",
-          WebkitBackdropFilter:"blur(24px) saturate(190%)",
-          border:"1px solid rgba(255, 255, 255, 0.65)",
-          boxShadow:"0 20px 45px -15px rgba(0,0,0,0.07), inset 0 1px 2px rgba(255,255,255,0.95), inset 0 -1px 2px rgba(0,0,0,0.04)",
-          overflow:"hidden",
-        },
-        children:[
-          /* Optical Refraction Specular Sheen */
-          /*#__PURE__*/_jsx("div",{style:{
-            position:"absolute",
-            top:0,
-            left:0,
-            right:0,
-            height:"45%",
-            background:"linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%)",
-            pointerEvents:"none",
-          }}),
-
-          /* Chart Header */
-          /*#__PURE__*/_jsxs("div",{style:{position:"relative",zIndex:2,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8},children:[
-            /*#__PURE__*/_jsx("span",{style:{fontSize:11,fontWeight:750,letterSpacing:"0.06em",color:"#52525b",textTransform:"uppercase"},children:"LATENCY DEVIATION"}),
-            /*#__PURE__*/_jsx("span",{style:{fontSize:11,fontWeight:750,color:"#06b6d4"},children:"0.02ms Jitter"})
-          ]}),
-
-          /* Liquid Wave Sparkline */
-          /*#__PURE__*/_jsxs("svg",{width:"100%",height:64,viewBox:"0 0 260 60",preserveAspectRatio:"none",style:{overflow:"visible",position:"relative",zIndex:2},children:[
-            /*#__PURE__*/_jsxs("defs",{children:[
-              /*#__PURE__*/_jsxs("linearGradient",{id:"liquidChartGrad",x1:"0",y1:"0",x2:"0",y2:"1",children:[
-                /*#__PURE__*/_jsx("stop",{offset:"0%",stopColor:"#06b6d4",stopOpacity:0.45}),
-                /*#__PURE__*/_jsx("stop",{offset:"100%",stopColor:"#8b5cf6",stopOpacity:0.02})
-              ]}),
-              /*#__PURE__*/_jsxs("linearGradient",{id:"chartStroke",x1:"0",y1:"0",x2:"1",y2:"0",children:[
-                /*#__PURE__*/_jsx("stop",{offset:"0%",stopColor:"#06b6d4"}),
-                /*#__PURE__*/_jsx("stop",{offset:"100%",stopColor:"#6366f1"})
-              ]})
-            ]}),
-            /*#__PURE__*/_jsx("path",{d:`${caseStudy.results.sparkline} L260,60 L0,60 Z`,fill:"url(#liquidChartGrad)"}),
-            /*#__PURE__*/_jsx("path",{d:caseStudy.results.sparkline,fill:"none",stroke:"url(#chartStroke)",strokeWidth:2.5,strokeLinecap:"round"}),
-            /*#__PURE__*/_jsx("circle",{cx:260,cy:3,r:4.5,fill:"#06b6d4",stroke:"#ffffff",strokeWidth:1.5}),
-            /*#__PURE__*/_jsx("circle",{cx:260,cy:3,r:8,fill:"#06b6d4",opacity:0.3})
-          ]}),
-
-          /* Pipeline Efficiency Bar */
-          /*#__PURE__*/_jsxs("div",{style:{position:"relative",zIndex:2,marginTop:10},children:[
-            /*#__PURE__*/_jsxs("div",{style:{display:"flex",justifyContent:"space-between",fontSize:11,fontWeight:650,color:"#52525b",marginBottom:5},children:[
-              /*#__PURE__*/_jsx("span",{children:"PIPELINE EFFICIENCY"}),
-              /*#__PURE__*/_jsxs("span",{style:{color:"#4f46e5",fontWeight:750},children:[caseStudy.results.efficiency,"%"]})
-            ]}),
-            /*#__PURE__*/_jsx("div",{style:{height:6,borderRadius:999,background:"rgba(0,0,0,0.06)",overflow:"hidden"},children:
-              /*#__PURE__*/_jsx("div",{style:{height:"100%",width:`${caseStudy.results.efficiency}%`,borderRadius:999,background:"linear-gradient(90deg, #06b6d4, #6366f1)",boxShadow:"0 0 10px rgba(6,182,212,0.5)"}})
-            })
-          ]})
-        ]
-      }),
-
-      /* Liquid Glass Metrics Floating Below */
-      /*#__PURE__*/_jsxs("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:12},children:[
-        /*#__PURE__*/_jsxs("div",{style:{
-          position:"relative",
-          padding:"11px 14px",
-          borderRadius:16,
-          background:"linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(246, 248, 252, 0.18) 100%)",
-          backdropFilter:"blur(20px) saturate(180%)",
-          WebkitBackdropFilter:"blur(20px) saturate(180%)",
-          border:"1px solid rgba(255, 255, 255, 0.65)",
-          boxShadow:"0 10px 24px -10px rgba(0,0,0,0.05), inset 0 1px 1.5px rgba(255,255,255,0.9)",
-          overflow:"hidden",
-        },children:[
-          /*#__PURE__*/_jsx("div",{style:{fontSize:20,fontWeight:800,letterSpacing:"-0.03em",color:"#09090b"},children:caseStudy.results.metricA}),
-          /*#__PURE__*/_jsx("div",{style:{fontSize:11,color:"#52525b",marginTop:2,fontWeight:550},children:caseStudy.results.metricALabel})
-        ]}),
-        /*#__PURE__*/_jsxs("div",{style:{
-          position:"relative",
-          padding:"11px 14px",
-          borderRadius:16,
-          background:"linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(246, 248, 252, 0.18) 100%)",
-          backdropFilter:"blur(20px) saturate(180%)",
-          WebkitBackdropFilter:"blur(20px) saturate(180%)",
-          border:"1px solid rgba(255, 255, 255, 0.65)",
-          boxShadow:"0 10px 24px -10px rgba(0,0,0,0.05), inset 0 1px 1.5px rgba(255,255,255,0.9)",
-          overflow:"hidden",
-        },children:[
-          /*#__PURE__*/_jsx("div",{style:{fontSize:20,fontWeight:800,letterSpacing:"-0.03em",color:"#09090b"},children:caseStudy.results.metricB}),
-          /*#__PURE__*/_jsx("div",{style:{fontSize:11,color:"#52525b",marginTop:2,fontWeight:550},children:caseStudy.results.metricBLabel})
-        ]})
-      ]})
+      /* Stack — single muted line */
+      /*#__PURE__*/_jsx("div",{style:{fontSize:11.5,fontWeight:500,color:"#71717a",letterSpacing:"0.02em",borderTop:"1px solid rgba(9,9,11,0.08)",paddingTop:16},children:caseStudy.stack.join("   ·   ")})
     ]
   })]});}LiquidGlassCarousel.defaultProps={projects:[{brand:"Project One",description:"Digital experience"},{brand:"Project Two",description:"Interactive campaign"},{brand:"Project Three",description:"Brand platform"},{brand:"Project Four",description:"Product launch"},{brand:"Project Five",description:"Editorial story"}],panelHeight:450,gap:12,glide:.075,wheelSensitivity:1,snap:true,snapDistance:60,snapDelay:120,speedShrink:60,lensShape:"circle",lensRotation:65,lensWidth:.565,lensHeight:1,lensX:.5,lensY:.5,dispersion:11,zoom:0,blur:0,glow:4.2,blueRing:6,blueColor:"#009dff",shimmer:true,rimWave:.6,entryAnimation:true,focusScale:1.18,background:"#ffffff",foreground:"#000000",showLabels:true,showCursor:true,font:{fontFamily:"Inter, sans-serif",fontSize:16,fontWeight:400,lineHeight:"1.25em"},pixelRatio:2};addPropertyControls(LiquidGlassCarousel,{projects:{type:ControlType.Array,title:"Projects",maxCount:20,control:{type:ControlType.Object,controls:{image:{type:ControlType.ResponsiveImage,title:"Image"},brand:{type:ControlType.String,title:"Brand",defaultValue:"Project"},description:{type:ControlType.String,title:"Description",defaultValue:"Digital experience"}}}},panelHeight:{type:ControlType.Number,title:"Panel Height",min:80,max:700,step:1,unit:"px"},gap:{type:ControlType.Number,title:"Gap",min:0,max:120,step:1,unit:"px"},glide:{type:ControlType.Number,title:"Glide",min:.02,max:.2,step:.005},wheelSensitivity:{type:ControlType.Number,title:"Wheel",min:.2,max:3,step:.05},snap:{type:ControlType.Boolean,title:"Snap"},snapDistance:{type:ControlType.Number,title:"Snap Distance",min:10,max:200,step:5,hidden:props=>!props.snap},snapDelay:{type:ControlType.Number,title:"Snap Delay",min:0,max:500,step:10,unit:"ms",hidden:props=>!props.snap},speedShrink:{type:ControlType.Number,title:"Speed Shrink",min:10,max:160,step:1},lensShape:{type:ControlType.Enum,title:"Lens Shape",options:["circle","square"],optionTitles:["Circle","Rectangle"],displaySegmentedControl:true},lensRotation:{type:ControlType.Number,title:"Lens Rotation",min:-180,max:180,step:1,unit:"\xb0"},lensWidth:{type:ControlType.Number,title:"Lens Width",min:.03,max:1.2,step:.005},lensHeight:{type:ControlType.Number,title:"Lens Height",min:.03,max:1.2,step:.005},lensX:{type:ControlType.Number,title:"Lens X",min:0,max:1,step:.005},lensY:{type:ControlType.Number,title:"Lens Y",min:0,max:1,step:.005},dispersion:{type:ControlType.Number,title:"Dispersion",min:0,max:120,step:1},zoom:{type:ControlType.Number,title:"Refraction",min:0,max:2,step:.01},blur:{type:ControlType.Number,title:"Lens Blur",min:0,max:20,step:.1},glow:{type:ControlType.Number,title:"Glow",min:0,max:40,step:.1},blueRing:{type:ControlType.Number,title:"Blue Ring",min:0,max:12,step:.05},blueColor:{type:ControlType.Color,title:"Blue Color"},shimmer:{type:ControlType.Boolean,title:"Shimmer"},rimWave:{type:ControlType.Number,title:"Rim Wave",min:0,max:.8,step:.001},entryAnimation:{type:ControlType.Boolean,title:"Entry"},focusScale:{type:ControlType.Number,title:"Focus Scale",min:1,max:1.8,step:.01},background:{type:ControlType.Color,title:"Background"},foreground:{type:ControlType.Color,title:"Text"},showLabels:{type:ControlType.Boolean,title:"Labels"},showCursor:{type:ControlType.Boolean,title:"View Cursor"},font:{type:ControlType.Font,title:"Typography",controls:"extended",defaultFontType:"sans-serif",displayTextAlignment:false},pixelRatio:{type:ControlType.Number,title:"Pixel Ratio",min:1,max:100,step:.25,description:"Made by [@luxarma](https://luxarma.fr)"}});
 export const __FramerMetadata__ = {"exports":{"default":{"type":"reactComponent","name":"LiquidGlassCarousel","slots":[],"annotations":{"framerContractVersion":"1"}},"__FramerMetadata__":{"type":"variable"}}}
