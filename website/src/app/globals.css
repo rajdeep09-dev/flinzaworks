@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Fallback local fonts ── */
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@keyframes flinzaPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.55; }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+}
+
+/* Default 75% zoom on desktop (Chrome/Edge/Safari) so the site opens zoomed out */
+@media (min-width: 1024px) {
+  html {
+    zoom: 0.75;
+  }
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #ffffff;
+  color: #09090b;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Nohemi', 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+p, span, a, button, input, textarea, select, label {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#__next,
+main {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Hand-drawn section doodles: brand ink, draw-in animation, desktop only ── */
+@keyframes flinzaDraw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes flinzaInk {
+  to { opacity: 1; }
+}
+
+.flinza-doodle {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .flinza-doodle {
+    display: flex;
+  }
+  .flinza-doodle path {
+    stroke: #7C3AED !important;
+    stroke-dasharray: 540;
+    stroke-dashoffset: 540;
+    animation: flinzaDraw 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation-delay: var(--doodle-delay, 0s);
+  }
+  .flinza-doodle text {
+    fill: #6D28D9 !important;
+    opacity: 0;
+    animation: flinzaInk 0.7s ease forwards;
+    animation-delay: var(--doodle-delay, 0s);
+  }
+}
+
+/* Side doodles only fit in the outer margin on very wide screens — hide otherwise so they never clip */
+@media (min-width: 1280px) and (max-width: 1699px) {
+  .flinza-doodle-side {
+    display: none;
+  }
+}
+@media (min-width: 1700px) {
+  .flinza-doodle-side {
+    display: flex;
+  }
+}

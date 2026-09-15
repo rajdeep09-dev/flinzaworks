@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["../src/components/*"],
+      "@/components": ["../src/components/index.js"],
+      "framer": ["../src/lib/framer/index.js"],
+      "@/*": ["./src/*"]
+    },
+    "jsx": "preserve"
+  },
+  "include": ["**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules"]
+}
