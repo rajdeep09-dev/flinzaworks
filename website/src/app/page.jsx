@@ -164,6 +164,8 @@ function useInView() {
 export default function Page() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [loaderRemoved, setLoaderRemoved] = useState(false);
+  const [loaderExited, setLoaderExited] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [camoDismissed, setCamoDismissed] = useState(false);
 
@@ -393,6 +395,23 @@ export default function Page() {
     },
   ];
 
+  // Preload carousel imagery so the hero never reveals blank panels.
+  useEffect(() => {
+    let cancelled = false;
+    const urls = carouselProjects.map((p) => p.image?.src).filter(Boolean);
+    let pending = urls.length;
+    if (pending === 0) { setAssetsReady(true); return; }
+    const done = () => { if (cancelled) return; pending -= 1; if (pending <= 0) setAssetsReady(true); };
+    urls.forEach((src) => { const img = new Image(); img.onload = done; img.onerror = done; img.src = src; });
+    const safety = setTimeout(() => { if (!cancelled) setAssetsReady(true); }, 6000);
+    return () => { cancelled = true; clearTimeout(safety); };
+  }, []);
+
+  // Reveal the site only once the loader has exited AND carousel images are ready.
+  useEffect(() => {
+    if (loaderExited && assetsReady) setIsLoaded(true);
+  }, [loaderExited, assetsReady]);
+
   return (
     <main style={{
       width: '100%',
@@ -411,8 +430,6 @@ export default function Page() {
           style={{
             position: 'fixed',
             inset: 0,
-            width: '100vw',
-            height: '100vh',
             zIndex: 9999,
             pointerEvents: isLoaded ? 'none' : 'auto',
             opacity: isLoaded ? 0 : 1,
@@ -426,8 +443,8 @@ export default function Page() {
             counterDuration={1.8}
             textColor="#09090b"
             background="#ffffff"
-            style={{ width: '100vw', height: '100vh' }}
-            onStartExit={() => setIsLoaded(true)}
+            style={{ width: '100%', height: '100%' }}
+            onStartExit={() => setLoaderExited(true)}
             onComplete={() => {
               setTimeout(() => setLoaderRemoved(true), 850);
             }}
@@ -443,8 +460,6 @@ export default function Page() {
           inset: 0,
           zIndex: 0,
           pointerEvents: 'none',
-          width: '100vw',
-          height: '100vh',
           overflow: 'hidden',
         }}
       >
@@ -501,8 +516,8 @@ export default function Page() {
       <section
         id="hero"
         style={{
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '133.333vh',
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: 'transparent',
@@ -550,8 +565,8 @@ export default function Page() {
           }}
           pixelRatio={1.35}
           style={{
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
             background: 'transparent',
           }}
         />
@@ -605,7 +620,7 @@ export default function Page() {
               textColor="rgb(255,255,255)"
               camoDark="rgb(10,62,76)"
               camoMid="rgb(23,132,155)"
-              camoLight="rgb(127,209,222)"
+              camoLight="rgb(46,147,172)"
               borderGlowA="rgb(127,209,222)"
               borderGlowB="rgb(46,147,172)"
             />
@@ -769,14 +784,10 @@ export default function Page() {
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing right into the grid */}
+              {/* Solid black arrowhead pointing right into the grid */}
               <path
-                d="M 208 244 L 228 256 L 206 268"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
+                d="M 205 241 L 233 256 L 203 271 Z"
+                fill="#09090b"
               />
             </svg>
           </div>
@@ -812,14 +823,10 @@ export default function Page() {
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing down into the square card */}
+              {/* Solid black arrowhead pointing down into the square card */}
               <path
-                d="M 80 224 L 90 238 L 100 224"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
+                d="M 78 221 L 90 240 L 102 221 Z"
+                fill="#09090b"
               />
             </svg>
           </div>
@@ -855,14 +862,10 @@ export default function Page() {
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing left into the grid */}
+              {/* Solid black arrowhead pointing left into the grid */}
               <path
-                d="M 38 250 L 16 262 L 38 276"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
+                d="M 40 248 L 14 262 L 40 278 Z"
+                fill="#09090b"
               />
             </svg>
           </div>
@@ -898,14 +901,10 @@ export default function Page() {
                 strokeLinejoin="round"
                 fill="none"
               />
-              {/* Arrowhead pointing up-right */}
+              {/* Solid black arrowhead pointing up-right */}
               <path
-                d="M 330 36 L 348 28 L 346 50"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
+                d="M 328 38 L 352 24 L 348 52 Z"
+                fill="#09090b"
               />
             </svg>
           </div>
@@ -1033,18 +1032,18 @@ export default function Page() {
             padding: '6px 16px',
             borderRadius: 999,
             backgroundColor: 'rgba(255, 255, 255, 0.75)',
-            border: '1px solid rgba(124, 58, 237, 0.25)',
+            border: '1px solid rgba(23, 132, 155, 0.25)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(124, 58, 237, 0.08)',
+            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.08)',
             marginBottom: 20,
           }}>
             <span style={{
               width: 6,
               height: 6,
               borderRadius: '50%',
-              backgroundColor: '#7C3AED',
-              boxShadow: '0 0 8px #7C3AED',
+              backgroundColor: '#17849B',
+              boxShadow: '0 0 8px #17849B',
             }} />
             <span style={{
               fontSize: 12,
@@ -1457,13 +1456,13 @@ export default function Page() {
             padding: '6px 18px',
             borderRadius: 999,
             background: 'rgba(255,255,255,0.72)',
-            border: '1px solid rgba(124,58,237,0.22)',
+            border: '1px solid rgba(23,132,155,0.22)',
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
-            boxShadow: '0 4px 20px rgba(124,58,237,0.08)',
+            boxShadow: '0 4px 20px rgba(23,132,155,0.08)',
             marginBottom: 20,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#7C3AED', boxShadow: '0 0 8px #7C3AED' }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#17849B', boxShadow: '0 0 8px #17849B' }} />
             <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#4b5563' }}>
               FAQ • Everything You Need to Know
             </span>
@@ -1476,7 +1475,7 @@ export default function Page() {
             color: '#09090b',
             margin: '0 0 18px',
           }}>Your Questions,{' '}
-            <span style={{ background: 'linear-gradient(135deg,#7C3AED,#06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span style={{ background: 'linear-gradient(120deg, #9ADCE8 0%, #3FB9CE 45%, #0E7C93 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Answered
             </span>
           </h2>

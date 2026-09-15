@@ -237,6 +237,9 @@ function CvDropzone({ file, setFile }) {
 }
 
 function ApplyBox({ role, onClose }) {
+  const isGeneral = !role || role.general;
+  const [selectedId, setSelectedId] = useState(isGeneral ? '' : role.id);
+  const activeRole = isGeneral ? roles.find((r) => r.id === selectedId) || null : role;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [link, setLink] = useState('');
@@ -245,9 +248,17 @@ function ApplyBox({ role, onClose }) {
   const [submitted, setSubmitted] = useState(false);
 
   const submit = (e) => {
-    e.preventDefault();
-    if (!name.trim() || !email.trim() || !cv) {
-      setError('Add your name, email, and CV so we can actually reply to you.');
+    if (e) e.preventDefault();
+    if (!name.trim()) {
+      setError('Tell us your name so we know who we’re replying to.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Add a valid email address — that’s how we’ll reach you.');
+      return;
+    }
+    if (!cv) {
+      setError('Attach your CV or resume (PDF or DOC) so we can review it.');
       return;
     }
     setError('');
@@ -267,8 +278,22 @@ function ApplyBox({ role, onClose }) {
     outline: 'none',
   };
 
+  const selectStyle = {
+    ...fieldStyle,
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    cursor: 'pointer',
+    backgroundImage:
+      "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none'><path d='M6 9l6 6 6-6' stroke='%230E7C93' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 14px center',
+    paddingRight: 40,
+    fontWeight: 600,
+  };
+
   return (
     <div
+      className="flinza-apply-backdrop"
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -284,6 +309,7 @@ function ApplyBox({ role, onClose }) {
       }}
     >
       <div
+        className="flinza-apply-card"
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
@@ -302,21 +328,27 @@ function ApplyBox({ role, onClose }) {
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-              {[role.team, role.type].map((chip) => (
+              {(activeRole ? [activeRole.team, activeRole.type] : ['Spontaneous', 'Remote']).map((chip) => (
                 <span key={chip} style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#0E7C93', background: 'rgba(23,132,155,0.1)', border: '1px solid rgba(23,132,155,0.25)', borderRadius: 999, padding: '4px 12px' }}>
                   {chip}
                 </span>
               ))}
             </div>
             <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 6px', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
-              {role.title}
+              {activeRole ? activeRole.title : 'General application'}
             </h3>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: '#52525b', fontWeight: 600 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><PinIcon />{role.location}</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#0E7C93' }}><CashIcon />{role.salary}</span>
-            </div>
+            {activeRole ? (
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: '#52525b', fontWeight: 600 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><PinIcon />{activeRole.location}</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#0E7C93' }}><CashIcon />{activeRole.salary}</span>
+              </div>
+            ) : (
+              <p style={{ fontSize: 13.5, color: '#52525b', lineHeight: 1.55, margin: 0 }}>
+                Pick the role that fits you best — or apply spontaneously and tell us where you move the needle.
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -330,44 +362,65 @@ function ApplyBox({ role, onClose }) {
 
         {submitted ? (
           <div style={{ padding: '48px 12px', textAlign: 'center' }}>
-            <div style={{ fontSize: 40, marginBottom: 14 }}>✓</div>
+            <div style={{ width: 64, height: 64, margin: '0 auto 18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #56C1D3, #0E7C93)', boxShadow: '0 18px 40px -14px rgba(14,124,147,0.6)' }}>
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12.5l4.2 4.2L19 7" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
             <h4 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 10px', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
               Application received
             </h4>
             <p style={{ fontSize: 14.5, color: '#52525b', lineHeight: 1.6, margin: 0 }}>
-              Thanks {name.split(' ')[0]} — we read every application ourselves. Expect a reply within 3 business days.
+              Thanks {name.trim().split(' ')[0]} — we read every application ourselves. Expect a reply within 3 business days.
             </p>
           </div>
         ) : (
           <>
+            {/* Role picker — general applications */}
+            {isGeneral && (
+              <div style={{ margin: '22px 0 4px' }}>
+                <label htmlFor="apply-role" style={{ display: 'block', fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 8 }}>
+                  Which role are you applying for?
+                </label>
+                <select id="apply-role" style={selectStyle} value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
+                  <option value="">Spontaneous / other</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>{r.title} · {r.team}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Role detail */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 22, margin: '22px 0 26px' }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 10 }}>What you&apos;ll do</div>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {role.do.map((item) => (
-                    <li key={item} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: '#3f3f46' }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #56C1D3, #17849B)', marginTop: 6, flexShrink: 0 }} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+            {activeRole && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 22, margin: '22px 0 26px' }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 10 }}>What you&apos;ll do</div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {activeRole.do.map((item) => (
+                      <li key={item} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: '#3f3f46' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #56C1D3, #17849B)', marginTop: 6, flexShrink: 0 }} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 10 }}>What we&apos;re looking for</div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {activeRole.need.map((item) => (
+                      <li key={item} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: '#3f3f46' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #56C1D3, #17849B)', marginTop: 6, flexShrink: 0 }} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#71717a', marginBottom: 10 }}>What we&apos;re looking for</div>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {role.need.map((item) => (
-                    <li key={item} style={{ display: 'flex', gap: 8, fontSize: 13.5, lineHeight: 1.5, color: '#3f3f46' }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'linear-gradient(135deg, #56C1D3, #17849B)', marginTop: 6, flexShrink: 0 }} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            )}
 
             {/* Application form */}
-            <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: isGeneral && !activeRole ? 22 : 0 }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
                 <input style={fieldStyle} placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
                 <input style={fieldStyle} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -377,18 +430,17 @@ function ApplyBox({ role, onClose }) {
               {error && (
                 <p style={{ margin: 0, fontSize: 13, color: '#b91c1c', fontWeight: 600 }}>{error}</p>
               )}
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }} onClick={(e) => e.preventDefault()}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}>
                 <div style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }}>
                   <div onClick={submit}>
                     <CamoLiquidButton
                       label="Submit Application"
-                      link="#apply"
                       showDots={false}
                       dotsAnimate={false}
                       textColor="rgb(255,255,255)"
                       camoDark="rgb(10,62,76)"
                       camoMid="rgb(23,132,155)"
-                      camoLight="rgb(127,209,222)"
+                      camoLight="rgb(46,147,172)"
                       borderGlowA="rgb(127,209,222)"
                       borderGlowB="rgb(46,147,172)"
                     />
@@ -429,6 +481,16 @@ export default function CareersPage() {
           -webkit-line-clamp: unset;
           overflow: visible;
         }
+        @keyframes flinzaBackdropIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes flinzaModalIn {
+          from { opacity: 0; transform: translateY(18px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .flinza-apply-backdrop { animation: flinzaBackdropIn 0.3s ease both; }
+        .flinza-apply-card { animation: flinzaModalIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
       `}</style>
 
       {/* ── Header ── */}
@@ -520,7 +582,7 @@ export default function CareersPage() {
         <p style={{ fontSize: 14.5, color: '#71717a', margin: 0, maxWidth: 460, lineHeight: 1.6 }}>
           Don&apos;t see your role? Send us something that proves you can move a number — we read everything.
         </p>
-        <div style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }} onClick={() => setOpenRole(roles[0])}>
+        <div style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }} onClick={() => setOpenRole({ general: true })}>
           <CamoLiquidButton
             label="Apply Now"
             link="#apply"
@@ -529,7 +591,7 @@ export default function CareersPage() {
             textColor="rgb(255,255,255)"
             camoDark="rgb(10,62,76)"
             camoMid="rgb(23,132,155)"
-            camoLight="rgb(127,209,222)"
+            camoLight="rgb(46,147,172)"
             borderGlowA="rgb(127,209,222)"
             borderGlowB="rgb(46,147,172)"
           />

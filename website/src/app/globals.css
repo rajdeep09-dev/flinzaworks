@@ -47,6 +47,7 @@
 html {
   scroll-behavior: smooth;
   text-size-adjust: 100%;
+  zoom: 0.75;
 }
 
 html,
