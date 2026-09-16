@@ -218,7 +218,7 @@ import{jsx as _jsx,jsxs as _jsxs}from"react/jsx-runtime";import*as React from"re
                 gl_Position = vec4(position.xy, 0.0, 1.0);
             }
         `,fragmentShader});const lensQuad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),lensMaterial);lensScene.add(lensQuad);/* Warm-up: compile both shaders + allocate the RT before the entry animation starts, so frame 1 of the reveal is never a janky compile frame. */try{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(lensScene,lensCamera);}catch(err){}const entryEnabled=cfg().entryAnimation&&!staticMode;const focusState={active:false,sourceIndex:-1,poolIndex:-1,lensFx:entryEnabled?0:1,animation:null};const drop=new Array(pool.length).fill(0);const entry=new Array(pool.length).fill(entryEnabled?0:1);const grow=new Array(pool.length).fill(entryEnabled?0:1);const lastCenterX=new Array(pool.length);let focusScale=1;let entryActive=entryEnabled;let entrySettled=false;let entryTimeline=null;let panelRects=[];let centeredPanel=null;function layout(){panelRects=[];centeredPanel=null;let centeredDistance=Infinity;const half=W/2;const currentPanelHeight=panelHeightPx();const currentGap=gapPx();const buffer=currentPanelHeight;pool.forEach((item,poolIndex)=>{const repeat=Math.floor(poolIndex/sources.length);const sourceIndex=item.sourceIndex;const source=sources[sourceIndex];const centerInLoop=offsets[sourceIndex]+slotWidth(sourceIndex)/2-currentGap/2;let x=centerInLoop-scroll;x=(x%totalWidth+totalWidth)%totalWidth;x+=(repeat-Math.floor(REPEATS/2))*totalWidth;if(x>half+totalWidth){x-=totalWidth*REPEATS;}const centerX=x;const inEntry=entryActive||entrySettled;if(!inEntry&&(centerX<-half-buffer||centerX>half+buffer)){item.mesh.visible=false;lastCenterX[poolIndex]=undefined;return;}lastCenterX[poolIndex]=centerX;const shrink=1-.25*scrollEnergy;const height=currentPanelHeight*shrink;const width=source.aspect*currentPanelHeight*shrink;if(source.texture&&!item.bound){item.material.map=source.texture;item.material.color.set(16777215);item.material.needsUpdate=true;item.bound=true;}let y=0;let drawWidth=width;let drawHeight=height;const isFocused=focusState.active&&focusState.poolIndex===poolIndex;if(isFocused){drawWidth*=focusScale;drawHeight*=focusScale;}else if(drop[poolIndex]>0){y=-drop[poolIndex]*H*1.4;}let finalX=centerX;let finalY=y;let finalWidth=drawWidth;let finalHeight=drawHeight;if(inEntry){const p=entry[poolIndex];const g=grow[poolIndex];const entryMin=Math.min(80,currentPanelHeight*.35);const currentHeight=entryMin+(drawHeight-entryMin)*g;finalHeight=currentHeight;finalWidth=currentHeight*source.aspect;const centeredSource=centerSourceIndex(scroll);let distanceIndex=sourceIndex-centeredSource;if(distanceIndex>sources.length/2){distanceIndex-=sources.length;}if(distanceIndex<-sources.length/2){distanceIndex+=sources.length;}const middleRepeat=Math.floor(REPEATS/2);if(repeat!==middleRepeat){item.mesh.visible=false;lastCenterX[poolIndex]=undefined;return;}const currentSlotHeight=s=>entryMin+(currentPanelHeight-entryMin)*grow[middleRepeat*sources.length+s];let offset=0;if(distanceIndex>0){for(let k=0;k<distanceIndex;k++){const a=(centeredSource+k)%sources.length;const b=(centeredSource+k+1)%sources.length;offset+=(sources[a].aspect*currentSlotHeight(a)+sources[b].aspect*currentSlotHeight(b))/2+currentGap;}}else if(distanceIndex<0){for(let k=0;k<-distanceIndex;k++){const a=((centeredSource-k)%sources.length+sources.length)%sources.length;const b=((centeredSource-k-1)%sources.length+sources.length)%sources.length;offset-=(sources[a].aspect*currentSlotHeight(a)+sources[b].aspect*currentSlotHeight(b))/2+currentGap;}}finalX=offset;const below=-H*.9;finalY=below+(y-below)*p;}item.mesh.visible=true;item.mesh.position.set(finalX,finalY,0);item.mesh.scale.set(finalWidth,finalHeight,1);const screenX=centerX+W/2;const screenY=H/2-y;panelRects.push({left:screenX-drawWidth/2,right:screenX+drawWidth/2,top:screenY-drawHeight/2,bottom:screenY+drawHeight/2,poolIndex,sourceIndex,centerX});if(Math.abs(centerX)<centeredDistance){centeredDistance=Math.abs(centerX);centeredPanel={sourceIndex,poolIndex,centerX};}});}function panelAt(x,y){return panelRects.find(rect=>x>=rect.left&&x<=rect.right&&y>=rect.top&&y<=rect.bottom)||null;}const canvas=renderer.domElement;if(cursorElement){gsap.set(cursorElement,{xPercent:20,yPercent:30,scale:0,autoAlpha:0});}const moveX=cursorElement?gsap.quickTo(cursorElement,"x",{duration:.5,ease:"power3.out"}):null;const moveY=cursorElement?gsap.quickTo(cursorElement,"y",{duration:.5,ease:"power3.out"}):null;let overPanel=false;function setView(visible){if(entryActive||entrySettled){visible=false;}canvas.style.cursor=visible?"pointer":"";if(visible===overPanel||!cursorElement){return;}overPanel=visible;gsap.to(cursorElement,{scale:visible?1:0,autoAlpha:visible?1:0,duration:visible?.35:.25,ease:visible?"power3.out":"power3.in"});}function localPointer(event){const rect=canvas.getBoundingClientRect();const scaleX=rect.width&&W?rect.width/W:1;const scaleY=rect.height&&H?rect.height/H:1;return{x:(event.clientX-rect.left)/(scaleX||1),y:(event.clientY-rect.top)/(scaleY||1)};}let dragPointerId=null;let dragOriginX=0;let dragOriginTarget=0;let dragMoved=false;let suppressClick=false;function onWheel(event){event.preventDefault();if(focusState.active||entryActive||entrySettled){return;}userInteracted=true;pendingFocus=null;target+=(event.deltaY||event.deltaX)*cfg().wheelSensitivity;lastWheelAt=performance.now();snapArmed=true;}function onPointerDown(event){if(focusState.active||entryActive||entrySettled){return;}if(event.pointerType==="mouse"&&event.button!==0){return;}dragPointerId=event.pointerId;dragOriginX=event.clientX;dragOriginTarget=target;dragMoved=false;userInteracted=true;pendingFocus=null;try{canvas.setPointerCapture&&canvas.setPointerCapture(event.pointerId);}catch(e){}}function onPointerMove(event){const point=localPointer(event);if(moveX)moveX(point.x);if(moveY)moveY(point.y);if(dragPointerId===event.pointerId){const dx=event.clientX-dragOriginX;if(Math.abs(dx)>6){dragMoved=true;}target=dragOriginTarget-dx*cfg().wheelSensitivity;lastWheelAt=performance.now();snapArmed=true;setView(false);return;}if(focusState.active){return setView(false);}if(event.pointerType==="mouse"){setView(panelAt(point.x,point.y)!==null);}}function onPointerUp(event){if(dragPointerId!==event.pointerId)return;try{canvas.releasePointerCapture&&canvas.releasePointerCapture(event.pointerId);}catch(e){}dragPointerId=null;if(dragMoved){suppressClick=true;lastWheelAt=performance.now();snapArmed=true;}}function onPointerLeave(){if(dragPointerId!==null)return;setView(false);}function onClick(event){if(suppressClick){suppressClick=false;return;}if(focusState.active||entryActive||entrySettled){return;}const point=localPointer(event);const hit=panelAt(point.x,point.y);if(!hit)return;if(centeredPanel&&hit.poolIndex===centeredPanel.poolIndex){openFocus();return;}userInteracted=true;target=centerForIndex(nearestIndex(scroll+hit.centerX));pendingFocus={sourceIndex:hit.sourceIndex};setView(false);}function openFocus(){if(focusState.active||!centeredPanel){return;}focusState.active=true;focusState.sourceIndex=centeredPanel.sourceIndex;focusState.poolIndex=centeredPanel.poolIndex;target=centerForIndex(nearestIndex(scroll));const focusX=lastCenterX[focusState.poolIndex]||0;const others=pool.map((_,index)=>({index,x:lastCenterX[index]})).filter(item=>item.index!==focusState.poolIndex&&item.x!==undefined).map(item=>({...item,distance:Math.abs(item.x-focusX)})).sort((a,b)=>a.distance-b.distance);let rank=0;let previousDistance=-1;const ranked=others.map(item=>{if(previousDistance>=0&&item.distance-previousDistance>1){rank++;}previousDistance=item.distance;return{index:item.index,rank};});focusState.animation?.kill();const timeline=gsap.timeline();timeline.to(focusState,{lensFx:0,duration:.85,ease:"power3.out"},0);const scaleState={value:focusScale};timeline.to(scaleState,{value:cfg().focusScale,duration:.9,ease:"power3.out",onUpdate:()=>focusScale=scaleState.value},0);ranked.forEach(item=>{timeline.to(drop,{[item.index]:1,duration:.7,ease:"power4.out"},item.rank*.06);});focusState.animation=timeline;setView(false);onFocusChange(true);}function closeFocus(){if(!focusState.active)return;focusState.animation?.kill();onFocusChange(false);const focusX=lastCenterX[focusState.poolIndex]||0;const others=pool.map((_,index)=>({index,x:lastCenterX[index]})).filter(item=>item.x!==undefined&&(drop[item.index]||0)>0).map(item=>({...item,distance:Math.abs(item.x-focusX)})).sort((a,b)=>b.distance-a.distance);const timeline=gsap.timeline({onComplete:()=>{focusState.active=false;focusState.sourceIndex=-1;}});timeline.to(focusState,{lensFx:1,duration:.68,ease:"power3.inOut"},0);const scaleState={value:focusScale};timeline.to(scaleState,{value:1,duration:.76,ease:"power3.out",onUpdate:()=>focusScale=scaleState.value},0);others.forEach((item,index)=>{timeline.to(drop,{[item.index]:0,duration:.6,ease:"power4.out"},index*.035);});focusState.animation=timeline;}function playEntry(){if(!entryEnabled){onEntryDone(true);return;}entryTimeline?.kill();entry.fill(0);grow.fill(0);entryActive=true;entrySettled=false;focusState.lensFx=0;onEntryDone(false);target=centerForIndex(nearestIndex(scroll));scroll=target;layout();const visible=lastCenterX.map((x,index)=>x===undefined?-1:index).filter(index=>index>=0);const timeline=gsap.timeline({delay:.02});const spread=.04*Math.max(visible.length-1,1);let lastRiseEnd=0;visible.forEach(index=>{const at=Math.random()*spread;lastRiseEnd=Math.max(lastRiseEnd,at+.55);timeline.to(entry,{[index]:1,duration:.55,ease:"power2.out"},at);});timeline.call(()=>{entryActive=false;entrySettled=true;},undefined,lastRiseEnd);const center=centerSourceIndex(scroll);const middleRepeat=Math.floor(REPEATS/2);const growList=[];let maxRank=0;for(let i=0;i<sources.length;i++){let distance=i-center;if(distance>sources.length/2){distance-=sources.length;}if(distance<-sources.length/2){distance+=sources.length;}const distanceRank=Math.abs(distance);maxRank=Math.max(maxRank,distanceRank);growList.push({index:middleRepeat*sources.length+i,distanceRank});}const growStart=lastRiseEnd+.04;let growEnd=growStart;timeline.to(focusState,{lensFx:1,duration:.75,ease:"power2.out"},growStart);growList.forEach(item=>{const rank=maxRank-item.distanceRank;const at=growStart+rank*.04;growEnd=Math.max(growEnd,at+1.0);timeline.to(grow,{[item.index]:1,duration:1.0,ease:"expo.out"},at);});timeline.call(()=>{entrySettled=false;grow.fill(1);onEntryDone(true);},undefined,growEnd);entryTimeline=timeline;entryTimeline.eventCallback("onComplete",function(){if(viewportObserver&&ioTarget&&!viewportObserverCoversViewport()){activeRaf=0;paused=true;}});}canvas.addEventListener("wheel",onWheel,{passive:false});canvas.addEventListener("pointerdown",onPointerDown);canvas.addEventListener("pointermove",onPointerMove);canvas.addEventListener("pointerup",onPointerUp);canvas.addEventListener("pointercancel",onPointerUp);canvas.addEventListener("pointerleave",onPointerLeave);canvas.addEventListener("click",onClick);let paused=false;let activeRaf=0;let _offscreen=false;let frameParity=0;function tick(){if(paused){activeRaf=0;return;}const isIdle=!focusState.active&&!entryActive&&!entrySettled&&Math.abs(target-scroll)<0.05&&performance.now()-lastWheelAt>700;if(isIdle){frameParity=(frameParity+1)%2;if(frameParity!==0){activeRaf=requestAnimationFrame(tick);return;}}renderFrame();activeRaf=requestAnimationFrame(tick);}if(staticMode){renderFrame();}else{activeRaf=requestAnimationFrame(tick);}function renderFrame(){const values=cfg();const isTransparent=values.background==="transparent"||Boolean(values.transparent);if(isTransparent){renderer.setClearColor(0,0);}else{renderer.setClearColor(new THREE.Color(values.background),1);}if(values.snap&&snapArmed&&!focusState.active&&Math.abs(target-scroll)<values.snapDistance&&performance.now()-lastWheelAt>values.snapDelay){target=centerForIndex(nearestIndex(target));snapArmed=false;}scroll+=(target-scroll)*values.glide;const centerIndex=centerSourceIndex(scroll);if(centerIndex!==lastCenter){lastCenter=centerIndex;onActiveChange(centerIndex);}const speed=scroll-previousScroll;previousScroll=scroll;const normalized=Math.min(1,Math.abs(speed)/Math.max(1,values.speedShrink));const energyEase=normalized>scrollEnergy?.25:.06;scrollEnergy+=(normalized-scrollEnergy)*energyEase;layout();if(pendingFocus&&!focusState.active&&Math.abs(target-scroll)<.5){const pending=pendingFocus;pendingFocus=null;if(centeredPanel&&centeredPanel.sourceIndex===pending.sourceIndex){openFocus();}}lensUniforms.uCenter.value.set(values.lensX,values.lensY);lensUniforms.uSizeX.value=values.lensWidth;lensUniforms.uSizeY.value=values.lensHeight;lensUniforms.uShape.value=values.lensShape==="square"?1:0;lensUniforms.uRotation.value=values.lensRotation*Math.PI/180;lensUniforms.uAspect.value=W/H;lensUniforms.uTime.value=performance.now()*.001;lensUniforms.uBlur.value=values.blur;lensUniforms.uGlow.value=values.glow;lensUniforms.uShimmer.value=values.shimmer?1:0;lensUniforms.uBlueColor.value.set(values.blueColor);const fx=focusState.lensFx;lensUniforms.uDispersion.value=values.dispersion*fx;lensUniforms.uBlueRing.value=values.blueRing*fx;lensUniforms.uRimLine.value=1.4*fx;lensUniforms.uZoom.value=values.zoom*fx;lensUniforms.uRimTangential.value=values.rimWave*fx;renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(lensScene,lensCamera);}if(cfg().startEntry!==false){playEntry();}function onResize(){W=Math.max(1,mount.clientWidth);H=Math.max(1,mount.clientHeight);renderer.setSize(W,H);camera.left=-W/2;camera.right=W/2;camera.top=H/2;camera.bottom=-H/2;camera.updateProjectionMatrix();rt.setSize(W*dpr,H*dpr);lensUniforms.uRes.value.set(W*dpr,H*dpr);recomputeTotal();if(staticMode){renderFrame();}}const resizeObserver=new ResizeObserver(onResize);resizeObserver.observe(mount);function setPaused(next){if(staticMode)return;if(next){paused=true;activeRaf=0;return;}const was=paused;paused=false;if(was&&activeRaf===0){activeRaf=requestAnimationFrame(tick);}}let ioTarget=null;let viewportObserver=null;function observeVisibility(node){if(typeof IntersectionObserver!=="function"||!node)return;ioTarget=node;viewportObserver=new IntersectionObserver(function(entries){if(entries[0].isIntersecting){_offscreen=false;setPaused(false);}else{_offscreen=true;setPaused(true);}},{rootMargin:"160px"});viewportObserver.observe(node);}
-observeVisibility(mount);function destroy(){try{cancelAnimationFrame(activeRaf);if(viewportObserver){viewportObserver.disconnect();viewportObserver=null;}resizeObserver.disconnect();canvas.removeEventListener("wheel",onWheel);canvas.removeEventListener("pointerdown",onPointerDown);canvas.removeEventListener("pointermove",onPointerMove);canvas.removeEventListener("pointerup",onPointerUp);canvas.removeEventListener("pointercancel",onPointerUp);canvas.removeEventListener("pointerleave",onPointerLeave);canvas.removeEventListener("click",onClick);focusState.animation?.kill();entryTimeline?.kill();if(cursorElement){gsap.killTweensOf(cursorElement);}renderer.dispose();rt.dispose();lensQuad.geometry.dispose();lensMaterial.dispose();pool.forEach(item=>{item.mesh.geometry.dispose();item.material.dispose();});sources.forEach(source=>source.texture?.dispose());renderer.domElement.remove();}catch(error){console.error("LiquidGlassCarousel cleanup failed",error);}}return{closeFocus,destroy,playEntry,setPaused,get offscreen(){return _offscreen;}};}export default function LiquidGlassCarousel(props){const{projects,background,foreground,showLabels,showCounter=true,showCursor,font,style}=props;const mountRef=React.useRef(null);const cursorRef=React.useRef(null);const engineRef=React.useRef(null);const propsRef=React.useRef(props);propsRef.current=props;const staticMode=useIsStaticRenderer();const[active,setActive]=React.useState(0);const[focused,setFocused]=React.useState(false);const[entryDone,setEntryDone]=React.useState(!props.entryAnimation);React.useEffect(()=>{if(props.startEntry&&engineRef.current){engineRef.current.playEntry();}},[props.startEntry]);React.useEffect(()=>{if(!engineRef.current)return;if(focused){try{engineRef.current.setPaused(false);}catch(e){}}else{try{engineRef.current.setPaused(engineRef.current.offscreen===true);}catch(e){}}},[focused]);const[canHover,setCanHover]=React.useState(()=>{if(typeof window==="undefined"||!window.matchMedia){return true;}return window.matchMedia("(hover: hover) and (pointer: fine)").matches;});const projectKey=React.useMemo(()=>projects.map(project=>`${project.image?.src||""}|${project.brand}|${project.description}`).join("::"),[projects]);React.useEffect(()=>{if(typeof window==="undefined"||!window.matchMedia){return;}const media=window.matchMedia("(hover: hover) and (pointer: fine)");const update=()=>setCanHover(media.matches);update();media.addEventListener?.("change",update);return()=>media.removeEventListener?.("change",update);},[]);const[initializationError,setInitializationError]=React.useState(null);const cursorEnabled=showCursor&&canHover;React.useEffect(()=>{if(!mountRef.current)return;setInitializationError(null);try{engineRef.current=createCarousel(mountRef.current,{projects,propsRef,cursorElement:cursorEnabled?cursorRef.current:null,staticMode,onActiveChange:setActive,onFocusChange:setFocused,onEntryDone:setEntryDone});}catch(error){console.error("LiquidGlassCarousel failed to initialize",error);engineRef.current=null;setFocused(false);setEntryDone(true);setInitializationError("The carousel could not initialize its graphics engine.");}return()=>{try{engineRef.current?.destroy();}catch(error){console.error("LiquidGlassCarousel destroy failed",error);}engineRef.current=null;};},[projectKey,cursorEnabled,staticMode,props.panelHeight,props.gap,props.entryAnimation,props.pixelRatio]);const current=projects[active]||{brand:`Project ${active+1}`,description:"Add your project image and copy"};if(initializationError){return /*#__PURE__*/_jsx("div",{role:"status",style:{...style,width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",padding:32,boxSizing:"border-box",textAlign:"center",color:foreground,background,...font},children:initializationError});}const defaultCaseStudies = [
+observeVisibility(mount);function destroy(){try{cancelAnimationFrame(activeRaf);if(viewportObserver){viewportObserver.disconnect();viewportObserver=null;}resizeObserver.disconnect();canvas.removeEventListener("wheel",onWheel);canvas.removeEventListener("pointerdown",onPointerDown);canvas.removeEventListener("pointermove",onPointerMove);canvas.removeEventListener("pointerup",onPointerUp);canvas.removeEventListener("pointercancel",onPointerUp);canvas.removeEventListener("pointerleave",onPointerLeave);canvas.removeEventListener("click",onClick);focusState.animation?.kill();entryTimeline?.kill();if(cursorElement){gsap.killTweensOf(cursorElement);}renderer.dispose();rt.dispose();lensQuad.geometry.dispose();lensMaterial.dispose();pool.forEach(item=>{item.mesh.geometry.dispose();item.material.dispose();});sources.forEach(source=>source.texture?.dispose());renderer.domElement.remove();}catch(error){console.error("LiquidGlassCarousel cleanup failed",error);}}return{closeFocus,destroy,playEntry,setPaused,get offscreen(){return _offscreen;}};}export default function LiquidGlassCarousel(props){const{projects,background,foreground,showLabels,showCounter=true,showCursor,font,style}=props;const mountRef=React.useRef(null);const cursorRef=React.useRef(null);const engineRef=React.useRef(null);const propsRef=React.useRef(props);propsRef.current=props;const staticMode=useIsStaticRenderer();const[active,setActive]=React.useState(0);const[focused,setFocused]=React.useState(false);const[entryDone,setEntryDone]=React.useState(!props.entryAnimation);React.useEffect(()=>{if(props.startEntry&&engineRef.current){engineRef.current.playEntry();}},[props.startEntry]);React.useEffect(()=>{if(!engineRef.current)return;if(focused){try{engineRef.current.setPaused(false);}catch(e){}}else{try{engineRef.current.setPaused(engineRef.current.offscreen===true);}catch(e){}}},[focused]);const[canHover,setCanHover]=React.useState(()=>{if(typeof window==="undefined"||!window.matchMedia){return true;}return window.matchMedia("(hover: hover) and (pointer: fine)").matches;});const projectKey=React.useMemo(()=>projects.map(project=>`${project.image?.src||""}|${project.brand}|${project.description}`).join("::"),[projects]);React.useEffect(()=>{if(typeof window==="undefined"||!window.matchMedia){return;}const media=window.matchMedia("(hover: hover) and (pointer: fine)");const update=()=>setCanHover(media.matches);update();media.addEventListener?.("change",update);return()=>media.removeEventListener?.("change",update);},[]);const[initializationError,setInitializationError]=React.useState(null);const cursorEnabled=showCursor&&canHover;React.useEffect(()=>{if(!mountRef.current)return;setInitializationError(null);try{engineRef.current=createCarousel(mountRef.current,{projects,propsRef,cursorElement:cursorEnabled?cursorRef.current:null,staticMode,onActiveChange:setActive,onFocusChange:(next)=>{setFocused(next);try{props.onFocusChange?.(next);}catch(error){console.error("onFocusChange handler failed",error);}},onEntryDone:setEntryDone});}catch(error){console.error("LiquidGlassCarousel failed to initialize",error);engineRef.current=null;setFocused(false);setEntryDone(true);setInitializationError("The carousel could not initialize its graphics engine.");}return()=>{try{engineRef.current?.destroy();}catch(error){console.error("LiquidGlassCarousel destroy failed",error);}engineRef.current=null;};},[projectKey,cursorEnabled,staticMode,props.panelHeight,props.gap,props.entryAnimation,props.pixelRatio]);const current=projects[active]||{brand:`Project ${active+1}`,description:"Add your project image and copy"};if(initializationError){return /*#__PURE__*/_jsx("div",{role:"status",style:{...style,width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",padding:32,boxSizing:"border-box",textAlign:"center",color:foreground,background,...font},children:initializationError});}const defaultCaseStudies = [
   {
     tag: "01 // AGENT SWARMS",
     title: "Autonomous Agent Swarms",
@@ -328,6 +328,170 @@ observeVisibility(mount);function destroy(){try{cancelAnimationFrame(activeRaf);
 
 const caseStudy = current.caseStudy || defaultCaseStudies[active % defaultCaseStudies.length];
 
+
+/* ── Focused case-study overlay ──
+   One editorial layout shared by every breakpoint. The old version rendered two separate
+   radial-gradient "cards" on desktop (they read as white boxes with halos) plus a fixed
+   white sheet on mobile whose hard bottom edge cut the screen in half and painted over the
+   close button. Here the copy sits on a single full-bleed, all-side-feathered scrim with no
+   border, no radius and no interior edge — so text reads as part of the gradient. */
+function FocusedOverlay({ caseStudy, focused, compact, onClose }) {
+  if (!caseStudy) return null;
+  const results = caseStudy.results || {};
+  const overline = toPlainText(caseStudy.tag).split('//')[1]?.trim() || 'Case Study';
+  const deliverableLine = (caseStudy.deliverables || []).filter(Boolean).join('   ·   ');
+  const stackLine = (caseStudy.stack || []).join('   ·   ');
+  const metrics = [['metricA', 'metricALabel'], ['metricB', 'metricBLabel']];
+
+  return (
+    <div
+      aria-hidden={!focused}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 120,
+        opacity: focused ? 1 : 0,
+        pointerEvents: 'none',
+        transition: 'opacity .6s cubic-bezier(0.16, 1, 0.3, 1)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: compact ? 'flex-end' : 'center',
+        boxSizing: 'border-box',
+      }}
+    >
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: compact
+            ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.30) 22%, rgba(255,255,255,0.88) 58%, rgba(255,255,255,0.86) 84%, rgba(255,255,255,0.52) 100%)'
+            : 'linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.86) 25%, rgba(255,255,255,0.34) 52%, rgba(255,255,255,0) 74%)',
+        }}
+      />
+
+      <button
+        type="button"
+        aria-label="Close focused project"
+        className="flinza-focus-close"
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: compact ? 16 : 24,
+          right: compact ? 16 : 30,
+          zIndex: 2,
+          pointerEvents: focused ? 'auto' : 'none',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '9px 15px',
+          borderRadius: 999,
+          border: '1px solid rgba(9,9,11,0.12)',
+          background: 'rgba(255,255,255,0.78)',
+          color: '#09090b',
+          fontFamily: "'Nohemi', sans-serif",
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          opacity: focused ? 1 : 0,
+          transform: focused ? 'none' : 'translateY(-6px)',
+          transition: 'opacity .4s ease, transform .4s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        </svg>
+        Close
+      </button>
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          width: compact ? '100%' : 'min(560px, 46vw)',
+          padding: compact ? '0 22px 22px' : '0 0 0 max(34px, 4vw)',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: compact ? 11 : 15,
+        }}
+      >
+        <span style={{ fontFamily: "'Nohemi', sans-serif", fontSize: 10.5, fontWeight: 600, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#0E7C93' }}>
+          {overline}
+        </span>
+
+        <h2 style={{ margin: 0, fontFamily: "'Nohemi', sans-serif", fontWeight: 500, fontSize: compact ? 'clamp(27px, 8vw, 34px)' : 'clamp(34px, 3.4vw, 50px)', lineHeight: 1.05, letterSpacing: '-0.035em', color: '#09090b' }}>
+          {toPlainText(caseStudy.title)}
+        </h2>
+
+        <p style={{ margin: 0, fontSize: compact ? 14.5 : 16, lineHeight: 1.68, color: '#3f3f46', fontWeight: 400, maxWidth: compact ? undefined : 520 }}>
+          {toPlainText(caseStudy.whatWeDid)}
+        </p>
+
+        {deliverableLine ? (
+          <span style={{ fontFamily: "'Nohemi', sans-serif", fontSize: 12, fontWeight: 500, letterSpacing: '0.04em', color: '#52525b', lineHeight: 1.6 }}>
+            {deliverableLine}
+          </span>
+        ) : null}
+
+        <div
+          style={{
+            marginTop: compact ? 6 : 12,
+            paddingTop: compact ? 14 : 18,
+            borderTop: '1px solid rgba(9,9,11,0.12)',
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: compact ? 20 : 38,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span
+              style={{
+                fontFamily: "'Nohemi', sans-serif",
+                fontWeight: 200,
+                fontSize: compact ? 38 : 54,
+                lineHeight: 1,
+                letterSpacing: '-0.04em',
+                fontVariantNumeric: 'tabular-nums',
+                background: 'linear-gradient(120deg, #0A3E4C 0%, #0E7C93 48%, #3FB9CE 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+              }}
+            >
+              {results.primary}
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#52525b' }}>{results.primaryLabel}</span>
+          </div>
+
+          {metrics.map(([valueKey, labelKey]) =>
+            results[valueKey] ? (
+              <div key={valueKey} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontFamily: "'Nohemi', sans-serif", fontSize: compact ? 18 : 21, fontWeight: 500, letterSpacing: '-0.02em', color: '#09090b', fontVariantNumeric: 'tabular-nums' }}>
+                  {results[valueKey]}
+                </span>
+                <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a1a1aa' }}>
+                  {results[labelKey]}
+                </span>
+              </div>
+            ) : null
+          )}
+        </div>
+
+        {stackLine ? (
+          <span style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a1a1aa' }}>
+            {stackLine}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 const isMobile = React.useMemo(() => { if (typeof window === "undefined" || !window.matchMedia) return false; return window.matchMedia("(max-width: 860px)").matches; }, []);
 const compact = isMobile;
 const viewportLockClass = "flinza-carousel-lock";
@@ -340,7 +504,7 @@ return /*#__PURE__*/_jsxs("div",{className:viewportLockClass,style:{...style,pos
   
   showLabels && /*#__PURE__*/_jsxs("div",{style:{
     position:"absolute",
-    top:compact?14:96,
+    top:compact?74:96,
     left:"50%",
     width:"min(92vw, 560px)",
     transform:"translateX(-50%)",
@@ -376,161 +540,13 @@ return /*#__PURE__*/_jsxs("div",{className:viewportLockClass,style:{...style,pos
   cursorEnabled&&/*#__PURE__*/_jsx("div",{ref:cursorRef,style:{position:"absolute",top:0,left:0,zIndex:4,pointerEvents:"none",whiteSpace:"nowrap",mixBlendMode:"exclusion",color:"white",willChange:"transform"},children:"View"}),
 
   
-  /* Minimalist Text-Only Close Button */
-  /*#__PURE__*/_jsxs("button",{
-    type:"button",
-    "aria-label":"Close focused project",
-    className:"flinza-focus-close",
-    onClick:()=>engineRef.current?.closeFocus(),
-    style:{
-      position:"absolute",
-      top:compact?16:28,
-      right:"max(28px, 4vw)",
-      padding:"8px 14px",
-      borderRadius:6,
-      border:"none",
-      background:"transparent",
-      color:"#09090b",
-      fontSize:12,
-      fontWeight:700,
-      letterSpacing:"0.14em",
-      textTransform:"uppercase",
-      cursor:"pointer",
-      display:"flex",
-      alignItems:"center",
-      gap:8,
-      opacity:focused?1:0,
-      pointerEvents:focused?"auto":"none",
-      transform:focused?"translateY(0)":"translateY(-8px)",
-      transition:"all .25s cubic-bezier(0.16, 1, 0.3, 1)",
-    },
-    children:[
-      /*#__PURE__*/_jsx("svg",{width:11,height:11,viewBox:"0 0 14 14",fill:"none",children:/*#__PURE__*/_jsx("path",{d:"M2 2L12 12M12 2L2 12",stroke:"currentColor",strokeWidth:2.2,strokeLinecap:"round"})}),
-      /*#__PURE__*/_jsx("span",{children:"Close"})
-    ]
-  }),
-
-  /* Focused State: Left — editorial type directly on the gradient (no boxes) */
-  compact ? null : /*#__PURE__*/_jsxs("div",{
-    style:{
-      position:"absolute",
-      left:"max(28px, 4vw)",
-      top:"50%",
-      transform:focused?"translateY(-50%)":"translateY(-44%)",
-      width:"min(440px, 34vw)",
-      maxWidth:"calc(50vw - 230px)",
-      zIndex:15,
-      opacity:focused?1:0,
-      pointerEvents:"none",
-      transition:"opacity .7s cubic-bezier(0.16, 1, 0.3, 1), transform .7s cubic-bezier(0.16, 1, 0.3, 1)",
-      boxSizing:"border-box",
-      padding:"40px 36px 44px",
-      borderRadius:32,
-      background:"radial-gradient(130% 120% at 50% 18%, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.22) 52%, rgba(255,255,255,0) 82%)",
-      textShadow:"0 1px 22px rgba(255,255,255,0.9), 0 0 44px rgba(255,255,255,0.55)",
-    },
-    children:[
-      /*#__PURE__*/_jsx("div",{style:{fontSize:10.5,fontWeight:700,letterSpacing:"0.26em",color:"#0E7C93",textTransform:"uppercase",marginBottom:18},children:`Case Study — ${caseStudy.tag.split("//")[1]?.trim() || "Featured Work"}`}),
-      /*#__PURE__*/_jsx("h2",{style:{
-        margin:"0 0 20px 0",
-        fontSize:46,
-        fontWeight:300,
-        fontFamily:"'Plus Jakarta Sans','Nohemi',sans-serif",
-        letterSpacing:"-0.032em",
-        lineHeight:1.05,
-        color:"#09090b",
-      },children:caseStudy.title}),
-      /*#__PURE__*/_jsx("p",{style:{
-        margin:0,
-        fontSize:15.5,
-        lineHeight:1.75,
-        color:"#3f3f46",
-        fontWeight:400,
-      },children:caseStudy.whatWeDid}),
-      caseStudy.deliverables && caseStudy.deliverables.length > 0 && /*#__PURE__*/_jsx("div",{style:{marginTop:26,paddingTop:16,borderTop:"1px solid rgba(9,9,11,0.1)",display:"flex",flexDirection:"column",gap:9},children:caseStudy.deliverables.map((item,i)=>/*#__PURE__*/_jsxs("div",{style:{display:"flex",alignItems:"baseline",gap:10},children:[
-        /*#__PURE__*/_jsx("span",{style:{flex:"none",width:10,height:1,background:"rgba(14,124,147,0.5)"}}),
-        /*#__PURE__*/_jsx("span",{style:{fontSize:12.5,fontWeight:500,lineHeight:1.5,color:"#71717a",letterSpacing:"0.01em"},children:item})
-      ]},i))})
-    ]
-  }),
-
-  /* Focused State: Right — quiet metric column on the gradient (no boxes) */
-  compact ? null : /*#__PURE__*/_jsxs("div",{
-    style:{
-      position:"absolute",
-      right:"max(28px, 4vw)",
-      top:"50%",
-      transform:focused?"translateY(-50%)":"translateY(-44%)",
-      width:"min(360px, 29vw)",
-      maxWidth:"calc(50vw - 250px)",
-      zIndex:15,
-      opacity:focused?1:0,
-      pointerEvents:"none",
-      transition:"opacity .7s cubic-bezier(0.16, 1, 0.3, 1), transform .7s cubic-bezier(0.16, 1, 0.3, 1)",
-      boxSizing:"border-box",
-      textAlign:"right",
-      padding:"40px 36px 44px",
-      borderRadius:32,
-      background:"radial-gradient(130% 120% at 50% 18%, rgba(255,255,255,0.52) 0%, rgba(255,255,255,0.22) 52%, rgba(255,255,255,0) 82%)",
-      textShadow:"0 1px 22px rgba(255,255,255,0.9), 0 0 44px rgba(255,255,255,0.55)",
-    },
-    children:[
-      /*#__PURE__*/_jsx("div",{style:{fontSize:10.5,fontWeight:700,letterSpacing:"0.26em",color:"#a1a1aa",textTransform:"uppercase",marginBottom:20},children:"Verified Impact"}),
-      /*#__PURE__*/_jsx("div",{style:{fontSize:64,fontWeight:300,fontFamily:"'Plus Jakarta Sans','Nohemi',sans-serif",letterSpacing:"-0.04em",lineHeight:0.95,fontVariantNumeric:"tabular-nums",background:"linear-gradient(120deg, #0A3E4C 0%, #0E7C93 45%, #3FB9CE 100%)",WebkitBackgroundClip:"text",backgroundClip:"text",WebkitTextFillColor:"transparent",color:"transparent"},children:caseStudy.results.primary}),
-      /*#__PURE__*/_jsx("div",{style:{fontSize:12.5,fontWeight:500,color:"#52525b",marginTop:12,marginBottom:24,letterSpacing:"0.01em"},children:caseStudy.results.primaryLabel}),
-      /*#__PURE__*/_jsxs("svg",{width:200,height:52,viewBox:"0 0 260 60",preserveAspectRatio:"none",style:{overflow:"visible",display:"block",marginLeft:"auto",marginBottom:26},children:[
-        /*#__PURE__*/_jsxs("defs",{children:[
-          /*#__PURE__*/_jsxs("linearGradient",{id:"flinzaSparkFill",x1:"0",y1:"0",x2:"0",y2:"1",children:[
-            /*#__PURE__*/_jsx("stop",{offset:"0%",stopColor:"#3FB9CE",stopOpacity:0.32}),
-            /*#__PURE__*/_jsx("stop",{offset:"100%",stopColor:"#3FB9CE",stopOpacity:0})
-          ]}),
-          /*#__PURE__*/_jsxs("linearGradient",{id:"flinzaSparkLine",x1:"0",y1:"0",x2:"1",y2:"0",children:[
-            /*#__PURE__*/_jsx("stop",{offset:"0%",stopColor:"#0E7C93"}),
-            /*#__PURE__*/_jsx("stop",{offset:"100%",stopColor:"#3FB9CE"})
-          ]})
-        ]}),
-        /*#__PURE__*/_jsx("path",{d:`${caseStudy.results.sparkline} L260,60 L0,60 Z`,fill:"url(#flinzaSparkFill)",stroke:"none"}),
-        /*#__PURE__*/_jsx("path",{d:caseStudy.results.sparkline,fill:"none",stroke:"url(#flinzaSparkLine)",strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round",vectorEffect:"non-scaling-stroke"}),
-        /*#__PURE__*/_jsx("circle",{cx:260,cy:3,r:3.5,fill:"#3FB9CE",stroke:"#ffffff",strokeWidth:1.5})
-      ]}),
-      /*#__PURE__*/_jsxs("div",{style:{display:"flex",justifyContent:"flex-end",gap:38},children:[
-        /*#__PURE__*/_jsxs("div",{style:{textAlign:"right"},children:[
-          /*#__PURE__*/_jsx("div",{style:{fontSize:24,fontWeight:400,letterSpacing:"-0.02em",color:"#09090b",fontVariantNumeric:"tabular-nums"},children:caseStudy.results.metricA}),
-          /*#__PURE__*/_jsx("div",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.12em",color:"#a1a1aa",textTransform:"uppercase",marginTop:5},children:caseStudy.results.metricALabel})
-        ]}),
-        /*#__PURE__*/_jsxs("div",{style:{textAlign:"right"},children:[
-          /*#__PURE__*/_jsx("div",{style:{fontSize:24,fontWeight:400,letterSpacing:"-0.02em",color:"#09090b",fontVariantNumeric:"tabular-nums"},children:caseStudy.results.metricB}),
-          /*#__PURE__*/_jsx("div",{style:{fontSize:10,fontWeight:600,letterSpacing:"0.12em",color:"#a1a1aa",textTransform:"uppercase",marginTop:5},children:caseStudy.results.metricBLabel})
-        ]})
-      ]}),
-      /*#__PURE__*/_jsx("div",{style:{marginTop:26,fontSize:10.5,fontWeight:600,letterSpacing:"0.1em",color:"#a1a1aa",textTransform:"uppercase"},children:caseStudy.stack.join("  ·  ")})
-    ]
-  }),
-
-  /* Focused State: Mobile — compact chrome-free overlay, stacked on the gradient */
-  compact && caseStudy ? /*#__PURE__*/_jsxs("div",{style:{position:"absolute",left:20,right:20,top:"5svh",zIndex:110,opacity:focused?1:0,pointerEvents:"none",transition:"opacity .55s cubic-bezier(0.16, 1, 0.3, 1)",display:"flex",flexDirection:"column",gap:12,boxSizing:"border-box",textShadow:"0 1px 20px rgba(255,255,255,0.92), 0 0 40px rgba(255,255,255,0.7)"},children:[
-    /*#__PURE__*/_jsx("div",{style:{position:"absolute",inset:"-40px -20px",zIndex:0,pointerEvents:"none",opacity:focused?1:0,transition:"opacity .55s cubic-bezier(0.16, 1, 0.3, 1)",background:"linear-gradient(180deg, rgba(251,252,253,0.96) 0%, rgba(251,252,253,0.93) 52%, rgba(251,252,253,0.6) 72%, rgba(251,252,253,0.15) 90%, rgba(251,252,253,0) 100%)",backdropFilter:focused?"blur(18px) saturate(140%)":"none",WebkitBackdropFilter:focused?"blur(18px) saturate(140%)":"none"}}),
-    /*#__PURE__*/_jsxs("div",{style:{position:"relative",zIndex:1,display:"flex",flexDirection:"column",gap:12},children:[
-    /*#__PURE__*/_jsxs("div",{style:{display:"flex",alignItems:"center",gap:10},children:[
-      /*#__PURE__*/_jsx("span",{className:tagChipCls,style:{fontSize:11,fontWeight:800,letterSpacing:"0.14em",color:"#ffffff",fontVariantNumeric:"tabular-nums",padding:"4px 10px",borderRadius:999,background:"linear-gradient(120deg, #3FB9CE 0%, #0E7C93 100%)",boxShadow:"0 6px 14px -6px rgba(14,124,147,0.7)"},children:String(active+1).padStart(2,"0")}),
-      /*#__PURE__*/_jsx("span",{className:tagChipCls,style:{fontSize:10.5,fontWeight:700,letterSpacing:"0.18em",color:"#0E7C93",textTransform:"uppercase"},children:caseStudy.tag.split("//")[1]?.trim()||"Case Study"})
-    ]}),
-    /*#__PURE__*/_jsx("h2",{style:{margin:0,fontSize:"clamp(30px, 8vw, 40px)",fontWeight:300,fontFamily:"'Plus Jakarta Sans','Nohemi',sans-serif",letterSpacing:"-0.032em",lineHeight:1.08,color:"#09090b"},children:caseStudy.title}),
-    /*#__PURE__*/_jsx("p",{style:{margin:0,fontSize:14.5,lineHeight:1.7,color:"#27272a",fontWeight:400},children:caseStudy.whatWeDid}),
-    caseStudy.deliverables && caseStudy.deliverables.length > 0 && /*#__PURE__*/_jsx("div",{style:{fontSize:10.5,fontWeight:600,letterSpacing:"0.12em",lineHeight:1.9,color:"#0E7C93",textTransform:"uppercase"},children:caseStudy.deliverables.join("  ·  ")}),
-    /*#__PURE__*/_jsxs("div",{style:{marginTop:6,display:"flex",alignItems:"baseline",justifyContent:"space-between",gap:14},children:[
-      /*#__PURE__*/_jsxs("div",{style:{display:"flex",flexDirection:"column",gap:2},children:[
-        /*#__PURE__*/_jsx("div",{style:{fontSize:"clamp(44px, 12vw, 56px)",fontWeight:300,fontFamily:"'Plus Jakarta Sans','Nohemi',sans-serif",letterSpacing:"-0.04em",lineHeight:1,fontVariantNumeric:"tabular-nums",background:"linear-gradient(120deg, #0A3E4C 0%, #0E7C93 45%, #3FB9CE 100%)",WebkitBackgroundClip:"text",backgroundClip:"text",WebkitTextFillColor:"transparent",color:"transparent"},children:caseStudy.results.primary}),
-        /*#__PURE__*/_jsx("div",{style:{fontSize:11,fontWeight:500,color:"#52525b",marginTop:4},children:caseStudy.results.primaryLabel})
-      ]}),
-      /*#__PURE__*/_jsxs("div",{style:{textAlign:"right"},children:[
-        /*#__PURE__*/_jsx("div",{style:{fontSize:19,fontWeight:500,letterSpacing:"-0.02em",color:"#09090b",fontVariantNumeric:"tabular-nums"},children:caseStudy.results.metricA}),
-        /*#__PURE__*/_jsx("div",{style:{fontSize:8.5,fontWeight:700,letterSpacing:"0.1em",color:"#71717a",textTransform:"uppercase",marginTop:2},children:caseStudy.results.metricALabel})
-      ]})
-    ]}),
-    /*#__PURE__*/_jsx("div",{style:{fontSize:9.5,fontWeight:600,letterSpacing:"0.1em",color:"#71717a",textTransform:"uppercase"},children:caseStudy.stack.join("  ·  ")})
-  ]})
-  ]}) : null,
+  /* Focused case-study overlay — one shared editorial layout for every breakpoint */
+  <FocusedOverlay
+    caseStudy={caseStudy}
+    focused={focused}
+    compact={compact}
+    onClose={() => engineRef.current?.closeFocus()}
+  />,
 ]});}LiquidGlassCarousel.defaultProps={projects:[{brand:"Project One",description:"Digital experience"},{brand:"Project Two",description:"Interactive campaign"},{brand:"Project Three",description:"Brand platform"},{brand:"Project Four",description:"Product launch"},{brand:"Project Five",description:"Editorial story"}],panelHeight:450,gap:12,glide:.075,wheelSensitivity:1,snap:true,snapDistance:60,snapDelay:120,speedShrink:60,lensShape:"circle",lensRotation:65,lensWidth:.565,lensHeight:1,lensX:.5,lensY:.5,dispersion:11,zoom:0,blur:0,glow:4.2,blueRing:6,blueColor:"#009dff",shimmer:true,rimWave:.6,entryAnimation:true,focusScale:1.18,background:"#ffffff",foreground:"#000000",showLabels:true,showCursor:true,font:{fontFamily:"Inter, sans-serif",fontSize:16,fontWeight:400,lineHeight:"1.25em"},pixelRatio:2};addPropertyControls(LiquidGlassCarousel,{projects:{type:ControlType.Array,title:"Projects",maxCount:20,control:{type:ControlType.Object,controls:{image:{type:ControlType.ResponsiveImage,title:"Image"},brand:{type:ControlType.String,title:"Brand",defaultValue:"Project"},description:{type:ControlType.String,title:"Description",defaultValue:"Digital experience"}}}},panelHeight:{type:ControlType.Number,title:"Panel Height",min:80,max:700,step:1,unit:"px"},gap:{type:ControlType.Number,title:"Gap",min:0,max:120,step:1,unit:"px"},glide:{type:ControlType.Number,title:"Glide",min:.02,max:.2,step:.005},wheelSensitivity:{type:ControlType.Number,title:"Wheel",min:.2,max:3,step:.05},snap:{type:ControlType.Boolean,title:"Snap"},snapDistance:{type:ControlType.Number,title:"Snap Distance",min:10,max:200,step:5,hidden:props=>!props.snap},snapDelay:{type:ControlType.Number,title:"Snap Delay",min:0,max:500,step:10,unit:"ms",hidden:props=>!props.snap},speedShrink:{type:ControlType.Number,title:"Speed Shrink",min:10,max:160,step:1},lensShape:{type:ControlType.Enum,title:"Lens Shape",options:["circle","square"],optionTitles:["Circle","Rectangle"],displaySegmentedControl:true},lensRotation:{type:ControlType.Number,title:"Lens Rotation",min:-180,max:180,step:1,unit:"\xb0"},lensWidth:{type:ControlType.Number,title:"Lens Width",min:.03,max:1.2,step:.005},lensHeight:{type:ControlType.Number,title:"Lens Height",min:.03,max:1.2,step:.005},lensX:{type:ControlType.Number,title:"Lens X",min:0,max:1,step:.005},lensY:{type:ControlType.Number,title:"Lens Y",min:0,max:1,step:.005},dispersion:{type:ControlType.Number,title:"Dispersion",min:0,max:120,step:1},zoom:{type:ControlType.Number,title:"Refraction",min:0,max:2,step:.01},blur:{type:ControlType.Number,title:"Lens Blur",min:0,max:20,step:.1},glow:{type:ControlType.Number,title:"Glow",min:0,max:40,step:.1},blueRing:{type:ControlType.Number,title:"Blue Ring",min:0,max:12,step:.05},blueColor:{type:ControlType.Color,title:"Blue Color"},shimmer:{type:ControlType.Boolean,title:"Shimmer"},rimWave:{type:ControlType.Number,title:"Rim Wave",min:0,max:.8,step:.001},entryAnimation:{type:ControlType.Boolean,title:"Entry"},focusScale:{type:ControlType.Number,title:"Focus Scale",min:1,max:1.8,step:.01},background:{type:ControlType.Color,title:"Background"},foreground:{type:ControlType.Color,title:"Text"},showLabels:{type:ControlType.Boolean,title:"Labels"},showCursor:{type:ControlType.Boolean,title:"View Cursor"},font:{type:ControlType.Font,title:"Typography",controls:"extended",defaultFontType:"sans-serif",displayTextAlignment:false},pixelRatio:{type:ControlType.Number,title:"Pixel Ratio",min:1,max:100,step:.25,description:"Made by [@luxarma](https://luxarma.fr)"}});
 export const __FramerMetadata__ = {"exports":{"default":{"type":"reactComponent","name":"LiquidGlassCarousel","slots":[],"annotations":{"framerContractVersion":"1"}},"__FramerMetadata__":{"type":"variable"}}}
 //# sourceMappingURL=./liquid_glass_carousel.map

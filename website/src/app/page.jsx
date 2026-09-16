@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import FluidText from '@/components/FluidText';
 
 const AnimationLoader = dynamic(
   () => import('@/components/AnimationLoader'),
@@ -50,6 +51,75 @@ const TableOfContent = dynamic(
     loading: () => null,
   }
 );
+
+/* ── Section connector thread ──
+   Replaces the old hand-drawn "doodle" overlays. Those were absolutely positioned at
+   z-index 15 (so they could cross straight over video tiles), only rendered above 1280px,
+   and animated on fixed time delays. A thread is a normal in-flow band: it reserves its own
+   height so it can never overlap a video, keeps its stroke weight via non-scaling-stroke,
+   scales with the viewport on every device, and draws itself only once it scrolls into view. */
+const THREAD_CURVES = [
+  { path: 'M 14 92 C 190 92, 300 26, 520 32 C 740 38, 860 96, 1180 68', tip: 'M 1150 50 L 1183 67 L 1148 86' },
+  { path: 'M 14 34 C 220 34, 330 92, 560 84 C 800 76, 900 26, 1180 46', tip: 'M 1152 26 L 1183 45 L 1150 64' },
+  { path: 'M 14 70 C 200 70, 320 20, 540 40 C 780 62, 900 104, 1180 58', tip: 'M 1150 46 L 1183 63 L 1148 82' },
+];
+
+function SectionThread({ label, variant = 0, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return undefined;
+    if (typeof IntersectionObserver !== 'function') {
+      setVisible(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px' }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const curve = THREAD_CURVES[variant % THREAD_CURVES.length];
+
+  return (
+    <div
+      ref={ref}
+      className={`flinza-thread${visible ? ' is-visible' : ''}`}
+      style={{ '--draw-delay': `${delay}s` }}
+      aria-hidden="true"
+    >
+      {label ? <span className="flinza-thread-label">{label}</span> : null}
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="xMidYMid meet" role="presentation">
+        <path
+          d={curve.path}
+          stroke="#17849B"
+          strokeOpacity="0.5"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d={curve.tip}
+          stroke="#17849B"
+          strokeOpacity="0.5"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </div>
+  );
+}
 
 const TheaterVideoPlayer = dynamic(
   () => import('@/components/TheaterVideoPlayer'),
@@ -168,6 +238,8 @@ export default function Page() {
   const [assetsReady, setAssetsReady] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [camoDismissed, setCamoDismissed] = useState(false);
+  // The fixed side rail must disappear over the FAQ/footer/contact region, where it collided with copy
+  const [tocHidden, setTocHidden] = useState(false);
   const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
 
   // Section reveal + lazy-mount hooks
@@ -337,6 +409,8 @@ export default function Page() {
       setScrolledPastHero((prev) => (prev === past ? prev : past));
       const camo = y > 40;
       setCamoDismissed((prev) => (prev === camo ? prev : camo));
+      const nearEnd = y + window.innerHeight > document.documentElement.scrollHeight - window.innerHeight * 1.15;
+      setTocHidden((prev) => (prev === nearEnd ? prev : nearEnd));
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -413,7 +487,7 @@ export default function Page() {
       margin: 0,
       padding: 0,
       overflowX: 'hidden',
-      fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      fontFamily: "'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     }}>
       {/* Preloader Animation Overlay (smooth film dissolve transition into hero) */}
       {!loaderRemoved && (
@@ -469,14 +543,14 @@ export default function Page() {
         position: 'fixed',
         top: 24,
         left: '50%',
-        transform: 'translateX(-50%)',
+        transform: focusedCaseStudy ? 'translateX(-50%) scale(0.82)' : 'translateX(-50%) scale(1)',
         zIndex: 100,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        pointerEvents: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 'auto' : 'none',
-        opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
-        transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        pointerEvents: (isLoaded && !scrolledPastHero) ? 'auto' : 'none',
+        opacity: (isLoaded && !scrolledPastHero) ? 1 : 0,
+        transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
         <a
           href="#hero"
@@ -551,7 +625,7 @@ export default function Page() {
           showCursor={true}
           onFocusChange={setFocusedCaseStudy}
           font={{
-            fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+            fontFamily: "'Nohemi', -apple-system, BlinkMacSystemFont, sans-serif",
             fontSize: 16,
             fontWeight: 700,
             lineHeight: '1.25em',
@@ -624,15 +698,15 @@ export default function Page() {
       {/* Table Of Contents Navigation - Sleek minimal dashes pinned to left margin (ONLY visible after scrolling past hero) */}
       <nav
         aria-label="Table of Contents"
+        className={`flinza-toc-desktop${tocHidden ? ' flinza-toc-hidden' : ''}`}
         style={{
           position: 'fixed',
           left: 28,
           top: '50%',
           transform: 'translateY(-50%)',
           zIndex: 999,
-          opacity: (scrolledPastHero && isLoaded) ? 1 : 0,
-          pointerEvents: (scrolledPastHero && isLoaded) ? 'auto' : 'none',
-          className: 'flinza-toc-desktop',
+          opacity: (scrolledPastHero && isLoaded && !tocHidden) ? 1 : 0,
+          pointerEvents: (scrolledPastHero && isLoaded && !tocHidden) ? 'auto' : 'none',
           transition: 'opacity 0.4s ease, transform 0.4s ease',
           display: 'flex',
           flexDirection: 'column',
@@ -660,7 +734,7 @@ export default function Page() {
       <section
         id="stories"
         ref={sectionRef(storiesMountRef, storiesRef)}
-        className={`${storiesRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
+        className={`${storiesRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           minHeight: '100vh',
@@ -718,9 +792,9 @@ export default function Page() {
             lineHeight: 1.08,
             color: '#09090b',
             margin: '0 0 16px',
-            fontFamily: "'Nohemi', 'Plus Jakarta Sans', sans-serif",
+            fontFamily: "'Nohemi', sans-serif",
           }}>
-            Verified Results, Not Promises
+            <FluidText text="Verified Results, Not Promises" />
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
@@ -745,165 +819,7 @@ export default function Page() {
             margin: '0 auto',
           }}
         >
-          {/* ── Doodle 1: WHAT WE DO (Left side, smooth flowing S-curve) ── */}
-          <div className="flinza-doodle flinza-doodle-side" style={{
-            '--doodle-delay': '0.05s',
-            position: 'absolute',
-            left: -110,
-            top: 70,
-            zIndex: 15,
-            pointerEvents: 'none',
-            flexDirection: 'column',
-            alignItems: 'center',
-            transform: 'rotate(-4deg)',
-          }}>
-            <svg width="240" height="300" viewBox="0 0 240 300" fill="none" style={{ overflow: 'visible' }}>
-              <text
-                x="78" y="28"
-                textAnchor="middle"
-                style={{
-                  fontFamily: "'Caveat', cursive",
-                  fontSize: 28,
-                  fontWeight: 700,
-                  fill: '#09090b',
-                  letterSpacing: '0.02em',
-                }}
-              >What We Do</text>
-              {/* Long flowing curve with a loop-de-loop, sweeping down and out to the right */}
-              <path
-                d="M 70 46 C 16 92, 6 160, 58 196 C 104 228, 150 206, 132 168 C 116 134, 62 146, 66 196 C 70 250, 140 290, 200 272 C 214 268, 222 262, 226 254"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              {/* Solid black arrowhead pointing right into the grid */}
-              <path
-                d="M 205 241 L 233 256 L 203 271 Z"
-                fill="#09090b"
-              />
-            </svg>
-          </div>
-
-          {/* ── Doodle 2: THE VISION (Between header and center card, smooth vertical wave) ── */}
-          <div className="flinza-doodle" style={{
-            '--doodle-delay': '0.2s',
-            position: 'absolute',
-            left: '42%',
-            top: -65,
-            zIndex: 15,
-            pointerEvents: 'none',
-            transform: 'rotate(2deg)',
-          }}>
-            <svg width="180" height="240" viewBox="0 0 180 240" fill="none" style={{ overflow: 'visible' }}>
-              <text
-                x="90" y="26"
-                textAnchor="middle"
-                style={{
-                  fontFamily: "'Caveat', cursive",
-                  fontSize: 27,
-                  fontWeight: 700,
-                  fill: '#09090b',
-                  letterSpacing: '0.02em',
-                }}
-              >The Vision</text>
-              {/* Long serpentine ribbon coiling downward with a tight curl before the arrow */}
-              <path
-                d="M 92 40 C 54 68, 118 92, 80 120 C 48 144, 96 152, 96 176 C 96 196, 70 198, 74 214 C 77 226, 88 228, 90 232"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              {/* Solid black arrowhead pointing down into the square card */}
-              <path
-                d="M 78 221 L 90 240 L 102 221 Z"
-                fill="#09090b"
-              />
-            </svg>
-          </div>
-
-          {/* ── Doodle 3: HOW WE DO (Right side, graceful 3-wave serpentine curve) ── */}
-          <div className="flinza-doodle flinza-doodle-side" style={{
-            '--doodle-delay': '0.35s',
-            position: 'absolute',
-            right: -110,
-            top: 40,
-            zIndex: 15,
-            pointerEvents: 'none',
-            transform: 'rotate(3deg)',
-          }}>
-            <svg width="240" height="300" viewBox="0 0 240 300" fill="none" style={{ overflow: 'visible' }}>
-              <text
-                x="122" y="28"
-                textAnchor="middle"
-                style={{
-                  fontFamily: "'Caveat', cursive",
-                  fontSize: 27,
-                  fontWeight: 700,
-                  fill: '#09090b',
-                  letterSpacing: '0.02em',
-                }}
-              >How We Do</text>
-              {/* Long three-wave serpentine with an opening curl, flowing down and hooking left */}
-              <path
-                d="M 170 44 C 150 70, 196 78, 196 104 C 196 140, 224 168, 176 196 C 130 224, 196 248, 140 274 C 104 292, 44 288, 18 262"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              {/* Solid black arrowhead pointing left into the grid */}
-              <path
-                d="M 40 248 L 14 262 L 40 278 Z"
-                fill="#09090b"
-              />
-            </svg>
-          </div>
-
-          {/* ── Doodle 4: THE RESULTS (Underneath grid, long smooth upward swoop) ── */}
-          <div className="flinza-doodle" style={{
-            '--doodle-delay': '0.5s',
-            position: 'absolute',
-            right: 60,
-            bottom: -95,
-            zIndex: 15,
-            pointerEvents: 'none',
-            transform: 'rotate(-2deg)',
-          }}>
-            <svg width="360" height="170" viewBox="0 0 360 170" fill="none" style={{ overflow: 'visible' }}>
-              <text
-                x="76" y="40"
-                textAnchor="middle"
-                style={{
-                  fontFamily: "'Caveat', cursive",
-                  fontSize: 27,
-                  fontWeight: 700,
-                  fill: '#09090b',
-                  letterSpacing: '0.02em',
-                }}
-              >The Results</text>
-              {/* Long arc that starts in a tight spiral loop, then swoops up and away to the right */}
-              <path
-                d="M 40 96 C 12 92, 12 60, 40 62 C 62 64, 66 92, 44 100 C 110 150, 214 158, 292 110 C 322 92, 342 60, 346 32"
-                stroke="#09090b"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-              {/* Solid black arrowhead pointing up-right */}
-              <path
-                d="M 328 38 L 352 24 L 348 52 Z"
-                fill="#09090b"
-              />
-            </svg>
-          </div>
-
-          {/* Enlarged Flush Rectangular Puzzle Grid */}
+                    {/* Enlarged Flush Rectangular Puzzle Grid */}
           <div
             className="flinza-story-grid"
             style={{
@@ -999,11 +915,13 @@ export default function Page() {
         </div>
       </section>
 
+      <SectionThread label="What We Do" variant={0} />
+
       {/* Services Section: Exactly 6 Services in 3 by 2 Layout */}
       <section
         id="services"
         ref={sectionRef(servicesMountRef, servicesRef)}
-        className={`${servicesRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
+        className={`${servicesRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           minHeight: '100vh',
@@ -1061,8 +979,13 @@ export default function Page() {
             lineHeight: 1.06,
             margin: '0 0 20px',
           }}>
-            Growth,{' '}
-            <span className="flinza-glass-text">Engineered</span>{' '}for Profit
+            <FluidText
+              segments={[
+                { text: 'Growth,' },
+                { text: 'Engineered', className: 'flinza-glass-text' },
+                { text: 'for Profit' },
+              ]}
+            />
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
@@ -1103,13 +1026,15 @@ export default function Page() {
         </div>
       </section>
 
+      <SectionThread label="The Results" variant={1} delay={0.1} />
+
       {/* ════════════════════════════════════════════════════════════
            TESTIMONIALS SECTION — WhatsApp Audio Voice Notes (Real Component)
       ════════════════════════════════════════════════════════════ */}
       <section
         id="testimonials"
         ref={sectionRef(testimonialsMountRef, testimonialsRef)}
-        className={`${testimonialsRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
+        className={`${testimonialsRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           padding: '120px 24px 110px',
@@ -1161,9 +1086,9 @@ export default function Page() {
             lineHeight: 1.08,
             color: '#09090b',
             margin: '0 0 16px',
-            fontFamily: "'Nohemi', 'Plus Jakarta Sans', sans-serif",
+            fontFamily: "'Nohemi', sans-serif",
           }}>
-            Straight From WhatsApp. No Filters.
+            <FluidText text="Straight From WhatsApp. No Filters." />
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
@@ -1174,7 +1099,7 @@ export default function Page() {
             maxWidth: 640,
             marginLeft: 'auto',
             marginRight: 'auto',
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontFamily: "'Nohemi', sans-serif",
           }}>
             Real voice memos from founders and growth leads, sent right after we scaled their accounts. Hit play to hear what working with Flinza Works actually sounds like.
           </p>
@@ -1431,13 +1356,15 @@ export default function Page() {
         </div>
       </section>
 
+      <SectionThread label="Good Questions" variant={2} delay={0.1} />
+
       {/* ════════════════════════════════════════════════════════════
            FAQ SECTION — ExpandOnHoverList × 4 (10 Questions)
       ════════════════════════════════════════════════════════════ */}
       <section
         id="faq"
         ref={sectionRef(faqMountRef, faqRef)}
-        className={`${faqRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
+        className={`${faqRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           padding: '120px 24px 100px',
@@ -1476,8 +1403,13 @@ export default function Page() {
             lineHeight: 1.08,
             color: '#09090b',
             margin: '0 0 18px',
-          }}>Your Questions,{' '}
-            <span className="flinza-glass-text">Answered</span>
+          }}>
+            <FluidText
+              segments={[
+                { text: 'Your Questions,' },
+                { text: 'Answered', className: 'flinza-glass-text' },
+              ]}
+            />
           </h2>
           <p style={{ fontSize: 'clamp(16px,1.8vw,19px)', color: '#52525b', lineHeight: 1.6, margin: 0 }}>
             Everything you need to know about working with Flinza, our process, pricing, and what makes us different.
@@ -1567,7 +1499,7 @@ export default function Page() {
       ════════════════════════════════════════════════════════════ */}
       <section
         ref={sectionRef(contactRef, contactRef)}
-        className={`${contactRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv-short`}
+        className={`${contactRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           padding: '60px 24px 80px',
@@ -1586,7 +1518,9 @@ export default function Page() {
           textTransform: 'uppercase',
           fontWeight: 600,
           marginBottom: 24,
-        }}>Ready to scale something profitable?</p>
+        }}>
+          <FluidText as="span" text="Ready to scale something profitable?" stagger={34} />
+        </p>
         <ContactButton
           buttonTextDefault="Get In Touch"
           buttonHoverTextHover="Let's Build"
@@ -1610,7 +1544,7 @@ export default function Page() {
       <footer
         id="contact"
         ref={sectionRef(footerMountRef, footerRef)}
-        className={`${footerRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
+        className={`${footerRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           position: 'relative',
@@ -1624,13 +1558,14 @@ export default function Page() {
           style={{
             maxWidth: 1360,
             margin: '0 auto',
-            padding: '0 28px',
+            padding: '26px 28px 0',
+            borderTop: '1px solid rgba(9,9,11,0.10)',
             boxSizing: 'border-box',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-end',
             flexWrap: 'wrap',
-            gap: '28px 48px',
+            gap: '24px 48px',
             position: 'relative',
             zIndex: 3,
           }}
@@ -1642,12 +1577,77 @@ export default function Page() {
                 Flinza Works
               </span>
             </div>
-            <span style={{ fontSize: 13.5, color: '#71717a', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <span style={{ fontSize: 13.5, color: '#71717a', fontFamily: "'Nohemi', sans-serif" }}>
               We test. We scale. We grow. Repeat.
             </span>
+
+            {/* Social row — inline SVG marks (never emoji), each with a label for screen readers */}
+            <div className="flinza-social-row" style={{ marginTop: 4 }}>
+              {[
+                {
+                  label: 'Flinza Works on Instagram',
+                  href: 'https://instagram.com/flinzaworks',
+                  icon: (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.8" />
+                      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
+                      <circle cx="17.2" cy="6.8" r="1.25" fill="currentColor" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: 'Flinza Works on Facebook',
+                  href: 'https://facebook.com/flinzaworks',
+                  icon: (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M13.5 21v-7.2h2.6l.4-3h-3V8.9c0-.9.3-1.5 1.6-1.5h1.6V4.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.1H7.7v3h2.6V21h3.2z" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: 'Flinza Works on X',
+                  href: 'https://x.com/flinzaworks',
+                  icon: (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M17.5 3h3.1l-6.8 7.8L21.9 21h-5.5l-4.3-5.6L7 21H3.9l7.1-8.1L3.4 3h5.6l4 5.3L17.5 3zm-1.1 16.1h1.7L7.7 4.8H5.9l10.5 14.3z" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: 'Flinza Works on LinkedIn',
+                  href: 'https://linkedin.com/company/flinzaworks',
+                  icon: (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M6.9 8.4H3.8V20h3.1V8.4zM5.35 3.2a1.8 1.8 0 100 3.6 1.8 1.8 0 000-3.6zM20.2 20h-3.1v-6c0-1.5-.5-2.5-1.8-2.5-1 0-1.6.7-1.9 1.4-.1.2-.1.6-.1 1V20h-3.1s.1-9.4 0-11.6h3.1v1.6c.4-.7 1.2-1.7 2.9-1.7 2.1 0 3.9 1.4 3.9 4.4V20z" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: 'Email Flinza Works',
+                  href: 'mailto:hello@flinzaworks.com',
+                  icon: (
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <rect x="2.8" y="4.8" width="18.4" height="14.4" rx="3" stroke="currentColor" strokeWidth="1.8" />
+                      <path d="M3.6 7.4l7.2 5.3a2 2 0 002.4 0l7.2-5.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  ),
+                },
+              ].map((social) => (
+                <a
+                  key={social.label}
+                  className="flinza-social"
+                  href={social.href}
+                  aria-label={social.label}
+                  target={social.href.startsWith('mailto:') ? undefined : '_blank'}
+                  rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer noopener'}
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </div>
           </div>
 
-          <nav aria-label="Footer navigation" style={{ display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap' }}>
+          <nav aria-label="Footer navigation" style={{ display: 'flex', alignItems: 'center', gap: '12px 26px', flexWrap: 'wrap' }}>
             {[
               { label: 'Work', href: '#stories' },
               { label: 'Services', href: '#services' },
@@ -1668,7 +1668,7 @@ export default function Page() {
             ))}
           </nav>
 
-          <div style={{ fontSize: 12.5, color: '#a1a1aa', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div style={{ fontSize: 12.5, color: '#a1a1aa', fontFamily: "'Nohemi', sans-serif" }}>
             © {new Date().getFullYear()} Flinza Works · hello@flinzaworks.com
           </div>
         </div>

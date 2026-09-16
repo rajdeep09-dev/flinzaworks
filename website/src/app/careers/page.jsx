@@ -290,7 +290,7 @@ function ApplyBox({ role, onClose }) {
     background: 'rgba(255,255,255,0.7)',
     fontSize: 14,
     color: '#09090b',
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontFamily: "'Nohemi', sans-serif",
     outline: 'none',
   };
 
@@ -488,7 +488,7 @@ export default function CareersPage() {
         minHeight: '100vh',
         background: 'radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #fbfcfd 55%, #f0f7f9 100%)',
         color: '#09090b',
-        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        fontFamily: "'Nohemi', sans-serif",
       }}
     >
       <style jsx global>{`

@@ -1,6 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-
-/* ── Fallback local fonts ── */
+/* ── Nohemi: the site's single typeface, self-hosted ──
+   Previously this file began with an @import from fonts.googleapis.com, which is
+   render-blocking: the browser had to resolve DNS and fetch a stylesheet before it could
+   paint text, and the page then reflowed once the real webfont arrived. The full Nohemi
+   family is already self-hosted under /fonts/nohemi, so the site now ships zero external
+   font requests and no layout shift. ── */
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: 'Nohemi';
   src: url('/fonts/nohemi/Nohemi-Regular.woff2') format('woff2');
@@ -8,7 +32,13 @@
   font-style: normal;
   font-display: swap;
 }
-
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: 'Nohemi';
   src: url('/fonts/nohemi/Nohemi-SemiBold.woff2') format('woff2');
@@ -16,7 +46,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'Nohemi';
   src: url('/fonts/nohemi/Nohemi-Bold.woff2') format('woff2');
@@ -24,11 +53,17 @@
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'Nohemi';
   src: url('/fonts/nohemi/Nohemi-ExtraBold.woff2') format('woff2');
   font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nohemi';
+  src: url('/fonts/nohemi/Nohemi-Black.woff2') format('woff2');
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -64,20 +99,27 @@ body {
   overflow-y: auto;
   background-color: #ffffff;
   color: #09090b;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Nohemi', 'Plus Jakarta Sans', sans-serif !important;
+  font-family: 'Nohemi', sans-serif !important;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
 }
 
 p, span, a, button, input, textarea, select, label {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Nohemi ships every weight, so the browser must never synthesise them */
+* {
+  font-synthesis-weight: none;
 }
 
 /* ── Liquid-glass card: chromatic rim, top sheen, hover lift ── */
@@ -132,48 +174,87 @@ main {
   height: 100%;
 }
 
-/* ── Hand-drawn section doodles: brand ink, draw-in animation, desktop only ── */
-@keyframes flinzaDraw {
-  to { stroke-dashoffset: 0; }
-}
-@keyframes flinzaInk {
-  to { opacity: 1; }
-}
-
-.flinza-doodle {
-  display: none;
-}
-
-@media (min-width: 1280px) {
-  .flinza-doodle {
-    display: flex;
-    opacity: 0.22;
-  }
-  .flinza-doodle path {
-    stroke: #52525b !important;
-    stroke-width: 1 !important;
-    stroke-dasharray: 1400;
-    stroke-dashoffset: 1400;
-    animation: flinzaDraw 2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-    animation-delay: var(--doodle-delay, 0s);
-  }
-  .flinza-doodle text {
-    fill: #52525b !important;
-    opacity: 0;
-    animation: flinzaInk 0.7s ease forwards;
-    animation-delay: var(--doodle-delay, 0s);
-  }
+/* ── Section connector threads ──
+   Brand-aqua threads that draw themselves once scrolled into view. They sit in normal flow
+   (never absolutely positioned), so they can not cross a video tile or clip at any width. ── */
+.flinza-thread {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* Side doodles only fit in the outer margin on very wide screens — hide otherwise so they never clip */
-@media (min-width: 1280px) and (max-width: 1699px) {
-  .flinza-doodle-side {
-    display: none;
+.flinza-thread-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Nohemi', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #0E7C93;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.7s ease 0.15s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
+
+.flinza-thread-label::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.flinza-thread svg {
+  width: 100%;
+  height: clamp(30px, 7vw, 92px);
+  display: block;
+  overflow: visible;
+}
+
+.flinza-thread svg path {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+}
+
+.flinza-thread.is-visible svg path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 2.4s cubic-bezier(0.65, 0, 0.35, 1) var(--draw-delay, 0s);
+}
+
+.flinza-thread.is-visible .flinza-thread-label {
+  opacity: 1;
+  transform: none;
+}
+
+/* Threads are decorative — on phones they would add meaningless scroll length, so keep them short */
+@media (max-width: 900px) {
+  .flinza-thread svg {
+    height: clamp(26px, 9vw, 46px);
+  }
+  .flinza-thread-label {
+    font-size: 9.5px;
+    letter-spacing: 0.24em;
   }
 }
-@media (min-width: 1700px) {
-  .flinza-doodle-side {
-    display: flex;
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-thread svg path {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+  .flinza-thread-label {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -274,15 +355,11 @@ main {
   }
 }
 
-/* ── Render-cost skip: sections below the fold skip layout/paint until near view ── */
-.flinza-cv {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 900px;
-}
-.flinza-cv-short {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 560px;
-}
+/* ── Below-fold sections: the reveal animations own the pacing ──
+   These sections used to carry content-visibility: auto, which skipped paint for the whole
+   subtree. That stalled Framer's appear effects (the FAQ rendered completely blank) and
+   re-painted entire sections mid-scroll. The lazy mount gates below handle render cost
+   without breaking animations. */
 
 /* ── Tap highlight + comfortable touch targets on mobile ── */
 html {
@@ -348,7 +425,7 @@ html {
 .flinza-glass-text {
   position: relative;
   display: inline-block;
-  font-family: 'Nohemi', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Nohemi', sans-serif;
   color: transparent;
   background:
     linear-gradient(178deg, rgba(9, 9, 11, 0.82) 0%, rgba(9, 9, 11, 0.28) 34%, rgba(9, 9, 11, 0.88) 58%, rgba(9, 9, 11, 0.42) 82%, rgba(9, 9, 11, 0.9) 100%)
@@ -358,11 +435,9 @@ html {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1.2px rgba(23, 132, 155, 0.55);
-  text-shadow:
-    0 1px 0 rgba(201, 240, 245, 0.28),
-    0 -1px 1px rgba(10, 62, 76, 0.35),
-    0 14px 38px rgba(23, 132, 155, 0.2);
+  /* No text-stroke: an outline over a gradient fill is what made this read as a cheap
+     mock-up. A clean gradient fill plus a soft aqua bloom matches the liquid-metal logo. */
+  text-shadow: 0 10px 30px rgba(23, 132, 155, 0.18);
 }
 @media (prefers-reduced-motion: reduce) {
   .flinza-glass-text {
@@ -370,20 +445,38 @@ html {
   }
 }
 
-/* ── Lazy-mount gate: wrapper must reserve space until content boots ~500px before view ── */
-.flinza-mount-gate {
-  min-height: 100%;
+/* Dark-surface variant: aqua glass for the contact hero, tuned to the logo metals */
+.flinza-glass-text-dark {
+  position: relative;
+  display: inline-block;
+  font-family: 'Nohemi', sans-serif;
+  color: transparent;
+  background:
+    linear-gradient(178deg, rgba(240, 253, 254, 0.98) 0%, rgba(201, 240, 245, 0.4) 30%, rgba(255, 255, 255, 0.92) 52%, rgba(127, 209, 222, 0.45) 74%, rgba(224, 250, 252, 0.95) 100%)
+    no-repeat,
+    linear-gradient(115deg, #7FD1DE 0%, #56C1D3 45%, #17849B 100%)
+    no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* No wide glow: two large-radius text-shadows merged into a rectangular halo that read
+     as a card behind the word. The gradient fill alone carries the glass look. */
+  text-shadow: 0 8px 24px rgba(23, 132, 155, 0.22);
 }
 
-/* ── Focused-state overlay: legibility glow instead of card boxes ── */
-.flinza-focus-tag,
-.flinza-focus-deliv,
-.flinza-focus-stack {
-  text-shadow: none !important;
+/* Off the content sections (FAQ/footer/contact) the rail must vanish — it collided with headings and footer copy */
+.flinza-toc-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
+/* ── Lazy-mount gate: deliberately layout-neutral ──
+   Reserving min-height here created dead voids (an empty green block instead of each audio
+   player) and layout jitter whenever a component mounted. Mounted components own their size. ── */
+
+/* ── Focused-state overlay: the close control needs no glow, and the old overlay chips are gone ── */
 .flinza-focus-close {
   text-shadow: none !important;
-  font-weight: 800 !important;
+  font-weight: 600 !important;
 }
 
 /* ── WhatsApp voices: subtle chat-bubble tail on the audio row ── */
@@ -402,9 +495,140 @@ html {
   transform: rotate(45deg);
 }
 
-/* ── Mobile: keep carousel previews reserved-height so mount gating never shifts layout ── */
-@media (max-width: 900px) {
-  .flinza-mount-gate {
-    min-height: 320px;
+/* ── Fluid heading reveal ──
+   Every word is masked by its own clipped box and rises into place with a slight skew and a
+   blur-to-sharp settle. Only transform / opacity / filter animate, so the whole reveal stays
+   on the compositor — no layout, no paint of surrounding content. ── */
+.flinza-fluid {
+  display: inline;
+}
+
+.flinza-fluid-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.flinza-fluid-inner {
+  display: inline-block;
+  transform: translateY(112%) skewY(4deg);
+  opacity: 0;
+  filter: blur(9px);
+  transition:
+    transform 1.05s cubic-bezier(0.16, 1, 0.3, 1) var(--fluid-delay, 0s),
+    opacity 0.75s ease var(--fluid-delay, 0s),
+    filter 0.9s ease var(--fluid-delay, 0s);
+  will-change: transform, opacity, filter;
+}
+
+.flinza-fluid.is-visible .flinza-fluid-inner {
+  transform: none;
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* Once the reveal has played, stop promoting every word to its own layer */
+.flinza-fluid.is-visible .flinza-fluid-inner {
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-fluid-inner {
+    transform: none;
+    opacity: 1;
+    filter: none;
+    transition: none;
   }
 }
+
+/* ── Careers role rows ──
+   On phones the row kept three side-by-side columns, which squeezed the title, salary and
+   chips into unreadable slivers. Below the tablet breakpoint it becomes a single column with
+   the meta as an inline chip row and a full-width action. ── */
+@media (max-width: 900px) {
+  .flinza-role-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    padding: 22px 20px !important;
+  }
+
+  .flinza-role-row > div {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    padding-top: 0 !important;
+  }
+
+  .flinza-role-row > div:nth-child(2) {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 10px 18px !important;
+  }
+
+  .flinza-role-row > div:last-child > span {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px 18px !important;
+    box-sizing: border-box;
+  }
+
+  .flinza-role-row h3 {
+    font-size: 22px !important;
+  }
+
+  /* Blurbs were clamped mid-sentence; on phones show the whole sentence */
+  .flinza-role-blurb {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
+  }
+}
+
+/* ── Footer social icons ── */
+.flinza-social-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.flinza-social {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(9, 9, 11, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+  color: #0E7C93;
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.flinza-social:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(120deg, #0E7C93, #3FB9CE);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+@media (max-width: 900px) {
+  .flinza-social {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Touch devices must not latch the hover fill */
+@media (hover: none), (pointer: coarse) {
+  .flinza-social:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.62);
+    color: #0E7C93;
+    border-color: rgba(9, 9, 11, 0.12);
+  }
+}
+

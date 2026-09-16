@@ -1,6 +1,15 @@
-import { sql } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 
 export const runtime = 'nodejs';
+
+// Vercel storage integrations inject POSTGRES_URL; some setups only set DATABASE_URL.
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL || '';
+let pool = null;
+function getDb() {
+  if (!connectionString) return null;
+  if (!pool) pool = createPool({ connectionString });
+  return pool;
+}
 
 export async function POST(request) {
   try {
@@ -13,7 +22,15 @@ export async function POST(request) {
       return Response.json({ error: 'name, valid email and message are required' }, { status: 400 });
     }
 
-    await sql`
+    const db = getDb();
+    if (!db) {
+      return Response.json(
+        { error: 'Messages are not connected yet. Add a database to this Vercel project and redeploy.' },
+        { status: 503 }
+      );
+    }
+
+    await db.sql`
       INSERT INTO contact_messages (name, email, message)
       VALUES (${name}, ${email}, ${message})
     `;

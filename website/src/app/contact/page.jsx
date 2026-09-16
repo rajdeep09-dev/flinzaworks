@@ -1,20 +1,67 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const ContactButton = dynamic(
   () => import('@/components/ContactButton'),
   { ssr: false }
 );
 
-const LiquidImage = dynamic(
-  () => import('@/components/LiquidImage'),
-  { ssr: false }
-);
-
 // Your real Cal.com booking link (embedded inside the contact button's card).
 const CAL_LINK = 'https://cal.com/flinza-works/discovery';
+
+/*
+ * The Framer contact card opens on hover — which never fires on touch screens.
+ * On coarse-pointer devices we bridge taps to the same pointerenter/leave events
+ * the component listens for, so the card (and Cal.com scheduler) opens on tap.
+ */
+function ContactButtonTapBridge(props) {
+  const wrapRef = useRef(null);
+  const openRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(hover: none), (pointer: coarse)');
+    if (!mq.matches) return; // desktop keeps native hover
+
+    const root = wrapRef.current;
+    if (!root) return;
+    const target = root.querySelector('.framer-5pyodz') || root.firstElementChild || root;
+
+    const open = () => {
+      if (openRef.current) return;
+      openRef.current = true;
+      target.dispatchEvent(new PointerEvent('pointerenter', { bubbles: false }));
+    };
+    const close = () => {
+      if (!openRef.current) return;
+      openRef.current = false;
+      target.dispatchEvent(new PointerEvent('pointerleave', { bubbles: false }));
+    };
+    const onTap = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openRef.current ? close() : open();
+    };
+    const onDocPointerDown = (e) => {
+      if (openRef.current && root && !root.contains(e.target)) close();
+    };
+
+    root.addEventListener('click', onTap, true);
+    document.addEventListener('pointerdown', onDocPointerDown, true);
+    return () => {
+      root.removeEventListener('click', onTap, true);
+      document.removeEventListener('pointerdown', onDocPointerDown, true);
+    };
+  }, []);
+
+  return (
+    <div ref={wrapRef} style={{ cursor: 'pointer', touchAction: 'manipulation' }}>
+      <ContactButton {...props} />
+    </div>
+  );
+}
 
 export default function ContactPage() {
   const [msg, setMsg] = useState({ name: '', email: '', message: '' });
@@ -51,7 +98,7 @@ export default function ContactPage() {
     WebkitBackdropFilter: 'blur(14px)',
     fontSize: 14.5,
     color: '#ffffff',
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontFamily: "'Nohemi', sans-serif",
     outline: 'none',
     transition: 'border-color 0.2s ease, background 0.2s ease',
   };
@@ -73,32 +120,26 @@ export default function ContactPage() {
         overflow: 'hidden',
       }}
     >
-      {/* Liquid hill backdrop — water-ripple WebGL image pinned to the bottom (non-interactive so it never blocks the page) */}
+      {/* Brand bloom backdrop.
+          This used to be a WebGL LiquidImage of a photorealistic grass meadow, which fought
+          the dark navy palette, cost a full-screen canvas, and read as stock imagery. A pure
+          CSS aqua bloom now carries the same depth for free and always matches the palette. */}
       <div
         aria-hidden="true"
         style={{
           position: 'absolute',
           left: '50%',
-          bottom: -60,
+          bottom: -140,
           transform: 'translateX(-50%)',
-          width: 'min(1400px, 165vw)',
-          height: '58%',
+          width: 'min(1500px, 170vw)',
+          height: '70%',
           zIndex: 0,
-          opacity: 0.9,
           pointerEvents: 'none',
+          background:
+            'radial-gradient(58% 62% at 50% 78%, rgba(63, 185, 206, 0.30) 0%, rgba(23, 132, 155, 0.16) 38%, rgba(10, 62, 76, 0) 72%), radial-gradient(34% 40% at 22% 88%, rgba(127, 209, 222, 0.18) 0%, rgba(10, 62, 76, 0) 70%), radial-gradient(30% 36% at 78% 86%, rgba(46, 147, 172, 0.16) 0%, rgba(10, 62, 76, 0) 70%)',
+          filter: 'blur(2px)',
         }}
-      >
-        <LiquidImage
-          sourceType="image"
-          image={{ src: '/images/hill_logo_2k.png', alt: '' }}
-          fit="cover"
-          colorReveal={false}
-          strength={0.05}
-          speed={0.1}
-          borderRadius={0}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
+      />
 
       {/* Readability veil over the backdrop */}
       <div
@@ -123,7 +164,7 @@ export default function ContactPage() {
             textTransform: 'uppercase',
             color: '#7FD1DE',
             margin: '0 0 22px',
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontFamily: "'Nohemi', sans-serif",
           }}
         >
           Contact
@@ -140,22 +181,13 @@ export default function ContactPage() {
           }}
         >
           Let&apos;s build something{' '}
-          <span
-            style={{
-              background: 'linear-gradient(92deg, #ffffff 10%, #9adce8 55%, #56c1d3 95%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            profitable.
-          </span>
+          <span className="flinza-glass-text-dark">profitable.</span>
         </h1>
       </div>
 
-      {/* Marketplace Contact Button — hover card + working Cal.com booking */}
+      {/* Marketplace Contact Button — hover card on desktop, tap card on phones + working Cal.com booking */}
       <div style={{ position: 'relative', zIndex: 30 }}>
-        <ContactButton
+        <ContactButtonTapBridge
           buttonTextDefault="Get In Touch"
           buttonHoverTextHover="Let's Build"
           cardName="Flinza Works"
@@ -253,7 +285,7 @@ export default function ContactPage() {
           textDecoration: 'none',
           letterSpacing: '-0.01em',
           transition: 'color 0.2s ease',
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontFamily: "'Nohemi', sans-serif",
           position: 'relative',
           zIndex: 2,
         }}
