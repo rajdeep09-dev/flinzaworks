@@ -183,14 +183,6 @@ const founderStories = [
   },
 ];
 
-const StoryFlowDoodles = dynamic(
-  () => import('@/components/StoryFlowDoodles'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
 const SocialGlassRow = dynamic(
   () => import('@/components/SocialGlassRow'),
   {
@@ -199,8 +191,8 @@ const SocialGlassRow = dynamic(
   }
 );
 
-const ServicesTabs = dynamic(
-  () => import('@/components/ServicesTabs'),
+const ServicesShowcase = dynamic(
+  () => import('@/components/ServicesShowcase'),
   {
     ssr: false,
     loading: () => null,
@@ -876,10 +868,6 @@ export default function Page() {
             margin: '0 auto',
           }}
         >
-                              {/* Curved-arrow doodles (item 4) — reserved band above the mosaic, so they can
-              never sit on top of a video. */}
-          <StoryFlowDoodles />
-
 {/* Enlarged Flush Rectangular Puzzle Grid */}
           <div
             className="flinza-story-grid"
@@ -898,19 +886,28 @@ export default function Page() {
               <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
               {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story1.mp4"
-                thumbnail={{ src: '/images/story_portrait.jpg', alt: 'Founder Portrait' }}
+                thumbnail={{ src: '/images/poster_1.webp', alt: 'Founder story' }}
                 aspectRatio="fill"
                 loop={true}
                 mutedByDefault={true}
                 autoplay={false}
                 autoHideControls={true}
                 borderRadius={20}
-                padding={8}
-                borderOpacity={0.25}
-                backgroundColor="rgba(20, 22, 28, 0.55)"
-                blurAmount={20}
+                padding={0}
+                borderOpacity={0}
+                backgroundColor="transparent"
+                blurAmount={0}
                 style={{ width: '100%', height: '100%' }}
               /> : null}</div>
+              <div className="flinza-story-cap">
+                <p className="flinza-story-quote flinza-display">“Structured, clear and refreshingly straightforward — our ideas actually became the work.”</p>
+                <div className="flinza-story-who">
+                  <img className="flinza-story-avatar" src="/images/avatar_elena.jpg" alt="" loading="lazy" decoding="async" />
+                  <span className="flinza-story-name">Olivia Bennett</span>
+                  <span className="flinza-story-role">Founder, Northline Studio</span>
+                </div>
+                <span className="flinza-story-stat">3.4× return in 90 days</span>
+              </div>
             </div>
 
             {/* Tile 2: Square Video (Row 1, Column 2) */}
@@ -918,19 +915,28 @@ export default function Page() {
               <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
               {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story2.mp4"
-                thumbnail={{ src: '/images/story_traffic.jpg', alt: 'Urban Motion' }}
+                thumbnail={{ src: '/images/poster_2.webp', alt: 'Campaign story' }}
                 aspectRatio="fill"
                 loop={true}
                 mutedByDefault={true}
                 autoplay={false}
                 autoHideControls={true}
                 borderRadius={20}
-                padding={8}
-                borderOpacity={0.25}
-                backgroundColor="rgba(20, 22, 28, 0.55)"
-                blurAmount={20}
+                padding={0}
+                borderOpacity={0}
+                backgroundColor="transparent"
+                blurAmount={0}
                 style={{ width: '100%', height: '100%' }}
               /> : null}</div>
+              <div className="flinza-story-cap">
+                <p className="flinza-story-quote flinza-display">“CAC dropped inside the first month and it held through two seasonal spikes.”</p>
+                <div className="flinza-story-who">
+                  <img className="flinza-story-avatar" src="/images/avatar_charlie.png" alt="" loading="lazy" decoding="async" />
+                  <span className="flinza-story-name">Jonas Weber</span>
+                  <span className="flinza-story-role">Ecommerce Director, Trail & Peak</span>
+                </div>
+                <span className="flinza-story-stat">−31% cost per acquisition</span>
+              </div>
             </div>
 
             {/* Tile 3: Square/Action Video (Row 1, Column 3) */}
@@ -938,19 +944,28 @@ export default function Page() {
               <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
               {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story3.mp4"
-                thumbnail={{ src: '/images/story_action.jpg', alt: 'Dynamic Energy' }}
+                thumbnail={{ src: '/images/poster_3.webp', alt: 'Production story' }}
                 aspectRatio="fill"
                 loop={true}
                 mutedByDefault={true}
                 autoplay={false}
                 autoHideControls={true}
                 borderRadius={20}
-                padding={8}
-                borderOpacity={0.25}
-                backgroundColor="rgba(20, 22, 28, 0.55)"
-                blurAmount={20}
+                padding={0}
+                borderOpacity={0}
+                backgroundColor="transparent"
+                blurAmount={0}
                 style={{ width: '100%', height: '100%' }}
               /> : null}</div>
+              <div className="flinza-story-cap">
+                <p className="flinza-story-quote flinza-display">“Six weeks of production became forty-eight hours. We test more in a week than we shipped in a quarter.”</p>
+                <div className="flinza-story-who">
+                  <img className="flinza-story-avatar" src="/images/avatar_sarah.jpg" alt="" loading="lazy" decoding="async" />
+                  <span className="flinza-story-name">Sofia Marchetti</span>
+                  <span className="flinza-story-role">Co-founder, Casa Verde</span>
+                </div>
+                <span className="flinza-story-stat">48-hour production cycles</span>
+              </div>
             </div>
 
             {/* Tile 4: Wide Panoramic Video (Row 2, Spans Columns 2 & 3) */}
@@ -958,19 +973,28 @@ export default function Page() {
               <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
               {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story4.mp4"
-                thumbnail={{ src: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop', alt: 'Speed Transit' }}
+                thumbnail={{ src: '/images/poster_4.webp', alt: 'Scale story' }}
                 aspectRatio="fill"
                 loop={true}
                 mutedByDefault={true}
                 autoplay={false}
                 autoHideControls={true}
                 borderRadius={20}
-                padding={8}
-                borderOpacity={0.25}
-                backgroundColor="rgba(20, 22, 28, 0.55)"
-                blurAmount={20}
+                padding={0}
+                borderOpacity={0}
+                backgroundColor="transparent"
+                blurAmount={0}
                 style={{ width: '100%', height: '100%' }}
               /> : null}</div>
+              <div className="flinza-story-cap">
+                <p className="flinza-story-quote flinza-display">“We stopped paying per video and waiting on creators. The only bottleneck now is how fast we can test.”</p>
+                <div className="flinza-story-who">
+                  <img className="flinza-story-avatar" src="/images/avatar_marcus.png" alt="" loading="lazy" decoding="async" />
+                  <span className="flinza-story-name">Marcus Bell</span>
+                  <span className="flinza-story-role">VP Growth, Northline</span>
+                </div>
+                <span className="flinza-story-stat">10× more angles tested</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1074,7 +1098,7 @@ export default function Page() {
           {/* The vendored Tabs-card carries the four flagship services; the remaining two
               continue underneath it so no service is dropped by the four-tab shape. */}
           <div id="service-row-1" style={{ width: '100%' }}>
-            {servicesInView ? <ServicesTabs cards={[...row1Cards, ...row2Cards]} /> : null}
+            {servicesInView ? <ServicesShowcase cards={[...row1Cards, ...row2Cards]} /> : null}
           </div>
         </div>
       </section>
@@ -1610,13 +1634,13 @@ export default function Page() {
           cardTitleText="Ecommerce Growth Agency"
           cardEmail="hello@flinzaworks.com"
           cardEmailSize={28}
-          cardNameColor="rgb(244,247,249)"
-          cardTitleColor="rgba(244,247,249,0.62)"
-          cardEmailColor="rgb(244,247,249)"
-          cardEmailLabelColor="rgba(244,247,249,0.45)"
-          cardBGColor="rgba(9,20,27,0.72)"
+          cardNameColor="rgb(9,9,11)"
+          cardTitleColor="rgba(9,9,11,0.6)"
+          cardEmailColor="rgb(9,9,11)"
+          cardEmailLabelColor="rgba(9,9,11,0.42)"
+          cardBGColor="rgba(255,255,255,0.16)"
           cardBGBlurDefault={26}
-          cardBorder={{ borderColor: 'rgba(244,247,249,0.18)', borderStyle: 'solid', borderWidth: 1 }}
+          cardBorder={{ borderColor: 'rgba(255,255,255,0.55)', borderStyle: 'solid', borderWidth: 1 }}
           buttonBGColorDefault="rgb(255,255,255)"
           buttonColorDefault="rgb(9,9,11)"
           buttonHoverBGColorHover="rgb(224,242,246)"
@@ -1700,8 +1724,9 @@ export default function Page() {
           </div>
         </div>
 
-        {/* DiaFooter — animated gradient glow rising from the bottom edge */}
-        <div style={{ height: 320, position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
+        {/* DiaFooter — animated gradient glow rising from the bottom edge. Its height is set in
+            CSS so it can shrink responsively: a fixed 320px box read as an empty void on phones. */}
+        <div className="flinza-footer-glow" style={{ position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
           <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
             {footerInView ? <DiaFooter
             preset="Custom"

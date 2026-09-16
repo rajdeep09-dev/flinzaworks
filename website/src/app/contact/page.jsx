@@ -137,11 +137,11 @@ export default function ContactPage() {
               cardTitleText="Ecommerce Growth Agency"
               cardEmail="hello@flinzaworks.com"
               cardEmailSize={26}
-              cardNameColor="rgb(244,247,249)"
+              cardNameColor="rgb(247,251,252)"
               cardTitleColor="rgba(244,247,249,0.62)"
               cardEmailColor="rgb(244,247,249)"
               cardEmailLabelColor="rgba(244,247,249,0.45)"
-              cardBGColor="rgba(9,20,27,0.72)"
+              cardBGColor="rgba(255,255,255,0.12)"
               cardBGBlurDefault={26}
               cardBorder={{ borderColor: 'rgba(244,247,249,0.18)', borderStyle: 'solid', borderWidth: 1 }}
               cardAvatar={{ src: '/images/story_portrait.jpg', alt: 'Flinza Works' }}
