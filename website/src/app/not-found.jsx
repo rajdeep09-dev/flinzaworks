@@ -10,6 +10,7 @@
  */
 
 import dynamic from "next/dynamic";
+import SiteGround from "@/components/SiteGround";
 
 const Ninja404 = dynamic(() => import("@/components/Ninja404"), {
   ssr: false,
@@ -23,6 +24,7 @@ const Ninja404 = dynamic(() => import("@/components/Ninja404"), {
 export default function NotFound() {
   return (
     <main className="flinza-404">
+      <SiteGround />
       <div className="flinza-404-inner">
         <p className="flinza-404-overline">
           <span />

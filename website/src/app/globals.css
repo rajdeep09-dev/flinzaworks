@@ -16,6 +16,91 @@
 
   --ground: #eef3f5;
 }
+/* ════════════════════════════════════════════════════════════════════════════
+   iOS / MOBILE BASE
+   iOS Safari needed its own handling rather than being treated as a small desktop:
+   the page needs viewport-fit=cover (set in layout.jsx) for these insets to exist,
+   the 300ms double-tap delay has to be opted out of, and the text-size-adjust
+   inflation has to be pinned so type does not reflow after load.
+   ════════════════════════════════════════════════════════════════════════════ */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fbfcfd;
+  -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: touch;
+  /* `manipulation` removes the tap delay and the double-tap-to-zoom trap on buttons */
+  touch-action: manipulation;
+  /* iOS rubber-banding past the end of the page exposed a hard white edge behind the ground */
+  overscroll-behavior-y: none;
+}
+
+/* The shared noisy gradient: one fixed, non-interactive layer on every route */
+.flinza-ground {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.flinza-ground img,
+.flinza-ground svg {
+  pointer-events: none;
+}
+
+/* Nothing may sit under the notch, the status bar or the home indicator */
+main > header {
+  top: calc(20px + env(safe-area-inset-top, 0px)) !important;
+}
+
+.flinza-safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.flinza-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* On touch widths the TOC rail and any side-pinned chrome would sit under the home indicator
+   on a landscape iPhone, so they get inset padding instead of the raw viewport edge. */
+@media (max-width: 900px) {
+  .flinza-toc-desktop,
+  .flinza-toc {
+    left: calc(12px + env(safe-area-inset-left, 0px)) !important;
+  }
+
+  /* Sections that reserved a full viewport height used 100vh, which on iOS measures the
+     pre-toolbar viewport and leaves a strip short or long. svh is the small viewport. */
+  .flinza-screen {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  /* Backdrop blur is the single most expensive paint on older iPhones — trim it further
+     than the tablet rule does. */
+  .flinza-glass-card,
+  .flinza-svc-inline-media,
+  .framer-fhx4ol {
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+}
+
+/* iOS will not composite a backdrop-filter element reliably while it is animating transform,
+   which is what made the glass cards flicker on a swipe. Promote them once, up front. */
+@supports (-webkit-touch-callout: none) {
+  .flinza-glass-card,
+  .framer-fhx4ol,
+  .flinza-story-grid {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
 
 /* ── Display face: the editorial voice ──
    Instrument Serif (OFL — safe for commercial client work) is a single-weight,
@@ -994,7 +1079,7 @@ html {
   gap: 54px;
   padding: 116px 22px 120px;
   box-sizing: border-box;
-  background: radial-gradient(120% 92% at 50% 6%, #071019 0%, #050a10 46%, #04070a 100%);
+  background: transparent;
   overflow: hidden;
 }
 .flinza-contact-backdrop {
@@ -1399,7 +1484,7 @@ html {
   place-items: center;
   padding: 96px 20px 80px;
   box-sizing: border-box;
-  background: radial-gradient(120% 96% at 50% 8%, #08111a 0%, #050a10 48%, #04070a 100%);
+  background: transparent;
   overflow: hidden;
 }
 .flinza-404-inner {
@@ -1925,34 +2010,60 @@ html {
   top: 116px;
   align-self: start;
 }
-.flinza-svc-stage-inner {
+/* The pile holds all six images. `padding-bottom` reserves the fanned height, and each plate is
+   offset from the active one by transform only, so hovering the list never triggers layout. */
+.flinza-svc-pile {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
-  border-radius: 30px;
-  overflow: hidden;
-  background: rgba(23, 132, 155, 0.06);
-  -webkit-mask-image: radial-gradient(120% 118% at 50% 45%, #000 62%, transparent 100%);
-  mask-image: radial-gradient(120% 118% at 50% 45%, #000 62%, transparent 100%);
+  padding-bottom: 128px;
+  box-sizing: content-box;
 }
 .flinza-svc-plate {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 82%;
+  aspect-ratio: 4 / 3;
   margin: 0;
-  opacity: 0;
-  transform: scale(1.045);
-  transition: opacity 0.75s ease, transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(23, 132, 155, 0.08);
+  box-shadow: 0 26px 50px -30px rgba(9, 9, 11, 0.5);
+  transform-origin: 60% 100%;
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease, box-shadow 0.6s ease;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 .flinza-svc-plate.is-active {
-  opacity: 1;
-  transform: scale(1);
+  box-shadow: 0 40px 70px -34px rgba(9, 9, 11, 0.62);
 }
 .flinza-svc-plate img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+/* Every image is labelled, so the fan is readable as six services rather than six pictures */
+.flinza-svc-plate-tag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 14px 10px;
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.94);
+  background: linear-gradient(180deg, rgba(4, 20, 26, 0) 0%, rgba(4, 20, 26, 0.72) 100%);
+}
+.flinza-svc-plate-tag span {
+  color: #9fe6f1;
 }
 .flinza-svc-stage-meta {
   display: flex;
@@ -2126,5 +2237,771 @@ html {
   }
   .flinza-svc-plate {
     transform: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FAQ — one native accordion
+   Rows are content height and full width. On a phone a collapsed question is a
+   single compact line instead of the 159px block the vendored list produced, and
+   the answer opens on a CSS grid track so nothing is measured in JS and long
+   answers cannot be clipped.
+   ════════════════════════════════════════════════════════════════════════════ */
+.flinza-faqlist {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(9, 9, 11, 0.1);
+}
+
+.flinza-faqrow {
+  border-bottom: 1px solid rgba(9, 9, 11, 0.1);
+  transition: background 0.4s ease;
+}
+
+.flinza-faqrow-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The hairline that sweeps in on hover — the "engineered" cue, not a glitch effect */
+.flinza-faqrow-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, #17849b, rgba(23, 132, 155, 0));
+  transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-faqrow-head:hover::after,
+.flinza-faqrow.is-open .flinza-faqrow-head::after {
+  width: 100%;
+}
+
+.flinza-faqrow-num {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: rgba(9, 9, 11, 0.36);
+  transition: color 0.35s ease, text-shadow 0.35s ease;
+}
+.flinza-faqrow-head:hover .flinza-faqrow-num,
+.flinza-faqrow.is-open .flinza-faqrow-num {
+  color: var(--aqua-deep);
+  /* a single restrained chromatic offset reads as precision, not a party trick */
+  text-shadow: 1px 0 rgba(23, 132, 155, 0.45), -1px 0 rgba(224, 122, 95, 0.3);
+}
+
+.flinza-faqrow-q {
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  color: #09090b;
+}
+
+.flinza-faqrow-sign {
+  justify-self: end;
+  position: relative;
+  width: 12px;
+  height: 12px;
+  opacity: 0.45;
+  transition: opacity 0.35s ease;
+}
+.flinza-faqrow-sign::before,
+.flinza-faqrow-sign::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: #09090b;
+  transform: translateY(-50%);
+}
+.flinza-faqrow-sign::after {
+  transform: translateY(-50%) rotate(90deg);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.flinza-faqrow-head:hover .flinza-faqrow-sign {
+  opacity: 0.8;
+}
+.flinza-faqrow.is-open .flinza-faqrow-sign::after {
+  transform: translateY(-50%) rotate(0deg);
+  opacity: 0;
+}
+
+.flinza-faqrow-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-faqrow.is-open .flinza-faqrow-body {
+  grid-template-rows: 1fr;
+}
+.flinza-faqrow-body-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.flinza-faqrow-a {
+  margin: 0 0 20px;
+  padding-left: 56px;
+  max-width: 68ch;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #52525b;
+}
+
+/* ── Phones: compact and wide, as asked — a collapsed row is one short line ── */
+@media (max-width: 900px) {
+  .flinza-faqrow-head {
+    grid-template-columns: 34px minmax(0, 1fr) 22px;
+    gap: 10px;
+    padding: 14px 0;
+    min-height: 0;
+  }
+  .flinza-faqrow-q {
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.32;
+  }
+  .flinza-faqrow-num {
+    font-size: 10px;
+  }
+  .flinza-faqrow-a {
+    padding-left: 0;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.62;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-faqrow-body,
+  .flinza-faqrow-sign::after,
+  .flinza-faqrow-head::after {
+    transition: none !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CASE-STUDY STAGE — entrance and exit choreography
+   The stage was a single block that faded in with everything at once, which is
+   what made it feel cheap next to the carousel that opens it. This gives it a
+   sequence instead: the ground settles, the body rises, the metrics cascade, the
+   quote arrives last, and the whole thing reverses on close in the same order.
+
+   It keys off `aria-hidden`, which the component already toggles with focus, so
+   no JavaScript is involved and the two states cannot fall out of sync.
+   Animation is transform / opacity / filter only, so it stays on the compositor.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.flinza-stage .flinza-stage-ground {
+  transform: scale(1.035);
+  opacity: 0;
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease;
+  will-change: transform, opacity;
+}
+.flinza-stage[aria-hidden="false"] .flinza-stage-ground {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* The body as one block, then each of its direct children in sequence */
+.flinza-stage .flinza-stage-body {
+  transform: translate3d(0, 22px, 0);
+  opacity: 0;
+  filter: blur(6px);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease, filter 0.7s ease;
+}
+.flinza-stage[aria-hidden="false"] .flinza-stage-body {
+  transform: none;
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* Each child of the body rises in turn — an editorial cascade rather than a block */
+.flinza-stage .flinza-stage-body > * {
+  transform: translate3d(0, 16px, 0);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.55s ease;
+}
+.flinza-stage[aria-hidden="false"] .flinza-stage-body > * {
+  transform: none;
+  opacity: 1;
+}
+.flinza-stage .flinza-stage-body > *:nth-child(1) { transition-delay: 0.10s; }
+.flinza-stage .flinza-stage-body > *:nth-child(2) { transition-delay: 0.16s; }
+.flinza-stage .flinza-stage-body > *:nth-child(3) { transition-delay: 0.22s; }
+.flinza-stage .flinza-stage-body > *:nth-child(4) { transition-delay: 0.28s; }
+.flinza-stage .flinza-stage-body > *:nth-child(5) { transition-delay: 0.34s; }
+.flinza-stage .flinza-stage-body > *:nth-child(6) { transition-delay: 0.40s; }
+.flinza-stage .flinza-stage-body > *:nth-child(7) { transition-delay: 0.46s; }
+.flinza-stage .flinza-stage-body > *:nth-child(8) { transition-delay: 0.52s; }
+/* On close, the cascade leaves in the same order — no delay so it feels responsive */
+.flinza-stage[aria-hidden="true"] .flinza-stage-body > * {
+  transition-duration: 0.32s;
+  transition-delay: 0s;
+}
+
+/* The quote lands last, and lifts a touch further than the rest */
+.flinza-stage .flinza-quote,
+.flinza-stage .flinza-stage-quote {
+  transform: translate3d(0, 26px, 0) scale(0.985);
+  opacity: 0;
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease;
+}
+.flinza-stage[aria-hidden="false"] .flinza-quote,
+.flinza-stage[aria-hidden="false"] .flinza-stage-quote {
+  transform: none;
+  opacity: 1;
+  transition-delay: 0.34s;
+}
+
+/* The display numerals and headline settle without a blur, so the type stays crisp */
+.flinza-stage .flinza-display {
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+/* The media plate inside the stage, if present, opens out of a slight overscale */
+.flinza-stage img {
+  transform: scale(1.04);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.flinza-stage[aria-hidden="false"] img {
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-stage .flinza-stage-ground,
+  .flinza-stage .flinza-stage-body,
+  .flinza-stage .flinza-stage-body > *,
+  .flinza-stage .flinza-quote,
+  .flinza-stage .flinza-stage-quote,
+  .flinza-stage img {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   INNER PAGE SHELL
+   One frame for every page that is not the homepage, so they read as the same
+   website: same ground, same type, same footer. Everything sits directly on the
+   gradient — no panels, no card fills.
+   ════════════════════════════════════════════════════════════════════════════ */
+.flinza-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+
+.flinza-shell-head {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) clamp(16px, 4vw, 42px) 14px;
+  background: linear-gradient(180deg, rgba(251, 252, 253, 0.86) 0%, rgba(251, 252, 253, 0) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+}
+
+.flinza-shell-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.flinza-shell-brand img {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+.flinza-shell-brand span {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.flinza-shell-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2.2vw, 28px);
+}
+.flinza-shell-nav a {
+  position: relative;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: rgba(9, 9, 11, 0.66);
+  text-decoration: none;
+  padding-bottom: 3px;
+  transition: color 0.25s ease;
+}
+.flinza-shell-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background: var(--aqua);
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-shell-nav a:hover,
+.flinza-shell-nav a.is-active {
+  color: var(--ink);
+}
+.flinza-shell-nav a:hover::after,
+.flinza-shell-nav a.is-active::after {
+  width: 100%;
+}
+
+.flinza-shell-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #f7fbfc;
+  text-decoration: none;
+  background: linear-gradient(120deg, #0a3e4c 0%, #17849b 58%, #3fb9ce 100%);
+  box-shadow: 0 18px 34px -18px rgba(10, 62, 76, 0.6);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+.flinza-shell-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 24px 40px -18px rgba(10, 62, 76, 0.7);
+}
+
+.flinza-shell-main {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  width: 100%;
+  padding: clamp(24px, 5vw, 60px) clamp(18px, 4.4vw, 56px) clamp(60px, 8vw, 120px);
+  box-sizing: border-box;
+}
+
+/* ── Shared page header block ── */
+.flinza-pagehead {
+  max-width: 1000px;
+  margin: 0 auto clamp(34px, 5vw, 64px);
+}
+.flinza-pagehead-overline {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+  margin: 0 0 16px;
+}
+.flinza-pagehead-overline i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--aqua);
+  box-shadow: 0 0 8px var(--aqua);
+}
+.flinza-pagehead h1 {
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 6vw, 74px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.flinza-pagehead h1 em {
+  font-style: italic;
+  background: linear-gradient(104deg, #17849b 0%, #0f6f86 52%, #3fb9ce 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.flinza-pagehead p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(15.5px, 1.7vw, 19px);
+  font-weight: 300;
+  line-height: 1.62;
+  color: #52525b;
+}
+
+.flinza-pagehead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+.flinza-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, background 0.3s ease;
+}
+.flinza-btn-solid {
+  color: #f7fbfc;
+  background: linear-gradient(120deg, #0a3e4c 0%, #17849b 58%, #3fb9ce 100%);
+  box-shadow: 0 18px 34px -18px rgba(10, 62, 76, 0.6);
+}
+.flinza-btn-ghost {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(9, 9, 11, 0.12);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.flinza-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Generic grid + rows used by the inner pages ── */
+.flinza-grid {
+  display: grid;
+  gap: clamp(16px, 2.4vw, 28px);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.flinza-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.flinza-grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.flinza-grid-4 { grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); }
+
+.flinza-tile {
+  position: relative;
+  padding: 24px 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(9, 9, 11, 0.09);
+  background: rgba(255, 255, 255, 0.42);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease, box-shadow 0.45s ease;
+}
+.flinza-tile:hover {
+  transform: translateY(-3px);
+  border-color: rgba(23, 132, 155, 0.4);
+  box-shadow: 0 30px 60px -34px rgba(9, 9, 11, 0.42);
+}
+.flinza-tile h3 {
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.flinza-tile p {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 300;
+  line-height: 1.66;
+  color: #52525b;
+}
+.flinza-tile-num {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: var(--aqua-deep);
+}
+
+.flinza-section-title {
+  max-width: 1180px;
+  margin: clamp(46px, 7vw, 96px) auto clamp(20px, 3vw, 34px);
+}
+.flinza-section-title h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3.6vw, 44px);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+.flinza-section-title p {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 15.5px;
+  font-weight: 300;
+  line-height: 1.62;
+  color: #52525b;
+}
+
+.flinza-statband {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: clamp(18px, 3vw, 40px);
+  max-width: 1180px;
+  margin: clamp(40px, 6vw, 80px) auto 0;
+  padding-top: clamp(26px, 4vw, 44px);
+  border-top: 1px solid rgba(9, 9, 11, 0.1);
+}
+.flinza-statband strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 4.4vw, 52px);
+  line-height: 1;
+  background: linear-gradient(104deg, #17849b 0%, #0f6f86 55%, #3fb9ce 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.flinza-statband span {
+  display: block;
+  margin-top: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.5);
+}
+
+/* ── Shell footer ── */
+.flinza-shell-foot {
+  position: relative;
+  z-index: 2;
+  padding: clamp(34px, 5vw, 64px) clamp(18px, 4.4vw, 56px) clamp(18px, 3vw, 30px);
+  border-top: 1px solid rgba(9, 9, 11, 0.1);
+}
+.flinza-shell-foot-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 60px);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.flinza-shell-foot-brand a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.flinza-shell-foot-brand img { display: block; }
+.flinza-shell-foot-brand > a span {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.flinza-shell-foot-brand > p {
+  margin: 10px 0 16px;
+  font-size: 13.5px;
+  color: #71717a;
+}
+.flinza-shell-foot-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: clamp(20px, 3vw, 46px);
+  flex: 1 1 420px;
+}
+.flinza-shell-foot-nav h4 {
+  margin: 0 0 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.45);
+}
+.flinza-shell-foot-nav a {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #52525b;
+  text-decoration: none;
+  transition: color 0.22s ease, transform 0.22s ease;
+}
+.flinza-shell-foot-nav a:hover {
+  color: var(--aqua-deep);
+  transform: translateX(2px);
+}
+.flinza-shell-foot-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 1180px;
+  margin: clamp(28px, 4vw, 48px) auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(9, 9, 11, 0.08);
+  font-size: 12px;
+  color: rgba(9, 9, 11, 0.45);
+}
+
+/* ── Prose (legal + insight pages) ── */
+.flinza-prose {
+  max-width: 74ch;
+  margin: 0 auto;
+}
+.flinza-prose h2 {
+  margin: clamp(30px, 4vw, 48px) 0 12px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(21px, 2.6vw, 30px);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.flinza-prose p,
+.flinza-prose li {
+  font-size: 15.5px;
+  font-weight: 300;
+  line-height: 1.72;
+  color: #52525b;
+}
+.flinza-prose ul {
+  padding-left: 18px;
+}
+.flinza-prose li {
+  margin-bottom: 8px;
+}
+
+/* ── Phone header: the nav becomes a real menu rather than disappearing ── */
+.flinza-shell-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.flinza-shell-menu-btn {
+  display: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(9, 9, 11, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+.flinza-shell-menu-btn span,
+.flinza-shell-menu-btn span::before,
+.flinza-shell-menu-btn span::after {
+  position: absolute;
+  left: 50%;
+  width: 15px;
+  height: 1.6px;
+  background: #09090b;
+  border-radius: 2px;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+}
+.flinza-shell-menu-btn span {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.flinza-shell-menu-btn span::before,
+.flinza-shell-menu-btn span::after {
+  content: "";
+  left: 0;
+}
+.flinza-shell-menu-btn span::before {
+  transform: translateY(-5px);
+}
+.flinza-shell-menu-btn span::after {
+  transform: translateY(5px);
+}
+.flinza-shell-menu-btn span.is-open {
+  background: transparent;
+}
+.flinza-shell-menu-btn span.is-open::before {
+  transform: rotate(45deg);
+}
+.flinza-shell-menu-btn span.is-open::after {
+  transform: rotate(-45deg);
+}
+
+.flinza-shell-menu {
+  position: sticky;
+  top: 68px;
+  z-index: 39;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.flinza-shell-menu > nav {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0 clamp(16px, 4vw, 42px);
+  background: rgba(251, 252, 253, 0.92);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.flinza-shell-menu.is-open {
+  grid-template-rows: 1fr;
+  pointer-events: auto;
+}
+.flinza-shell-menu.is-open > nav {
+  padding-bottom: 16px;
+}
+.flinza-shell-menu a {
+  padding: 13px 0;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: rgba(9, 9, 11, 0.78);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(9, 9, 11, 0.07);
+}
+.flinza-shell-menu a.is-active {
+  color: var(--aqua-deep);
+}
+
+@media (max-width: 820px) {
+  .flinza-shell-nav {
+    display: none;
+  }
+  .flinza-shell-menu-btn {
+    display: block;
+  }
+  .flinza-shell-head {
+    justify-content: space-between;
+    gap: 10px;
   }
 }

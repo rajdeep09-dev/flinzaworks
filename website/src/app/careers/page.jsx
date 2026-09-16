@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
+import SiteGround from '@/components/SiteGround';
 
 const CamoLiquidButton = dynamic(
   () => import('@/components/CamoLiquidButton'),
@@ -486,11 +487,12 @@ export default function CareersPage() {
       style={{
         width: '100%',
         minHeight: '100vh',
-        background: 'radial-gradient(120% 90% at 50% 0%, #ffffff 0%, #fbfcfd 55%, #f0f7f9 100%)',
+        background: 'transparent',
         color: '#09090b',
         fontFamily: "'Nohemi', sans-serif",
       }}
     >
+      <SiteGround />
       <style jsx global>{`
         .flinza-role-row .flinza-role-blurb {
           display: -webkit-box;

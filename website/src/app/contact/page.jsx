@@ -1,19 +1,15 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import ContactOrbit from '@/components/ContactOrbit';
+import SiteGround from '@/components/SiteGround';
 import BookCallButton from '@/components/CalGlassModal';
 import { contactTestimonials } from '@/data/testimonials';
 
 const ContactButton = dynamic(
   () => import('@/components/ContactButton'),
   { ssr: false }
-);
-
-const LiquidImage = dynamic(
-  () => import('@/components/LiquidImage'),
-  { ssr: false, loading: () => null }
 );
 
 const LiquidChromeButton = dynamic(
@@ -24,38 +20,6 @@ const LiquidChromeButton = dynamic(
 export default function ContactPage() {
   const [msg, setMsg] = useState({ name: '', email: '', message: '' });
   const [msgState, setMsgState] = useState('idle'); // idle | sending | sent | error
-
-  // Item 2: the hill artwork through LiquidImage. The source is the 2K master, but it is
-  // served as a WebP chosen for the viewport (107KB / 46KB / 20KB) instead of the 4.2MB PNG,
-  // and the WebGL effect only mounts once the backdrop is actually in view.
-  const [hillSrc, setHillSrc] = useState('/images/hill_1000.webp');
-  const [backdropReady, setBackdropReady] = useState(false);
-  const backdropRef = useRef(null);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const width = window.innerWidth;
-    setHillSrc(width <= 700 ? '/images/hill_640.webp' : width <= 1280 ? '/images/hill_1000.webp' : '/images/hill_1600.webp');
-  }, []);
-
-  useEffect(() => {
-    const node = backdropRef.current;
-    if (!node || typeof IntersectionObserver !== 'function') {
-      setBackdropReady(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setBackdropReady(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '200px' }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
 
   const submitMessage = async (e) => {
     e.preventDefault();
@@ -82,8 +46,8 @@ export default function ContactPage() {
     boxSizing: 'border-box',
     padding: '13px 16px',
     borderRadius: 14,
-    border: '1px solid rgba(244,247,249,0.16)',
-    background: 'rgba(244,247,249,0.06)',
+    border: '1px solid rgba(9,9,11,0.12)',
+    background: 'rgba(255,255,255,0.58)',
     backdropFilter: 'blur(14px)',
     WebkitBackdropFilter: 'blur(14px)',
     fontSize: 14.5,
@@ -95,21 +59,8 @@ export default function ContactPage() {
 
   return (
     <main className="flinza-contact-page">
-      {/* Hill artwork, non-interactive, behind everything. */}
-      <div ref={backdropRef} aria-hidden="true" className="flinza-contact-backdrop">
-        {backdropReady ? (
-          <LiquidImage
-            sourceType="image"
-            image={{ src: hillSrc, alt: '' }}
-            colorReveal={false}
-            strength={0.1}
-            speed={0.12}
-            fit="cover"
-            borderRadius={0}
-            style={{ width: '100%', height: '100%' }}
-          />
-        ) : null}
-      </div>
+      {/* The site's shared noisy gradient, so this route reads as the same website as the rest. */}
+      <SiteGround />
       <div aria-hidden="true" className="flinza-contact-veil" />
 
       {/* Header */}

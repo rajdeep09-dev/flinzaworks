@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
+import { faqItems } from '@/data/faqs';
+import FaqList from '@/components/FaqList';
 
 const BrandLoader = dynamic(
   () => import('@/components/BrandLoader'),
@@ -208,13 +210,6 @@ const DiaFooter = dynamic(
 );
 
 
-const ExpandOnHoverList = dynamic(
-  () => import('@/components/ExpandOnHoverList'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
 
 const ContactButton = dynamic(
   () => import('@/components/ContactButton'),
@@ -511,6 +506,23 @@ export default function Page() {
       title: 'Rapid Iteration at Volume',
       description: 'Systematic A/B testing on 48-hour cycles keeps your creative pipeline fresh and your account learning, never plateauing.',
       image: { src: 'https://framerusercontent.com/images/LOUHKfxecdzS4oSB9PSeYz21fk.png' },
+    },
+    {
+      brand: 'Creator-led commerce',
+      description: 'Creators who actually convert',
+      image: { src: '/images/story_portrait.jpg' },
+      caseStudy: {
+        tag: '09 // CREATORS',
+        title: 'Influencer Marketing',
+        whatWeDid: 'Source and vet creators on engagement quality rather than follower count, negotiate usage rights up front, then license their content into paid media where it consistently outperforms studio creative.',
+        deliverables: ['Vetted creator roster', 'Negotiated usage rights', 'Creator content in paid'],
+        stack: ['TikTok', 'Instagram', 'YouTube', 'Pinterest'],
+        results: {
+          primary: '3.2x', primaryLabel: 'Return on Creator Spend',
+          metricA: '640+', metricALabel: 'Partnerships Negotiated', metricB: '-38%', metricBLabel: 'CAC vs Studio Creative',
+          efficiency: 92, sparkline: 'M0,46 C30,44 60,30 90,32 C120,34 150,16 180,18 C210,20 235,6 260,4',
+        },
+      },
     },
   ];
 
@@ -1082,7 +1094,7 @@ export default function Page() {
             marginLeft: 'auto',
             marginRight: 'auto',
           }}>
-            Six ways we move ecommerce revenue — from revenue-leak audits and conversion video to AI UGC and profit-first paid media.
+            Seven ways we move ecommerce revenue — from revenue-leak audits and conversion video to AI UGC, creator partnerships and profit-first paid media.
           </p>
         </div>
 
@@ -1131,26 +1143,26 @@ export default function Page() {
             gap: 8,
             padding: '6px 16px',
             borderRadius: 999,
-            backgroundColor: 'rgba(37, 211, 102, 0.08)',
-            border: '1px solid rgba(37, 211, 102, 0.3)',
+            backgroundColor: 'rgba(23, 132, 155, 0.1)',
+            border: '1px solid rgba(23, 132, 155, 0.32)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(37, 211, 102, 0.08)',
+            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.1)',
             marginBottom: 18,
           }}>
             <span style={{
               width: 8,
               height: 8,
               borderRadius: '50%',
-              backgroundColor: '#25D366',
-              boxShadow: '0 0 10px #25D366',
+              backgroundColor: '#17849B',
+              boxShadow: '0 0 10px #17849B',
             }} />
             <span style={{
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#0d6832',
+              color: '#0F6F86',
             }}>
               Unfiltered Feedback • WhatsApp Voice Notes
             </span>
@@ -1247,7 +1259,7 @@ export default function Page() {
                     <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
                       Sarah Mitchell
                     </span>
-                    <span style={{ color: '#25D366', fontSize: 13 }} title="Verified Client">✓</span>
+                    <span style={{ color: '#17849B', fontSize: 13 }} title="Verified Client">✓</span>
                   </div>
                   <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }}>
                     CMO @ [NDA]
@@ -1266,7 +1278,7 @@ export default function Page() {
                 userImageFile="/images/avatar_sarah.jpg"
                 timestamp="11:42 AM"
                 isOwn={false}
-                accentColor="#25D366"
+                accentColor="#17849B"
               /> : null}</div>
             </div>
 
@@ -1276,10 +1288,10 @@ export default function Page() {
               lineHeight: 1.6,
               color: '#3f3f46',
               margin: '0 0 -8px',
-              backgroundColor: 'rgba(37, 211, 102, 0.09)',
+              backgroundColor: 'rgba(23, 132, 155, 0.1)',
               padding: '14px 16px',
               borderRadius: '16px 16px 16px 4px',
-              borderLeft: '2.5px solid rgba(37, 211, 102, 0.55)',
+              borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
             }}>
               “Finally, an agency that moves fast. Weekly optimization calls, real-time Slack access, and they actually challenge our assumptions instead of just executing orders.”
             </p>
@@ -1289,14 +1301,14 @@ export default function Page() {
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#0d6832',
-                backgroundColor: 'rgba(37, 211, 102, 0.12)',
+                color: '#F7FBFC',
+                backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
                 padding: '4px 12px',
                 borderRadius: 999,
               }}>
                 ⚡ Weekly Optimization Calls
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#53BDEB', fontWeight: 700 }}>✓✓</span></span>
+              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
 
@@ -1327,7 +1339,7 @@ export default function Page() {
                     <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
                       Marcus Rodriguez
                     </span>
-                    <span style={{ color: '#25D366', fontSize: 13 }} title="Verified Client">✓</span>
+                    <span style={{ color: '#17849B', fontSize: 13 }} title="Verified Client">✓</span>
                   </div>
                   <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }}>
                     Growth Lead @ [NDA]
@@ -1346,7 +1358,7 @@ export default function Page() {
                 userImageFile="/images/avatar_marcus.png"
                 timestamp="4:18 PM"
                 isOwn={false}
-                accentColor="#25D366"
+                accentColor="#17849B"
               /> : null}</div>
             </div>
 
@@ -1356,10 +1368,10 @@ export default function Page() {
               lineHeight: 1.6,
               color: '#3f3f46',
               margin: '0 0 -8px',
-              backgroundColor: 'rgba(37, 211, 102, 0.09)',
+              backgroundColor: 'rgba(23, 132, 155, 0.1)',
               padding: '14px 16px',
               borderRadius: '16px 16px 16px 4px',
-              borderLeft: '2.5px solid rgba(37, 211, 102, 0.55)',
+              borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
             }}>
               “Not order takers. They pushed back on our creative direction, tested their hypothesis, and proved us wrong. Revenue up 89% in 12 weeks.”
             </p>
@@ -1369,14 +1381,14 @@ export default function Page() {
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#0d6832',
-                backgroundColor: 'rgba(37, 211, 102, 0.12)',
+                color: '#F7FBFC',
+                backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
                 padding: '4px 12px',
                 borderRadius: 999,
               }}>
                 📈 +89% Revenue in 12 Weeks
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#53BDEB', fontWeight: 700 }}>✓✓</span></span>
+              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
 
@@ -1407,7 +1419,7 @@ export default function Page() {
                     <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
                       Charlie Garwood
                     </span>
-                    <span style={{ color: '#25D366', fontSize: 13 }} title="Verified Client">✓</span>
+                    <span style={{ color: '#17849B', fontSize: 13 }} title="Verified Client">✓</span>
                   </div>
                   <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }}>
                     Founder @ StillRing
@@ -1426,7 +1438,7 @@ export default function Page() {
                 userImageFile="/images/avatar_charlie.png"
                 timestamp="Yesterday"
                 isOwn={false}
-                accentColor="#25D366"
+                accentColor="#17849B"
               /> : null}</div>
             </div>
 
@@ -1436,10 +1448,10 @@ export default function Page() {
               lineHeight: 1.6,
               color: '#3f3f46',
               margin: '0 0 -8px',
-              backgroundColor: 'rgba(37, 211, 102, 0.09)',
+              backgroundColor: 'rgba(23, 132, 155, 0.1)',
               padding: '14px 16px',
               borderRadius: '16px 16px 16px 4px',
-              borderLeft: '2.5px solid rgba(37, 211, 102, 0.55)',
+              borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
             }}>
               “We burned $40K on pretty ads that didn't convert. These guys tested 30 angles in two weeks and found our winner. ROAS went from 1.8x to 4.2x.”
             </p>
@@ -1449,14 +1461,14 @@ export default function Page() {
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#0d6832',
-                backgroundColor: 'rgba(37, 211, 102, 0.12)',
+                color: '#F7FBFC',
+                backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
                 padding: '4px 12px',
                 borderRadius: 999,
               }}>
                 🚀 ROAS 1.8x → 4.2x
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#53BDEB', fontWeight: 700 }}>✓✓</span></span>
+              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
         </div>
@@ -1525,78 +1537,11 @@ export default function Page() {
         {/* ExpandOnHoverList blocks — 3 items each, covering 10 questions */}
         <div className="flinza-faq" style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-          {/* FAQ Group 1: Questions 1–3 */}
-          <div className="flinza-mount-gate" style={{ width: '100%' }}>
-          {faqInView ? <ExpandOnHoverList
-            sLNo01="01"
-            title01="What does Flinza Works actually do?"
-            text01="We're a data-driven ecommerce growth agency. We audit your funnel, test creative on 48-hour cycles, and scale what converts across Meta and TikTok — optimized for profit, not vanity metrics."
-            sLNo02="02"
-            title02="Who is this for?"
-            text02="Ecommerce and DTC brands spending $50K+ per month on paid media who need growth, not just ads. If you're pre-revenue, we're probably not the right fit yet."
-            sLNo03="03"
-            title03="How fast will we see results?"
-            text03="Testing starts in week one. Most brands see meaningful ROAS movement inside 30 days, with compounding gains as winning creative scales."
-            openColor="rgb(14,14,14)"
-            closeColor="rgb(172,172,172)"
-            topBottomDividerColor="rgba(230,230,230,0.8)"
-            style={{ width: '100%' }}
-          /> : null}</div>
-
-          {/* FAQ Group 2: Questions 4–6 */}
-          <div className="flinza-mount-gate" style={{ width: '100%' }}>
-          {faqInView ? <ExpandOnHoverList
-            sLNo01="04"
-            title01="What's your pricing model?"
-            text01="Fixed-scope retainers or project engagements — no hourly billing. You always know what you're getting and when. Custom quotes are scoped within 48 hours of your first call."
-            sLNo02="05"
-            title02="What makes you different from other agencies?"
-            text02="We're not order takers. We challenge assumptions, test hypotheses, and kill losers fast. Weekly optimization calls and real-time Slack access mean you're never guessing."
-            sLNo03="06"
-            title03="Do you use AI UGC?"
-            text03="Yes — custom AI avatars produce unlimited user-generated content, so we test 10x more angles without creator bottlenecks, missed deadlines, or $300-per-video fees."
-            openColor="rgb(14,14,14)"
-            closeColor="rgb(172,172,172)"
-            topBottomDividerColor="rgba(230,230,230,0.8)"
-            style={{ width: '100%' }}
-          /> : null}</div>
-
-          {/* FAQ Group 3: Questions 7–9 */}
-          <div className="flinza-mount-gate" style={{ width: '100%' }}>
-          {faqInView ? <ExpandOnHoverList
-            sLNo01="07"
-            title01="Who owns the creative and ad accounts?"
-            text01="You do — fully. All creative, assets, and ad accounts are 100% yours. We retain no rights, claim no licenses, and impose no usage restrictions."
-            sLNo02="08"
-            title02="Do you work with brands outside our country?"
-            text02="Yes — we're globally distributed with clients across North America, Europe, and the Middle East. Async-first communication keeps cross-timezone work smooth."
-            sLNo03="09"
-            title03="How do we get started?"
-            text03="Book a discovery call. We audit your funnel, creative, and attribution, find the 3–5 bottlenecks bleeding cash, and return a fixed quote within 48 hours."
-            openColor="rgb(14,14,14)"
-            closeColor="rgb(172,172,172)"
-            topBottomDividerColor="rgba(230,230,230,0.8)"
-            style={{ width: '100%' }}
-          /> : null}</div>
-
-          {/* FAQ Group 4: Questions 10–12 */}
-          <div className="flinza-mount-gate" style={{ width: '100%' }}>
-          {faqInView ? <ExpandOnHoverList
-            sLNo01="10"
-            title01="Do you guarantee results?"
-            text01="No honest agency guarantees ROAS. What we guarantee is speed and rigor: 48-hour testing cycles, transparent dashboards, and profit-first decisions every single week."
-            sLNo02="11"
-            title02="What do you need from us to start?"
-            text02="Ad-account access, product feed, and a Slack channel. We handle strategy, creative, testing, and reporting — you keep building your product."
-            sLNo03="12"
-            title03="Can we see past work before signing?"
-            text03="Yes. On the discovery call we walk through anonymized case studies with real numbers — including the tests that failed, not just the winners."
-            openColor="rgb(14,14,14)"
-            closeColor="rgb(172,172,172)"
-            topBottomDividerColor="rgba(230,230,230,0.8)"
-            style={{ width: '100%' }}
-          /> : null}</div>
-
+          {/* Rendered unconditionally. The section used to defer mounting until it scrolled into
+              view, and when that gate failed to fire the entire FAQ rendered as an empty box —
+              which is what "the FAQ is blank / loads slowly" was. Twelve rows of text cost
+              nothing to mount, so there is no reason to gamble on a gate here. */}
+          <FaqList items={faqItems} />
         </div>
       </section>
 
@@ -1703,6 +1648,9 @@ export default function Page() {
               { label: 'Work', href: '#stories' },
               { label: 'Services', href: '#services' },
               { label: 'Voices', href: '#testimonials' },
+              { label: 'Creators', href: '/influencer-marketing' },
+              { label: 'About', href: '/about' },
+              { label: 'Insights', href: '/insights' },
               { label: 'FAQ', href: '#faq' },
               { label: 'Careers', href: '/careers' },
               { label: 'Contact', href: '/contact' },

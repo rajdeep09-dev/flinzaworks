@@ -105,24 +105,37 @@ export default function ServicesShowcase({ cards = [] }) {
         })}
       </ol>
 
-      {/* ── Media plate (desktop only): the active service's image, feathered into the gradient ── */}
+      {/* ── Media pile (desktop only) ──
+          All six service images are held at once, fanned behind the active one, instead of a
+          single plate that swapped on every hover. Each plate offsets by its distance from the
+          active service, so nothing is hidden and the motion is pure transform — no layout,
+          no reflow, no flicker between frames. */}
       <div className="flinza-svc-stage" aria-hidden="true">
-        <div className="flinza-svc-stage-inner">
-          {services.map((service, index) => (
-            <figure
-              key={service.key}
-              className={`flinza-svc-plate${index === active ? " is-active" : ""}`}
-            >
-              {service.image ? (
-                <img
-                  src={service.image}
-                  alt=""
-                  loading={index === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-              ) : null}
-            </figure>
-          ))}
+        <div className="flinza-svc-pile">
+          {services.map((service, index) => {
+            const offset = index - active;
+            const distance = Math.abs(offset);
+            const style = {
+              zIndex: 40 - distance,
+              transform: `translate3d(${offset === 0 ? -10 : offset * 6}px, ${offset * 26}px, 0) scale(${1 - distance * 0.045})`,
+              opacity: distance === 0 ? 1 : distance === 1 ? 0.72 : distance === 2 ? 0.45 : 0.24,
+            };
+            return (
+              <figure
+                key={service.key}
+                className={`flinza-svc-plate${offset === 0 ? " is-active" : ""}`}
+                style={style}
+              >
+                {service.image ? (
+                  <img src={service.image} alt="" loading="lazy" decoding="async" />
+                ) : null}
+                <figcaption className="flinza-svc-plate-tag">
+                  <span>{service.index}</span>
+                  {service.label}
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
         <div className="flinza-svc-stage-meta">
           <span className="flinza-svc-stage-num flinza-display">{current.index}</span>
