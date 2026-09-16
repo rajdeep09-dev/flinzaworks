@@ -370,8 +370,16 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.035em;
 }
 
-p, span, a, button, input, textarea, select, label {
+/* Form controls do not inherit type by default, so they keep an explicit default. `span` is
+   deliberately NOT in this list: forcing Nohemi on every span meant the word-level spans inside
+   headings could never inherit the editorial display serif, which is why headlines rendered in
+   the UI sans no matter what the heading rule said. */
+p, a, button, input, textarea, select, label {
   font-family: 'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+span {
+  font-family: inherit;
 }
 
 /* Nohemi ships every weight, so the browser must never synthesise them */
@@ -682,19 +690,15 @@ html {
 .flinza-glass-text {
   position: relative;
   display: inline-block;
-  font-family: 'Nohemi', sans-serif;
+  /* Inherits the heading font on purpose. The dark glass band that used to sit over the aqua
+     gradient was tuned for the old heavy sans; in the editorial serif it read as a smudged
+     blob rather than a liquid-glass accent. One clean gradient, no overlay, no bloom. */
   color: transparent;
-  background:
-    linear-gradient(178deg, rgba(9, 9, 11, 0.82) 0%, rgba(9, 9, 11, 0.28) 34%, rgba(9, 9, 11, 0.88) 58%, rgba(9, 9, 11, 0.42) 82%, rgba(9, 9, 11, 0.9) 100%)
-    no-repeat,
-    linear-gradient(115deg, #0A3E4C 0%, #17849B 45%, #7FD1DE 78%, #C9F0F5 100%)
-    no-repeat;
+  background: linear-gradient(112deg, #0A3E4C 0%, #17849B 46%, #3FB9CE 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  /* No text-stroke: an outline over a gradient fill is what made this read as a cheap
-     mock-up. A clean gradient fill plus a soft aqua bloom matches the liquid-metal logo. */
-  text-shadow: 0 10px 30px rgba(23, 132, 155, 0.18);
+  text-shadow: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .flinza-glass-text {
