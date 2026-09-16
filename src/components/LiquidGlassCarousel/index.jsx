@@ -1,4 +1,5 @@
 "use client";
+import FocusedStage from "./FocusedStage.jsx";
 import{jsx as _jsx,jsxs as _jsxs}from"react/jsx-runtime";import*as React from"react";import{addPropertyControls,ControlType,useIsStaticRenderer}from"framer";import*as THREE from"three";import*as GsapModule from"gsap";const gsap=GsapModule.gsap??GsapModule.default??GsapModule;function toPlainText(value){if(value==null)return"";return String(value).replace(/<[^>]*>/g,"").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/g,"'").trim();}const fragmentShader=`
     #define PI 3.14159265
     precision highp float;
@@ -329,169 +330,6 @@ observeVisibility(mount);function destroy(){try{cancelAnimationFrame(activeRaf);
 const caseStudy = current.caseStudy || defaultCaseStudies[active % defaultCaseStudies.length];
 
 
-/* ── Focused case-study overlay ──
-   One editorial layout shared by every breakpoint. The old version rendered two separate
-   radial-gradient "cards" on desktop (they read as white boxes with halos) plus a fixed
-   white sheet on mobile whose hard bottom edge cut the screen in half and painted over the
-   close button. Here the copy sits on a single full-bleed, all-side-feathered scrim with no
-   border, no radius and no interior edge — so text reads as part of the gradient. */
-function FocusedOverlay({ caseStudy, focused, compact, onClose }) {
-  if (!caseStudy) return null;
-  const results = caseStudy.results || {};
-  const overline = toPlainText(caseStudy.tag).split('//')[1]?.trim() || 'Case Study';
-  const deliverableLine = (caseStudy.deliverables || []).filter(Boolean).join('   ·   ');
-  const stackLine = (caseStudy.stack || []).join('   ·   ');
-  const metrics = [['metricA', 'metricALabel'], ['metricB', 'metricBLabel']];
-
-  return (
-    <div
-      aria-hidden={!focused}
-      style={{
-        position: 'absolute',
-        inset: 0,
-        zIndex: 120,
-        opacity: focused ? 1 : 0,
-        pointerEvents: 'none',
-        transition: 'opacity .6s cubic-bezier(0.16, 1, 0.3, 1)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: compact ? 'flex-end' : 'center',
-        boxSizing: 'border-box',
-      }}
-    >
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: compact
-            ? 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.30) 22%, rgba(255,255,255,0.88) 58%, rgba(255,255,255,0.86) 84%, rgba(255,255,255,0.52) 100%)'
-            : 'linear-gradient(90deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.86) 25%, rgba(255,255,255,0.34) 52%, rgba(255,255,255,0) 74%)',
-        }}
-      />
-
-      <button
-        type="button"
-        aria-label="Close focused project"
-        className="flinza-focus-close"
-        onClick={onClose}
-        style={{
-          position: 'absolute',
-          top: compact ? 16 : 24,
-          right: compact ? 16 : 30,
-          zIndex: 2,
-          pointerEvents: focused ? 'auto' : 'none',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '9px 15px',
-          borderRadius: 999,
-          border: '1px solid rgba(9,9,11,0.12)',
-          background: 'rgba(255,255,255,0.78)',
-          color: '#09090b',
-          fontFamily: "'Nohemi', sans-serif",
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: '0.16em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          opacity: focused ? 1 : 0,
-          transform: focused ? 'none' : 'translateY(-6px)',
-          transition: 'opacity .4s ease, transform .4s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}
-      >
-        <svg width="10" height="10" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        </svg>
-        Close
-      </button>
-
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          width: compact ? '100%' : 'min(560px, 46vw)',
-          padding: compact ? '0 22px 22px' : '0 0 0 max(34px, 4vw)',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: compact ? 11 : 15,
-        }}
-      >
-        <span style={{ fontFamily: "'Nohemi', sans-serif", fontSize: 10.5, fontWeight: 600, letterSpacing: '0.26em', textTransform: 'uppercase', color: '#0E7C93' }}>
-          {overline}
-        </span>
-
-        <h2 style={{ margin: 0, fontFamily: "'Nohemi', sans-serif", fontWeight: 500, fontSize: compact ? 'clamp(27px, 8vw, 34px)' : 'clamp(34px, 3.4vw, 50px)', lineHeight: 1.05, letterSpacing: '-0.035em', color: '#09090b' }}>
-          {toPlainText(caseStudy.title)}
-        </h2>
-
-        <p style={{ margin: 0, fontSize: compact ? 14.5 : 16, lineHeight: 1.68, color: '#3f3f46', fontWeight: 400, maxWidth: compact ? undefined : 520 }}>
-          {toPlainText(caseStudy.whatWeDid)}
-        </p>
-
-        {deliverableLine ? (
-          <span style={{ fontFamily: "'Nohemi', sans-serif", fontSize: 12, fontWeight: 500, letterSpacing: '0.04em', color: '#52525b', lineHeight: 1.6 }}>
-            {deliverableLine}
-          </span>
-        ) : null}
-
-        <div
-          style={{
-            marginTop: compact ? 6 : 12,
-            paddingTop: compact ? 14 : 18,
-            borderTop: '1px solid rgba(9,9,11,0.12)',
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: compact ? 20 : 38,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span
-              style={{
-                fontFamily: "'Nohemi', sans-serif",
-                fontWeight: 200,
-                fontSize: compact ? 38 : 54,
-                lineHeight: 1,
-                letterSpacing: '-0.04em',
-                fontVariantNumeric: 'tabular-nums',
-                background: 'linear-gradient(120deg, #0A3E4C 0%, #0E7C93 48%, #3FB9CE 100%)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                color: 'transparent',
-              }}
-            >
-              {results.primary}
-            </span>
-            <span style={{ fontSize: 11, fontWeight: 500, color: '#52525b' }}>{results.primaryLabel}</span>
-          </div>
-
-          {metrics.map(([valueKey, labelKey]) =>
-            results[valueKey] ? (
-              <div key={valueKey} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ fontFamily: "'Nohemi', sans-serif", fontSize: compact ? 18 : 21, fontWeight: 500, letterSpacing: '-0.02em', color: '#09090b', fontVariantNumeric: 'tabular-nums' }}>
-                  {results[valueKey]}
-                </span>
-                <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a1a1aa' }}>
-                  {results[labelKey]}
-                </span>
-              </div>
-            ) : null
-          )}
-        </div>
-
-        {stackLine ? (
-          <span style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#a1a1aa' }}>
-            {stackLine}
-          </span>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
 const isMobile = React.useMemo(() => { if (typeof window === "undefined" || !window.matchMedia) return false; return window.matchMedia("(max-width: 860px)").matches; }, []);
 const compact = isMobile;
 const viewportLockClass = "flinza-carousel-lock";
@@ -541,7 +379,7 @@ return /*#__PURE__*/_jsxs("div",{className:viewportLockClass,style:{...style,pos
 
   
   /* Focused case-study overlay — one shared editorial layout for every breakpoint */
-  <FocusedOverlay
+  <FocusedStage
     caseStudy={caseStudy}
     focused={focused}
     compact={compact}

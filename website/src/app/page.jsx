@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import FluidText from '@/components/FluidText';
+import { withCaseStudyTestimonial } from '@/data/testimonials';
 
-const AnimationLoader = dynamic(
-  () => import('@/components/AnimationLoader'),
+const BrandLoader = dynamic(
+  () => import('@/components/BrandLoader'),
   {
     ssr: false,
     loading: () => null,
@@ -137,8 +138,69 @@ const WhatsApAudioPlayer = dynamic(
   }
 );
 
-const FlipperRow3 = dynamic(
-  () => import('@/components/FeatureFlipper/FlipperRow3'),
+const FramerStory = dynamic(
+  () => import('@/components/FramerStory'),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
+
+// Founder stories shown above the voice notes (item 7). Each item can declare its own
+// aspect, so a portrait story and a 16:9 clip can sit in the same strip.
+const founderStories = [
+  {
+    id: 'sarah',
+    title: 'Sarah M.',
+    time: '2h',
+    image: { src: '/images/avatar_sarah.jpg', alt: 'Sarah Mitchell' },
+    items: [
+      { kind: 'image', image: { src: '/images/story_portrait.jpg', alt: 'Founder portrait' }, durationMs: 4600, aspect: '9:16', caption: 'Day 40 in the account.' },
+      { kind: 'video', videoFile: '/videos/story1.mp4', aspect: '16:9', caption: 'Creative we shipped this week.' },
+    ],
+  },
+  {
+    id: 'marcus',
+    title: 'Marcus B.',
+    time: '5h',
+    image: { src: '/images/avatar_marcus.png', alt: 'Marcus Bell' },
+    items: [
+      { kind: 'image', image: { src: '/images/story_traffic.jpg', alt: 'Traffic dashboard' }, durationMs: 4600, aspect: '9:16' },
+      { kind: 'video', videoFile: '/videos/story2.mp4', aspect: '16:9' },
+    ],
+    ctaLabel: 'See the audit',
+    ctaLink: '/contact',
+  },
+  {
+    id: 'charlie',
+    title: 'Charlie N.',
+    time: '1d',
+    image: { src: '/images/avatar_charlie.png', alt: 'Charlie Nguyen' },
+    items: [
+      { kind: 'image', image: { src: '/images/story_action.jpg', alt: 'Production still' }, durationMs: 4600, aspect: '9:16' },
+      { kind: 'video', videoFile: '/videos/story3.mp4', aspect: '16:9' },
+    ],
+  },
+];
+
+const StoryFlowDoodles = dynamic(
+  () => import('@/components/StoryFlowDoodles'),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
+
+const SocialGlassRow = dynamic(
+  () => import('@/components/SocialGlassRow'),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
+
+const ServicesTabs = dynamic(
+  () => import('@/components/ServicesTabs'),
   {
     ssr: false,
     loading: () => null,
@@ -503,16 +565,11 @@ export default function Page() {
             willChange: 'opacity, transform',
           }}
         >
-          <AnimationLoader
+          <BrandLoader
             brandName="FLINZA"
-            counterDuration={1.4}
-            textColor="#09090b"
-            background="#ffffff"
-            style={{ width: '100%', height: '100%' }}
+            note="Growth systems for ecommerce"
             onStartExit={() => setLoaderExited(true)}
-            onComplete={() => {
-              setTimeout(() => setLoaderRemoved(true), 850);
-            }}
+            onComplete={() => setLoaderRemoved(true)}
           />
         </div>
       )}
@@ -592,7 +649,7 @@ export default function Page() {
       >
         {/* Pre-warmed WebGL carousel that starts animation the moment loader reaches 100% */}
         <LiquidGlassCarousel
-          projects={carouselProjects}
+          projects={carouselProjects.map(withCaseStudyTestimonial)}
           panelHeight={480}
           gap={12}
           glide={0.075}
@@ -819,7 +876,11 @@ export default function Page() {
             margin: '0 auto',
           }}
         >
-                    {/* Enlarged Flush Rectangular Puzzle Grid */}
+                              {/* Curved-arrow doodles (item 4) — reserved band above the mosaic, so they can
+              never sit on top of a video. */}
+          <StoryFlowDoodles />
+
+{/* Enlarged Flush Rectangular Puzzle Grid */}
           <div
             className="flinza-story-grid"
             style={{
@@ -1010,18 +1071,10 @@ export default function Page() {
           width: '100%',
           maxWidth: 1200,
         }}>
-          {/* Row 1: Intelligence (3 cards) */}
-          <div id="service-row-1" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <div className="flinza-mount-gate" style={{ width: '100%' }}>
-              {servicesInView ? <FlipperRow3 cards={row1Cards} /> : null}
-            </div>
-          </div>
-
-          {/* Row 2: Engineering (3 cards) */}
-          <div id="service-row-2" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <div className="flinza-mount-gate" style={{ width: '100%' }}>
-              {servicesInView ? <FlipperRow3 cards={row2Cards} /> : null}
-            </div>
+          {/* The vendored Tabs-card carries the four flagship services; the remaining two
+              continue underneath it so no service is dropped by the four-tab shape. */}
+          <div id="service-row-1" style={{ width: '100%' }}>
+            {servicesInView ? <ServicesTabs cards={[...row1Cards, ...row2Cards]} /> : null}
           </div>
         </div>
       </section>
@@ -1105,6 +1158,35 @@ export default function Page() {
           </p>
         </div>
 
+        {/* Founder Stories — the story ring sits directly above the voice notes (item 7).
+            The card frame follows each item's own aspect ratio, so 16:9 clips and portrait
+            stories both render correctly. */}
+        <div
+          className="flinza-story-strip"
+          style={{ width: '100%', maxWidth: 1360, marginBottom: 46, display: 'flex', justifyContent: 'center' }}
+        >
+          {testimonialsInView ? (
+            <FramerStory
+              stories={founderStories}
+              aspect="9:16"
+              background="transparent"
+              nameSeenText="#52525b"
+              nameUnseenText="#09090b"
+              ringSeen="linear-gradient(135deg,#0A3E4C,#17849B)"
+              ringUnseenA="#17849B"
+              ringUnseenB="#3FB9CE"
+              ringUnseenC="#7FD1DE"
+              thumbSize={76}
+              thumbGap={20}
+              storyCardRadius={22}
+              enableAutoplayVideo
+              enableKeyboard
+              zoomEnabled
+              style={{ width: '100%' }}
+            />
+          ) : null}
+        </div>
+
         {/* 3 WhatsApp Voice Note Cards Grid */}
         <div style={{
           width: '100%',
@@ -1152,7 +1234,7 @@ export default function Page() {
             </div>
 
             {/* Real Framer WhatsApp Audio Player */}
-            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '10px 8px', borderRadius: 16, background: 'rgba(220, 248, 235, 0.55)', border: '1px solid rgba(37, 211, 102, 0.14)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
               {testimonialsInView ? <WhatsApAudioPlayer
                 audioFile="/audio/testimonial_sarah.wav"
@@ -1232,7 +1314,7 @@ export default function Page() {
             </div>
 
             {/* Real Framer WhatsApp Audio Player */}
-            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '10px 8px', borderRadius: 16, background: 'rgba(220, 248, 235, 0.55)', border: '1px solid rgba(37, 211, 102, 0.14)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
               {testimonialsInView ? <WhatsApAudioPlayer
                 audioFile="/audio/testimonial_marcus.wav"
@@ -1312,7 +1394,7 @@ export default function Page() {
             </div>
 
             {/* Real Framer WhatsApp Audio Player */}
-            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '10px 8px', borderRadius: 16, background: 'rgba(220, 248, 235, 0.55)', border: '1px solid rgba(37, 211, 102, 0.14)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
               {testimonialsInView ? <WhatsApAudioPlayer
                 audioFile="/audio/testimonial_elena.wav"
@@ -1417,7 +1499,7 @@ export default function Page() {
         </div>
 
         {/* ExpandOnHoverList blocks — 3 items each, covering 10 questions */}
-        <div style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div className="flinza-faq" style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 0 }}>
 
           {/* FAQ Group 1: Questions 1–3 */}
           <div className="flinza-mount-gate" style={{ width: '100%' }}>
@@ -1528,6 +1610,13 @@ export default function Page() {
           cardTitleText="Ecommerce Growth Agency"
           cardEmail="hello@flinzaworks.com"
           cardEmailSize={28}
+          cardNameColor="rgb(244,247,249)"
+          cardTitleColor="rgba(244,247,249,0.62)"
+          cardEmailColor="rgb(244,247,249)"
+          cardEmailLabelColor="rgba(244,247,249,0.45)"
+          cardBGColor="rgba(9,20,27,0.72)"
+          cardBGBlurDefault={26}
+          cardBorder={{ borderColor: 'rgba(244,247,249,0.18)', borderStyle: 'solid', borderWidth: 1 }}
           buttonBGColorDefault="rgb(255,255,255)"
           buttonColorDefault="rgb(9,9,11)"
           buttonHoverBGColorHover="rgb(224,242,246)"
@@ -1581,70 +1670,8 @@ export default function Page() {
               We test. We scale. We grow. Repeat.
             </span>
 
-            {/* Social row — inline SVG marks (never emoji), each with a label for screen readers */}
-            <div className="flinza-social-row" style={{ marginTop: 4 }}>
-              {[
-                {
-                  label: 'Flinza Works on Instagram',
-                  href: 'https://instagram.com/flinzaworks',
-                  icon: (
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.8" />
-                      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
-                      <circle cx="17.2" cy="6.8" r="1.25" fill="currentColor" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: 'Flinza Works on Facebook',
-                  href: 'https://facebook.com/flinzaworks',
-                  icon: (
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M13.5 21v-7.2h2.6l.4-3h-3V8.9c0-.9.3-1.5 1.6-1.5h1.6V4.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4.1v2.1H7.7v3h2.6V21h3.2z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: 'Flinza Works on X',
-                  href: 'https://x.com/flinzaworks',
-                  icon: (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M17.5 3h3.1l-6.8 7.8L21.9 21h-5.5l-4.3-5.6L7 21H3.9l7.1-8.1L3.4 3h5.6l4 5.3L17.5 3zm-1.1 16.1h1.7L7.7 4.8H5.9l10.5 14.3z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: 'Flinza Works on LinkedIn',
-                  href: 'https://linkedin.com/company/flinzaworks',
-                  icon: (
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M6.9 8.4H3.8V20h3.1V8.4zM5.35 3.2a1.8 1.8 0 100 3.6 1.8 1.8 0 000-3.6zM20.2 20h-3.1v-6c0-1.5-.5-2.5-1.8-2.5-1 0-1.6.7-1.9 1.4-.1.2-.1.6-.1 1V20h-3.1s.1-9.4 0-11.6h3.1v1.6c.4-.7 1.2-1.7 2.9-1.7 2.1 0 3.9 1.4 3.9 4.4V20z" />
-                    </svg>
-                  ),
-                },
-                {
-                  label: 'Email Flinza Works',
-                  href: 'mailto:hello@flinzaworks.com',
-                  icon: (
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <rect x="2.8" y="4.8" width="18.4" height="14.4" rx="3" stroke="currentColor" strokeWidth="1.8" />
-                      <path d="M3.6 7.4l7.2 5.3a2 2 0 002.4 0l7.2-5.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                    </svg>
-                  ),
-                },
-              ].map((social) => (
-                <a
-                  key={social.label}
-                  className="flinza-social"
-                  href={social.href}
-                  aria-label={social.label}
-                  target={social.href.startsWith('mailto:') ? undefined : '_blank'}
-                  rel={social.href.startsWith('mailto:') ? undefined : 'noreferrer noopener'}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
+                        {/* Socials on the glass button component (item 6) */}
+            <SocialGlassRow />
           </div>
 
           <nav aria-label="Footer navigation" style={{ display: 'flex', alignItems: 'center', gap: '12px 26px', flexWrap: 'wrap' }}>
