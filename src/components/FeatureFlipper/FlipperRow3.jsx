@@ -1,12 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SideExpandableCard from './Se6AMZ2yk';
 import OpenAiLogo from './U4VlAAgoV';
 import ArrowsClockwise from './WiRMsH_Oi';
 
 export default function FlipperRow3({ cards = [], id, className, style }) {
   const [activeIdx, setActiveIdx] = useState(null);
+  // Mobile gets the component's own Mobile variants (correct geometry for narrow tiles);
+  // desktop keeps the hover-driven Expanded/Shrinked/Closed variants and their animations.
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(max-width: 860px)');
+    const update = () => setIsMobileViewport(mq.matches);
+    update();
+    mq.addEventListener?.('change', update);
+    return () => mq.removeEventListener?.('change', update);
+  }, []);
 
   const defaultCards = [
     {
@@ -37,7 +48,7 @@ export default function FlipperRow3({ cards = [], id, className, style }) {
   return (
     <div
       id={id}
-      className={className}
+      className={`flipper3-row ${className || ''}`}
       onMouseLeave={() => setActiveIdx(null)}
       style={{
         display: 'flex',
@@ -86,7 +97,9 @@ export default function FlipperRow3({ cards = [], id, className, style }) {
       {items.map((card, idx) => {
         const isExpanded = activeIdx === idx;
         const isShrinked = activeIdx !== null && activeIdx !== idx;
-        const variant = isExpanded
+        const variant = isMobileViewport
+          ? (isExpanded ? 'h7AFwZ1xA' : 'ldSmw_chP') // Expanded/Closed — Mobile
+          : isExpanded
           ? 'zHCnJiAlH' // Expanded
           : isShrinked
           ? 'mPkGE7Wx2' // Shrinked

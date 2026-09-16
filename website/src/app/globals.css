@@ -47,7 +47,13 @@
 html {
   scroll-behavior: smooth;
   text-size-adjust: 100%;
-  zoom: 0.75;
+}
+
+/* Desktop-only optical scaling — phones render at native 1:1 (iOS ignores zoom, which caused the oversized mobile layout) */
+@media (min-width: 1024px) and (pointer: fine) {
+  html {
+    zoom: 0.75;
+  }
 }
 
 html,
@@ -191,5 +197,214 @@ main {
   .flinza-glass-card:hover {
     transform: none;
     box-shadow: 0 18px 42px -12px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* ── Hero carousel shell: vertical page scroll always stays available ── */
+.flinza-carousel-lock {
+  touch-action: pan-y !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.flinza-carousel-lock canvas {
+  touch-action: pan-y !important;
+}
+
+/* ── Hero geometry: svh for stable mobile viewport, CTA pinned above the fold on phones ── */
+.flinza-hero {
+  height: 133.333vh;
+}
+@supports (height: 100svh) {
+  .flinza-hero {
+    height: 133.333svh;
+  }
+}
+.flinza-hero-cta {
+  bottom: 4.2%;
+}
+@supports (height: 100svh) {
+  @media (max-width: 900px) {
+    .flinza-hero-cta {
+      bottom: calc(33.33svh + 12px);
+    }
+  }
+}
+
+/* Mobile: cap the carousel canvas so cards sit fully above the fold, clear of the pinned CTA — and center it in the first fold so it never hugs the top edge */
+@media (max-width: 900px) {
+  .flinza-carousel-lock {
+    height: 62vh !important;
+    position: absolute !important;
+    top: 19vh !important;
+  }
+}
+@supports (height: 100svh) {
+  @media (max-width: 900px) {
+    .flinza-carousel-lock {
+      height: 62svh !important;
+      top: calc(50svh - 31svh) !important;
+    }
+  }
+}
+
+/* ── Section reveals: fade + rise once when scrolled into view ── */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(34px);
+}
+.reveal-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-in.will-reveal {
+  will-change: opacity, transform;
+}
+.reveal-stagger > *:nth-child(2) { transition-delay: 60ms; }
+.reveal-stagger > *:nth-child(3) { transition-delay: 120ms; }
+.reveal-stagger > *:nth-child(4) { transition-delay: 180ms; }
+.reveal-stagger > *:nth-child(5) { transition-delay: 240ms; }
+.reveal-stagger > *:nth-child(6) { transition-delay: 300ms; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-in {
+    transition: none;
+  }
+}
+
+/* ── Render-cost skip: sections below the fold skip layout/paint until near view ── */
+.flinza-cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+.flinza-cv-short {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 560px;
+}
+
+/* ── Tap highlight + comfortable touch targets on mobile ── */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: none), (pointer: coarse) {
+  a,
+  button {
+    min-height: 44px;
+  }
+}
+
+/* ── Mobile: halve backdrop-filter costs (biggest mobile GPU paint cost) ── */
+@media (max-width: 900px) {
+  .flinza-voices-card {
+    backdrop-filter: blur(7px) saturate(130%) !important;
+    -webkit-backdrop-filter: blur(7px) saturate(130%) !important;
+  }
+}
+
+/* ── Liquid metal logo: smaller on phones so it never crowds the hero label ── */
+@media (max-width: 900px) {
+  .flinza-logo-btn {
+    width: 46px !important;
+    height: 46px !important;
+  }
+}
+
+/* ── Side TOC: desktop only (labels collide with headings on phones) ── */
+@media (max-width: 1100px) {
+  .flinza-toc-desktop {
+    display: none !important;
+  }
+}
+
+/* ── FAQ list: fluid width (fixed px overflowed phones) + calm expand motion ── */
+.framer-9HU0S.framer-1gtjrr2,
+.framer-9HU0S.framer-v-zeo4ge.framer-1gtjrr2,
+.framer-9HU0S.framer-v-1gxf4bu.framer-1gtjrr2,
+.framer-9HU0S.framer-v-mzkjsj.framer-1gtjrr2,
+.framer-9HU0S.framer-v-1l8tpp0.framer-1gtjrr2 {
+  width: 100% !important;
+  max-width: 900px;
+}
+.framer-sRQxK.framer-dpms80 {
+  width: 100% !important;
+  max-width: 900px;
+}
+.framer-sRQxK.framer-v-9stas7.framer-dpms80,
+.framer-sRQxK.framer-v-1najpzu.framer-dpms80 {
+  width: 100% !important;
+  max-width: 810px;
+}
+.framer-sRQxK.framer-v-10geqdx.framer-dpms80 {
+  width: 100% !important;
+  max-width: 520px;
+}
+.framer-sRQxK .framer-xhod1y {
+  transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* ── Liquid-glass display text: curved refraction rim + inner sheen, brand aqua (no fill = not cheap) ── */
+.flinza-glass-text {
+  position: relative;
+  display: inline-block;
+  font-family: 'Nohemi', 'Plus Jakarta Sans', sans-serif;
+  color: transparent;
+  background:
+    linear-gradient(178deg, rgba(9, 9, 11, 0.82) 0%, rgba(9, 9, 11, 0.28) 34%, rgba(9, 9, 11, 0.88) 58%, rgba(9, 9, 11, 0.42) 82%, rgba(9, 9, 11, 0.9) 100%)
+    no-repeat,
+    linear-gradient(115deg, #0A3E4C 0%, #17849B 45%, #7FD1DE 78%, #C9F0F5 100%)
+    no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.2px rgba(23, 132, 155, 0.55);
+  text-shadow:
+    0 1px 0 rgba(201, 240, 245, 0.28),
+    0 -1px 1px rgba(10, 62, 76, 0.35),
+    0 14px 38px rgba(23, 132, 155, 0.2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-glass-text {
+    text-shadow: none;
+  }
+}
+
+/* ── Lazy-mount gate: wrapper must reserve space until content boots ~500px before view ── */
+.flinza-mount-gate {
+  min-height: 100%;
+}
+
+/* ── Focused-state overlay: legibility glow instead of card boxes ── */
+.flinza-focus-tag,
+.flinza-focus-deliv,
+.flinza-focus-stack {
+  text-shadow: none !important;
+}
+.flinza-focus-close {
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+
+/* ── WhatsApp voices: subtle chat-bubble tail on the audio row ── */
+.flinza-voices-player-row {
+  position: relative;
+}
+.flinza-voices-player-row::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  bottom: 10px;
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  border-bottom-left-radius: 4px;
+  transform: rotate(45deg);
+}
+
+/* ── Mobile: keep carousel previews reserved-height so mount gating never shifts layout ── */
+@media (max-width: 900px) {
+  .flinza-mount-gate {
+    min-height: 320px;
   }
 }

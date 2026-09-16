@@ -149,7 +149,7 @@ function CvDropzone({ file, setFile }) {
 
   const accept = (incoming) => {
     const picked = incoming && incoming[0];
-    if (picked) setFile({ name: picked.name, size: picked.size });
+    if (picked) setFile({ name: picked.name, size: picked.size, raw: picked });
   };
 
   return (
@@ -246,9 +246,11 @@ function ApplyBox({ role, onClose }) {
   const [cv, setCv] = useState(null);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     if (e) e.preventDefault();
+    if (sending) return;
     if (!name.trim()) {
       setError('Tell us your name so we know who we’re replying to.');
       return;
@@ -257,12 +259,26 @@ function ApplyBox({ role, onClose }) {
       setError('Add a valid email address — that’s how we’ll reach you.');
       return;
     }
-    if (!cv) {
-      setError('Attach your CV or resume (PDF or DOC) so we can review it.');
-      return;
-    }
     setError('');
-    setSubmitted(true);
+    setSending(true);
+    try {
+      const form = new FormData();
+      form.append('name', name.trim());
+      form.append('email', email.trim());
+      form.append('link', link.trim());
+      form.append('roleId', activeRole ? activeRole.id : 'general');
+      if (cv && cv.raw) form.append('cv', cv.raw);
+      const res = await fetch('/api/applications', { method: 'POST', body: form });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Submission failed');
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Something went wrong — please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const fieldStyle = {
@@ -373,6 +389,9 @@ function ApplyBox({ role, onClose }) {
             <p style={{ fontSize: 14.5, color: '#52525b', lineHeight: 1.6, margin: 0 }}>
               Thanks {name.trim().split(' ')[0]} — we read every application ourselves. Expect a reply within 3 business days.
             </p>
+            <p style={{ fontSize: 12.5, color: '#a1a1aa', margin: '10px 0 0' }}>
+              CV {cv ? 'attached ✓' : 'skipped — portfolio link only'}
+            </p>
           </div>
         ) : (
           <>
@@ -427,14 +446,17 @@ function ApplyBox({ role, onClose }) {
               </div>
               <input style={fieldStyle} placeholder="Portfolio / LinkedIn / GitHub (optional)" value={link} onChange={(e) => setLink(e.target.value)} />
               <CvDropzone file={cv} setFile={setCv} />
+              <p style={{ margin: '-4px 0 0', fontSize: 12, color: '#71717a', textAlign: 'center' }}>
+                CV optional — a portfolio or LinkedIn link works too.
+              </p>
               {error && (
                 <p style={{ margin: 0, fontSize: 13, color: '#b91c1c', fontWeight: 600 }}>{error}</p>
               )}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}>
                 <div style={{ transform: 'scale(0.62)', transformOrigin: 'center center' }}>
-                  <div onClick={submit}>
+                  <div onClick={submit} style={{ opacity: sending ? 0.6 : 1, pointerEvents: sending ? 'none' : 'auto', transition: 'opacity 0.2s ease' }}>
                     <CamoLiquidButton
-                      label="Submit Application"
+                      label={sending ? 'Sending…' : 'Submit Application'}
                       showDots={false}
                       dotsAnimate={false}
                       textColor="rgb(255,255,255)"

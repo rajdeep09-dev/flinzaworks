@@ -168,6 +168,7 @@ export default function Page() {
   const [assetsReady, setAssetsReady] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [camoDismissed, setCamoDismissed] = useState(false);
+  const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
 
   // Section reveal + lazy-mount hooks
   const [storiesRef, storiesRevealed] = useReveal();
@@ -193,7 +194,7 @@ export default function Page() {
     {
       brand: 'StillRing · Supplements',
       description: 'Revenue-leak audit → +$412K recovered',
-      image: { src: 'https://framerusercontent.com/images/gO7oqH62CdjjxnyUBSU5GJTvFnk.jpg?width=3994&height=4992' },
+      image: { src: 'https://framerusercontent.com/images/gO7oqH62CdjjxnyUBSU5GJTvFnk.jpg?scale-down-to=1200' },
       caseStudy: {
         tag: '01 // REVENUE AUDIT',
         title: 'Funnel & Attribution Audit',
@@ -210,7 +211,7 @@ export default function Page() {
     {
       brand: 'Fashion Ecom · $12M/yr',
       description: '48hr concept-to-cut product video',
-      image: { src: 'https://framerusercontent.com/images/K4sA5mbjMww6nIFRSGkWZeB2OI.jpg?width=3827&height=5729' },
+      image: { src: 'https://framerusercontent.com/images/K4sA5mbjMww6nIFRSGkWZeB2OI.jpg?scale-down-to=1200' },
       caseStudy: {
         tag: '02 // CREATIVE',
         title: 'Scroll-Stopping Product Video',
@@ -227,7 +228,7 @@ export default function Page() {
     {
       brand: 'DTC Beauty',
       description: 'AI avatar UGC at $50 per video',
-      image: { src: 'https://framerusercontent.com/images/NtPZeRtjx0XeN3bHzsMaygic3Hs.jpg?width=5760&height=7680' },
+      image: { src: 'https://framerusercontent.com/images/NtPZeRtjx0XeN3bHzsMaygic3Hs.jpg?scale-down-to=1200' },
       caseStudy: {
         tag: '03 // AI UGC',
         title: 'AI Avatar UGC System',
@@ -244,7 +245,7 @@ export default function Page() {
     {
       brand: 'StillRing · Paid Media',
       description: 'ROAS 1.8x → 4.2x in two weeks',
-      image: { src: 'https://framerusercontent.com/images/hIyXekP7SHBtRkcBBA8LoqjrdY.png?width=1080&height=1349' },
+      image: { src: 'https://framerusercontent.com/images/hIyXekP7SHBtRkcBBA8LoqjrdY.png?scale-down-to=1200' },
       caseStudy: {
         tag: '04 // PAID MEDIA',
         title: 'Profit-First Meta & TikTok',
@@ -261,7 +262,7 @@ export default function Page() {
     {
       brand: 'Jewellery Brand',
       description: 'High ROAS, low profit → fixed',
-      image: { src: 'https://framerusercontent.com/images/LOUHKfxecdzS4oSB9PSeYz21fk.png?width=1080&height=1059' },
+      image: { src: 'https://framerusercontent.com/images/LOUHKfxecdzS4oSB9PSeYz21fk.png?scale-down-to=1200' },
       caseStudy: {
         tag: '05 // OPTIMIZATION',
         title: 'Profit Contribution Modeling',
@@ -278,7 +279,7 @@ export default function Page() {
     {
       brand: 'Flinza Testing Engine',
       description: '48-hour cycles, 34% avg ROAS lift',
-      image: { src: 'https://framerusercontent.com/images/MClVeYvMtXA3CRA1iECQ1CPv5c.png?width=736&height=736' },
+      image: { src: 'https://framerusercontent.com/images/MClVeYvMtXA3CRA1iECQ1CPv5c.png?scale-down-to=1200' },
       caseStudy: {
         tag: '06 // ITERATION',
         title: '48-Hour Testing Engine',
@@ -295,7 +296,7 @@ export default function Page() {
     {
       brand: 'Embedded Growth Pod',
       description: 'Strategist in your Slack, weekly calls',
-      image: { src: 'https://framerusercontent.com/images/yldP1mipOxNl4NvNqiDxzXJC4bc.png?width=1080&height=1350' },
+      image: { src: 'https://framerusercontent.com/images/yldP1mipOxNl4NvNqiDxzXJC4bc.png?scale-down-to=1200' },
       caseStudy: {
         tag: '07 // OPERATIONS',
         title: 'Embedded Growth Pod',
@@ -312,7 +313,7 @@ export default function Page() {
     {
       brand: 'Flinza Works · Agency',
       description: '$500K+ monthly spend managed',
-      image: { src: 'https://framerusercontent.com/images/KJSVx7BZQys31ERwSHo7766lQg.png?width=1080&height=1350' },
+      image: { src: 'https://framerusercontent.com/images/KJSVx7BZQys31ERwSHo7766lQg.png?scale-down-to=1200' },
       caseStudy: {
         tag: '08 // SCALE',
         title: '$500K+ Spend Managed',
@@ -327,16 +328,6 @@ export default function Page() {
       },
     },
   ];
-
-  // Preload carousel images in background during preloader
-  useEffect(() => {
-    carouselProjects.forEach((proj) => {
-      if (proj.image?.src) {
-        const img = new Image();
-        img.src = proj.image.src;
-      }
-    });
-  }, []);
 
   // Track scroll position for TOC visibility and quick button hide/restore
   useEffect(() => {
@@ -403,7 +394,7 @@ export default function Page() {
     if (pending === 0) { setAssetsReady(true); return; }
     const done = () => { if (cancelled) return; pending -= 1; if (pending <= 0) setAssetsReady(true); };
     urls.forEach((src) => { const img = new Image(); img.onload = done; img.onerror = done; img.src = src; });
-    const safety = setTimeout(() => { if (!cancelled) setAssetsReady(true); }, 6000);
+    const safety = setTimeout(() => { if (!cancelled) setAssetsReady(true); }, 3500);
     return () => { cancelled = true; clearTimeout(safety); };
   }, []);
 
@@ -440,7 +431,7 @@ export default function Page() {
         >
           <AnimationLoader
             brandName="FLINZA"
-            counterDuration={1.8}
+            counterDuration={1.4}
             textColor="#09090b"
             background="#ffffff"
             style={{ width: '100%', height: '100%' }}
@@ -473,7 +464,7 @@ export default function Page() {
         />
       </div>
 
-      {/* Pinned Minimal Header Nav Bar with Liquid Metal Logo */}
+      {/* Pinned Minimal Header Nav Bar with Liquid Metal Logo — hero only, so it never collides with section content or the focused overlay */}
       <header style={{
         position: 'fixed',
         top: 24,
@@ -483,13 +474,14 @@ export default function Page() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        pointerEvents: 'auto',
-        opacity: isLoaded ? 1 : 0,
-        transition: 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+        pointerEvents: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 'auto' : 'none',
+        opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
+        transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
         <a
           href="#hero"
           aria-label="Home"
+          className="flinza-logo-btn"
           style={{
             width: 68,
             height: 68,
@@ -515,9 +507,9 @@ export default function Page() {
       {/* Hero Section */}
       <section
         id="hero"
+        className="flinza-hero"
         style={{
           width: '100%',
-          height: '133.333vh',
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: 'transparent',
@@ -557,6 +549,7 @@ export default function Page() {
           showLabels={true}
           showCounter={false}
           showCursor={true}
+          onFocusChange={setFocusedCaseStudy}
           font={{
             fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
             fontSize: 16,
@@ -588,9 +581,9 @@ export default function Page() {
 
         {/* Bottom CTA row — single brand-recolored CamoLiquidButton */}
         <div
+          className="flinza-hero-cta"
           style={{
             position: 'absolute',
-            bottom: '4.2%',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 50,
@@ -600,7 +593,7 @@ export default function Page() {
             gap: 18,
             flexWrap: 'wrap',
             pointerEvents: 'none',
-            opacity: (camoDismissed || scrolledPastHero || !isLoaded) ? 0 : 1,
+            opacity: (focusedCaseStudy || camoDismissed || scrolledPastHero || !isLoaded) ? 0 : 1,
             transition: 'opacity 0.35s ease',
           }}
         >
@@ -609,7 +602,7 @@ export default function Page() {
               transform: 'scale(0.58)',
               transformOrigin: 'center center',
               filter: 'drop-shadow(0 14px 32px rgba(14, 124, 147, 0.3))',
-              pointerEvents: (camoDismissed || scrolledPastHero || !isLoaded) ? 'none' : 'auto',
+              pointerEvents: (focusedCaseStudy || camoDismissed || scrolledPastHero || !isLoaded) ? 'none' : 'auto',
             }}
           >
             <CamoLiquidButton
@@ -639,6 +632,7 @@ export default function Page() {
           zIndex: 999,
           opacity: (scrolledPastHero && isLoaded) ? 1 : 0,
           pointerEvents: (scrolledPastHero && isLoaded) ? 'auto' : 'none',
+          className: 'flinza-toc-desktop',
           transition: 'opacity 0.4s ease, transform 0.4s ease',
           display: 'flex',
           flexDirection: 'column',
@@ -666,7 +660,7 @@ export default function Page() {
       <section
         id="stories"
         ref={sectionRef(storiesMountRef, storiesRef)}
-        className={storiesRevealed ? 'reveal-in' : 'reveal-init'}
+        className={`${storiesRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
         style={{
           width: '100%',
           minHeight: '100vh',
@@ -924,7 +918,8 @@ export default function Page() {
           >
             {/* Tile 1: Tall Vertical Video (Spans Columns 1, Rows 1 & 2) */}
             <div style={{ gridColumn: '1 / 2', gridRow: '1 / 3', width: '100%', height: '100%' }}>
-              <TheaterVideoPlayer
+              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
+              {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story1.mp4"
                 thumbnail={{ src: '/images/story_portrait.jpg', alt: 'Founder Portrait' }}
                 aspectRatio="fill"
@@ -938,12 +933,13 @@ export default function Page() {
                 backgroundColor="rgba(20, 22, 28, 0.55)"
                 blurAmount={20}
                 style={{ width: '100%', height: '100%' }}
-              />
+              /> : null}</div>
             </div>
 
             {/* Tile 2: Square Video (Row 1, Column 2) */}
             <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', width: '100%', height: '100%' }}>
-              <TheaterVideoPlayer
+              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
+              {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story2.mp4"
                 thumbnail={{ src: '/images/story_traffic.jpg', alt: 'Urban Motion' }}
                 aspectRatio="fill"
@@ -957,12 +953,13 @@ export default function Page() {
                 backgroundColor="rgba(20, 22, 28, 0.55)"
                 blurAmount={20}
                 style={{ width: '100%', height: '100%' }}
-              />
+              /> : null}</div>
             </div>
 
             {/* Tile 3: Square/Action Video (Row 1, Column 3) */}
             <div style={{ gridColumn: '3 / 4', gridRow: '1 / 2', width: '100%', height: '100%' }}>
-              <TheaterVideoPlayer
+              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
+              {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story3.mp4"
                 thumbnail={{ src: '/images/story_action.jpg', alt: 'Dynamic Energy' }}
                 aspectRatio="fill"
@@ -976,12 +973,13 @@ export default function Page() {
                 backgroundColor="rgba(20, 22, 28, 0.55)"
                 blurAmount={20}
                 style={{ width: '100%', height: '100%' }}
-              />
+              /> : null}</div>
             </div>
 
             {/* Tile 4: Wide Panoramic Video (Row 2, Spans Columns 2 & 3) */}
             <div style={{ gridColumn: '2 / 4', gridRow: '2 / 3', width: '100%', height: '100%' }}>
-              <TheaterVideoPlayer
+              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
+              {storiesInView ? <TheaterVideoPlayer
                 videoUrl="/videos/story4.mp4"
                 thumbnail={{ src: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop', alt: 'Speed Transit' }}
                 aspectRatio="fill"
@@ -995,7 +993,7 @@ export default function Page() {
                 backgroundColor="rgba(20, 22, 28, 0.55)"
                 blurAmount={20}
                 style={{ width: '100%', height: '100%' }}
-              />
+              /> : null}</div>
             </div>
           </div>
         </div>
@@ -1005,7 +1003,7 @@ export default function Page() {
       <section
         id="services"
         ref={sectionRef(servicesMountRef, servicesRef)}
-        className={servicesRevealed ? 'reveal-in' : 'reveal-init'}
+        className={`${servicesRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
         style={{
           width: '100%',
           minHeight: '100vh',
@@ -1061,10 +1059,10 @@ export default function Page() {
             fontWeight: 800,
             letterSpacing: '-0.04em',
             lineHeight: 1.06,
-            color: '#09090b',
             margin: '0 0 20px',
           }}>
-            Growth, Engineered for Profit
+            Growth,{' '}
+            <span className="flinza-glass-text">Engineered</span>{' '}for Profit
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
@@ -1091,12 +1089,16 @@ export default function Page() {
         }}>
           {/* Row 1: Intelligence (3 cards) */}
           <div id="service-row-1" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <FlipperRow3 cards={row1Cards} />
+            <div className="flinza-mount-gate" style={{ width: '100%' }}>
+              {servicesInView ? <FlipperRow3 cards={row1Cards} /> : null}
+            </div>
           </div>
 
           {/* Row 2: Engineering (3 cards) */}
           <div id="service-row-2" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <FlipperRow3 cards={row2Cards} />
+            <div className="flinza-mount-gate" style={{ width: '100%' }}>
+              {servicesInView ? <FlipperRow3 cards={row2Cards} /> : null}
+            </div>
           </div>
         </div>
       </section>
@@ -1107,7 +1109,7 @@ export default function Page() {
       <section
         id="testimonials"
         ref={sectionRef(testimonialsMountRef, testimonialsRef)}
-        className={testimonialsRevealed ? 'reveal-in' : 'reveal-init'}
+        className={`${testimonialsRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
         style={{
           width: '100%',
           padding: '120px 24px 110px',
@@ -1188,17 +1190,17 @@ export default function Page() {
           boxSizing: 'border-box',
         }}>
           {/* Card 1: Sarah Jenkins */}
-          <div className="flinza-glass-card" style={{
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.72) 0%, rgba(240,250,252,0.5) 45%, rgba(224,242,246,0.42) 100%)',
-            backdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
-            borderRadius: 28,
-            border: '1px solid rgba(255, 255, 255, 0.75)',
-            padding: '28px 24px',
+          <div className="flinza-glass-card flinza-voices-card" style={{
+            background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
+            backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+            borderRadius: 26,
+            border: '1px solid rgba(255, 255, 255, 0.6)',
+            padding: '26px 22px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 20,
-            boxShadow: '0 24px 60px -18px rgba(14, 124, 147, 0.18), inset 0 1.5px 2px rgba(255,255,255,0.9), inset 0 -12px 28px rgba(23,132,155,0.06)',
+            gap: 18,
+            boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
             boxSizing: 'border-box',
           }}>
             {/* Header: User Info + Stars */}
@@ -1225,34 +1227,34 @@ export default function Page() {
             </div>
 
             {/* Real Framer WhatsApp Audio Player */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <WhatsApAudioPlayer
+            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '10px 8px', borderRadius: 16, background: 'rgba(220, 248, 235, 0.55)', border: '1px solid rgba(37, 211, 102, 0.14)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+              <div className="flinza-mount-gate" style={{ width: '100%' }}>
+              {testimonialsInView ? <WhatsApAudioPlayer
                 audioFile="/audio/testimonial_sarah.wav"
                 userName="Sarah Mitchell"
                 userImageFile="/images/avatar_sarah.jpg"
                 timestamp="11:42 AM"
                 isOwn={false}
                 accentColor="#25D366"
-              />
+              /> : null}</div>
             </div>
 
             {/* Transcript Snippet */}
-            <p style={{
+            <p className="flinza-voices-quote" style={{
               fontSize: 14.5,
               lineHeight: 1.6,
               color: '#3f3f46',
-              fontStyle: 'italic',
-              margin: 0,
-              backgroundColor: 'rgba(255, 255, 255, 0.55)',
+              margin: '0 0 -8px',
+              backgroundColor: 'rgba(37, 211, 102, 0.09)',
               padding: '14px 16px',
-              borderRadius: 14,
-              borderLeft: '3px solid rgba(23, 132, 155, 0.85)',
+              borderRadius: '16px 16px 16px 4px',
+              borderLeft: '2.5px solid rgba(37, 211, 102, 0.55)',
             }}>
               “Finally, an agency that moves fast. Weekly optimization calls, real-time Slack access, and they actually challenge our assumptions instead of just executing orders.”
             </p>
 
             {/* Metric Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
@@ -1263,22 +1265,22 @@ export default function Page() {
               }}>
                 ⚡ Weekly Optimization Calls
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>via WhatsApp Voice</span>
+              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#53BDEB', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
 
           {/* Card 2: Marcus Brody */}
-          <div className="flinza-glass-card" style={{
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.72) 0%, rgba(240,250,252,0.5) 45%, rgba(224,242,246,0.42) 100%)',
-            backdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
-            borderRadius: 28,
-            border: '1px solid rgba(255, 255, 255, 0.75)',
-            padding: '28px 24px',
+          <div className="flinza-glass-card flinza-voices-card" style={{
+            background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
+            backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+            borderRadius: 26,
+            border: '1px solid rgba(255, 255, 255, 0.6)',
+            padding: '26px 22px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 20,
-            boxShadow: '0 24px 60px -18px rgba(14, 124, 147, 0.18), inset 0 1.5px 2px rgba(255,255,255,0.9), inset 0 -12px 28px rgba(23,132,155,0.06)',
+            gap: 18,
+            boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
             boxSizing: 'border-box',
           }}>
             {/* Header: User Info + Stars */}
@@ -1305,34 +1307,34 @@ export default function Page() {
             </div>
 
             {/* Real Framer WhatsApp Audio Player */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <WhatsApAudioPlayer
+            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '10px 8px', borderRadius: 16, background: 'rgba(220, 248, 235, 0.55)', border: '1px solid rgba(37, 211, 102, 0.14)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+              <div className="flinza-mount-gate" style={{ width: '100%' }}>
+              {testimonialsInView ? <WhatsApAudioPlayer
                 audioFile="/audio/testimonial_marcus.wav"
                 userName="Marcus Rodriguez"
                 userImageFile="/images/avatar_marcus.png"
                 timestamp="4:18 PM"
                 isOwn={false}
                 accentColor="#25D366"
-              />
+              /> : null}</div>
             </div>
 
             {/* Transcript Snippet */}
-            <p style={{
+            <p className="flinza-voices-quote" style={{
               fontSize: 14.5,
               lineHeight: 1.6,
               color: '#3f3f46',
-              fontStyle: 'italic',
-              margin: 0,
-              backgroundColor: 'rgba(255, 255, 255, 0.55)',
+              margin: '0 0 -8px',
+              backgroundColor: 'rgba(37, 211, 102, 0.09)',
               padding: '14px 16px',
-              borderRadius: 14,
-              borderLeft: '3px solid rgba(23, 132, 155, 0.85)',
+              borderRadius: '16px 16px 16px 4px',
+              borderLeft: '2.5px solid rgba(37, 211, 102, 0.55)',
             }}>
               “Not order takers. They pushed back on our creative direction, tested their hypothesis, and proved us wrong. Revenue up 89% in 12 weeks.”
             </p>
 
             {/* Metric Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
@@ -1343,22 +1345,22 @@ export default function Page() {
               }}>
                 📈 +89% Revenue in 12 Weeks
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>via WhatsApp Voice</span>
+              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#53BDEB', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
 
           {/* Card 3: Elena Rostova */}
-          <div className="flinza-glass-card" style={{
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.72) 0%, rgba(240,250,252,0.5) 45%, rgba(224,242,246,0.42) 100%)',
-            backdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(28px) saturate(190%) brightness(1.04)',
-            borderRadius: 28,
-            border: '1px solid rgba(255, 255, 255, 0.75)',
-            padding: '28px 24px',
+          <div className="flinza-glass-card flinza-voices-card" style={{
+            background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
+            backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+            WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+            borderRadius: 26,
+            border: '1px solid rgba(255, 255, 255, 0.6)',
+            padding: '26px 22px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 20,
-            boxShadow: '0 24px 60px -18px rgba(14, 124, 147, 0.18), inset 0 1.5px 2px rgba(255,255,255,0.9), inset 0 -12px 28px rgba(23,132,155,0.06)',
+            gap: 18,
+            boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
             boxSizing: 'border-box',
           }}>
             {/* Header: User Info + Stars */}
@@ -1385,34 +1387,34 @@ export default function Page() {
             </div>
 
             {/* Real Framer WhatsApp Audio Player */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <WhatsApAudioPlayer
+            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '10px 8px', borderRadius: 16, background: 'rgba(220, 248, 235, 0.55)', border: '1px solid rgba(37, 211, 102, 0.14)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+              <div className="flinza-mount-gate" style={{ width: '100%' }}>
+              {testimonialsInView ? <WhatsApAudioPlayer
                 audioFile="/audio/testimonial_elena.wav"
                 userName="Charlie Garwood"
                 userImageFile="/images/avatar_charlie.png"
                 timestamp="Yesterday"
                 isOwn={false}
                 accentColor="#25D366"
-              />
+              /> : null}</div>
             </div>
 
             {/* Transcript Snippet */}
-            <p style={{
+            <p className="flinza-voices-quote" style={{
               fontSize: 14.5,
               lineHeight: 1.6,
               color: '#3f3f46',
-              fontStyle: 'italic',
-              margin: 0,
-              backgroundColor: 'rgba(255, 255, 255, 0.55)',
+              margin: '0 0 -8px',
+              backgroundColor: 'rgba(37, 211, 102, 0.09)',
               padding: '14px 16px',
-              borderRadius: 14,
-              borderLeft: '3px solid rgba(23, 132, 155, 0.85)',
+              borderRadius: '16px 16px 16px 4px',
+              borderLeft: '2.5px solid rgba(37, 211, 102, 0.55)',
             }}>
               “We burned $40K on pretty ads that didn't convert. These guys tested 30 angles in two weeks and found our winner. ROAS went from 1.8x to 4.2x.”
             </p>
 
             {/* Metric Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
               <span style={{
                 fontSize: 12,
                 fontWeight: 700,
@@ -1423,7 +1425,7 @@ export default function Page() {
               }}>
                 🚀 ROAS 1.8x → 4.2x
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>via WhatsApp Voice</span>
+              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#53BDEB', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
         </div>
@@ -1435,7 +1437,7 @@ export default function Page() {
       <section
         id="faq"
         ref={sectionRef(faqMountRef, faqRef)}
-        className={faqRevealed ? 'reveal-in' : 'reveal-init'}
+        className={`${faqRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
         style={{
           width: '100%',
           padding: '120px 24px 100px',
@@ -1475,9 +1477,7 @@ export default function Page() {
             color: '#09090b',
             margin: '0 0 18px',
           }}>Your Questions,{' '}
-            <span style={{ background: 'linear-gradient(120deg, #9ADCE8 0%, #3FB9CE 45%, #0E7C93 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Answered
-            </span>
+            <span className="flinza-glass-text">Answered</span>
           </h2>
           <p style={{ fontSize: 'clamp(16px,1.8vw,19px)', color: '#52525b', lineHeight: 1.6, margin: 0 }}>
             Everything you need to know about working with Flinza, our process, pricing, and what makes us different.
@@ -1488,7 +1488,8 @@ export default function Page() {
         <div style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 0 }}>
 
           {/* FAQ Group 1: Questions 1–3 */}
-          <ExpandOnHoverList
+          <div className="flinza-mount-gate" style={{ width: '100%' }}>
+          {faqInView ? <ExpandOnHoverList
             sLNo01="01"
             title01="What does Flinza Works actually do?"
             text01="We're a data-driven ecommerce growth agency. We audit your funnel, test creative on 48-hour cycles, and scale what converts across Meta and TikTok — optimized for profit, not vanity metrics."
@@ -1502,10 +1503,11 @@ export default function Page() {
             closeColor="rgb(172,172,172)"
             topBottomDividerColor="rgba(230,230,230,0.8)"
             style={{ width: '100%' }}
-          />
+          /> : null}</div>
 
           {/* FAQ Group 2: Questions 4–6 */}
-          <ExpandOnHoverList
+          <div className="flinza-mount-gate" style={{ width: '100%' }}>
+          {faqInView ? <ExpandOnHoverList
             sLNo01="04"
             title01="What's your pricing model?"
             text01="Fixed-scope retainers or project engagements — no hourly billing. You always know what you're getting and when. Custom quotes are scoped within 48 hours of your first call."
@@ -1519,10 +1521,11 @@ export default function Page() {
             closeColor="rgb(172,172,172)"
             topBottomDividerColor="rgba(230,230,230,0.8)"
             style={{ width: '100%' }}
-          />
+          /> : null}</div>
 
           {/* FAQ Group 3: Questions 7–9 */}
-          <ExpandOnHoverList
+          <div className="flinza-mount-gate" style={{ width: '100%' }}>
+          {faqInView ? <ExpandOnHoverList
             sLNo01="07"
             title01="Who owns the creative and ad accounts?"
             text01="You do — fully. All creative, assets, and ad accounts are 100% yours. We retain no rights, claim no licenses, and impose no usage restrictions."
@@ -1536,10 +1539,11 @@ export default function Page() {
             closeColor="rgb(172,172,172)"
             topBottomDividerColor="rgba(230,230,230,0.8)"
             style={{ width: '100%' }}
-          />
+          /> : null}</div>
 
           {/* FAQ Group 4: Questions 10–12 */}
-          <ExpandOnHoverList
+          <div className="flinza-mount-gate" style={{ width: '100%' }}>
+          {faqInView ? <ExpandOnHoverList
             sLNo01="10"
             title01="Do you guarantee results?"
             text01="No honest agency guarantees ROAS. What we guarantee is speed and rigor: 48-hour testing cycles, transparent dashboards, and profit-first decisions every single week."
@@ -1553,7 +1557,7 @@ export default function Page() {
             closeColor="rgb(172,172,172)"
             topBottomDividerColor="rgba(230,230,230,0.8)"
             style={{ width: '100%' }}
-          />
+          /> : null}</div>
 
         </div>
       </section>
@@ -1563,7 +1567,7 @@ export default function Page() {
       ════════════════════════════════════════════════════════════ */}
       <section
         ref={sectionRef(contactRef, contactRef)}
-        className={contactRevealed ? 'reveal-in' : 'reveal-init'}
+        className={`${contactRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv-short`}
         style={{
           width: '100%',
           padding: '60px 24px 80px',
@@ -1601,15 +1605,12 @@ export default function Page() {
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-           FOOTER — Dark Liquid Glass Rounded Container on Website Background
-      ════════════════════════════════════════════════════════════ */}
-      {/* ════════════════════════════════════════════════════════════
            FOOTER — Transparent: slim content row over DiaFooter gradient glow
       ════════════════════════════════════════════════════════════ */}
       <footer
         id="contact"
         ref={sectionRef(footerMountRef, footerRef)}
-        className={footerRevealed ? 'reveal-in' : 'reveal-init'}
+        className={`${footerRevealed ? 'reveal-in' : 'reveal-init'} flinza-cv`}
         style={{
           width: '100%',
           position: 'relative',
@@ -1674,7 +1675,8 @@ export default function Page() {
 
         {/* DiaFooter — animated gradient glow rising from the bottom edge */}
         <div style={{ height: 320, position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
-          <DiaFooter
+          <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
+            {footerInView ? <DiaFooter
             preset="Custom"
             mode="Bars"
             bars={11}
@@ -1688,7 +1690,8 @@ export default function Page() {
             reveal="scroll"
             ariaLabel="Flinza gradient glow"
             style={{ width: '100%', height: '100%' }}
-          />
+          /> : null}
+          </div>
         </div>
       </footer>
     </main>
