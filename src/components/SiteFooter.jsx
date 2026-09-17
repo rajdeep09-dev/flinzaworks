@@ -71,9 +71,40 @@ const COLUMNS = [
   },
 ];
 
+/* The left rails live at the same x as this footer's brand column, and they are `position: fixed`,
+ * so they printed straight through the wordmark, the tagline and the social row. One observer here
+ * covers every route — the home page and the inner pages, including the ones that render their own
+ * frame — and flags the footer as on screen so the rails fade out. Doing it once, here, is also why
+ * neither rail needs its own scroll listener for this. */
+function useFooterInView(ref) {
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        document.body.classList.toggle(
+          "flinza-foot-inview",
+          entries.some((entry) => entry.isIntersecting)
+        );
+      },
+      /* A little before the footer's top edge, so the rails are already gone by the time the copy
+         reaches the band they occupy. */
+      { rootMargin: "0px 0px -10% 0px" }
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      document.body.classList.remove("flinza-foot-inview");
+    };
+  }, [ref]);
+}
+
 export default function SiteFooter() {
+  const footerRef = React.useRef(null);
+  useFooterInView(footerRef);
+
   return (
-    <footer className="flinza-foot">
+    <footer className="flinza-foot" ref={footerRef}>
       <div className="flinza-foot-cta">
         <div>
           <p className="flinza-foot-kicker">Start</p>

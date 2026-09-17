@@ -1,0 +1,131 @@
+/*
+ * Last-in-the-cascade fixes.
+ *
+ * Imported after ./globals.css in app/layout.jsx, so anything here wins at equal specificity.
+ * These three rules all have to beat declarations that inline JSX styles or earlier blocks in
+ * globals.css already set, and keeping them in one small file makes that ordering obvious instead
+ * of hiding it 5,000 lines deep in the main stylesheet.
+ */
+
+/* ══ 1. The loader plate actually covers the screen ══════════════════════════
+ * The plate's surface was sized `height: 100vh` / `100dvh` inside a `position: fixed; inset: 0`
+ * parent. On this site those are not the same box: the desktop layout is scaled with
+ * `html { zoom: 0.75 }` (see the carousel's notes on the same subject), and under `zoom` a viewport
+ * unit and a fixed element's own containing block stop agreeing. The surface came up visibly short
+ * and left the bottom of the page showing while it was supposed to be covering it — which is the
+ * "it does not cover the whole screen" fault, and is also why the exit read as glitchy: the plate
+ * was lifting away from a surface that had never covered the page.
+ *
+ * `top`/`bottom` against the plate itself tracks it exactly — at any zoom factor, at any viewport
+ * height, and while a phone's browser toolbars slide in and out. `height: auto` is what lets the
+ * two insets win, because an explicit height on an absolutely positioned box beats `bottom`.
+ *
+ * The 120% width is deliberate and kept: it is what lets the corner radius reach 50% on exit
+ * without the page leaking through at the left and right edges while the surface rounds off.
+ */
+.flinza-loader .flinza-loader__mask {
+  top: 0;
+  bottom: 0;
+  height: auto;
+}
+
+/* ══ 2. The left rails never print over the footer ══════════════════════════
+ * The page rail and the in-page section rail are both `position: fixed` in the left margin, which
+ * is right over a page body and wrong over the footer: the footer's brand column starts at the
+ * same x, so the rail ran straight through the wordmark, the tagline and the social row on every
+ * route that has one.
+ *
+ * `SiteFooter` puts `flinza-foot-inview` on `<body>` for as long as any part of the footer is on
+ * screen, and both rails fade out while it is. `!important` is load-bearing for the home page's
+ * rail, which carries its visibility as an inline style.
+ */
+body.flinza-foot-inview .flinza-pagetoc,
+body.flinza-foot-inview .flinza-pagerail,
+body.flinza-foot-inview .flinza-toc-desktop {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ══ 3. The hero carousel owns the whole screen while a case study is open ══
+ * On a phone the carousel is deliberately capped to a 62vh letterbox so the cards sit clear of the
+ * pinned CTA. The focused case-study stage is absolutely positioned inside that same box, so the
+ * case study — headline, deliverables, metrics and the client quote — was rendered into the middle
+ * 62% of the screen, with the quote pushed off the bottom of it. The carousel adds `is-focused`
+ * for as long as a case study is open and this hands the box back the full viewport.
+ */
+@media (max-width: 900px) {
+  .flinza-carousel-lock.is-focused {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 200;
+  }
+}
+
+/* ══ 4. Contact ring: the CircleCards stage, sized for the button it holds ══
+ * The vendored component derives its ring radius from the shorter side of its box, so the box has
+ * to be as close to square as the layout allows or the ring collapses into the middle of a wide
+ * empty tile. It also floors its own height at 520px on every breakpoint, so the wrapper has to
+ * be at least that tall or the absolute stage is clipped.
+ */
+.flinza-contact-ring {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  height: clamp(430px, 92vw, 620px);
+  margin: 0 auto;
+}
+
+/* The ring is pointer-driven, so the page must keep its scroll gesture. The component sets
+ * `touch-action: none` as an INLINE style on its own root, and an inline declaration outranks any
+ * stylesheet rule — so this override has to be `!important`, and it has to reach the component's
+ * root, which is the wrapper's direct child. Without it, every swipe that begins on a card is a
+ * dead gesture on a phone, which is half of "I cannot scroll". */
+.flinza-contact-ring-cards,
+.flinza-contact-ring-cards > *,
+.flinza-contact-ring-cards > * > * {
+  touch-action: pan-y !important;
+}
+
+/* ══ 5. The home page's footer: the shared footer, over the gradient glow ═══
+ * The home page now wears the same <SiteFooter /> as every inner route, inside a wrapper that
+ * carries the page's own `id="contact"` anchor and the DiaFooter glow. Two layers, one footer: the
+ * glow is `absolute` against the wrapper and the footer itself sits above it, so the gradient
+ * reads through the footer's transparent ground instead of occupying a band of its own after the
+ * legal line. Nothing inside the footer is positioned, so `z-index` here is belt and braces.
+ */
+.flinza-home-foot {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+.flinza-home-foot .flinza-footer-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.flinza-home-foot-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══ 6. The case study's metrics on a phone ═════════════════════════════════
+ * The metrics row is a grid of three equal columns, which is right on a desktop and wrong on a
+ * phone: the primary figure is set at 42px, and 42px of "+$412K" does not fit in a third of a
+ * 320px screen — it hung out of its column and collided with the figure beside it. Stacked, the
+ * headline number takes the full width and the two supporting figures share the row beneath it.
+ */
+@media (max-width: 860px) {
+  .flinza-stage-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px 18px !important;
+  }
+  .flinza-stage-metrics > *:first-child {
+    grid-column: 1 / -1;
+  }
+}

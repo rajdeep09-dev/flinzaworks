@@ -5,8 +5,16 @@ import dynamic from 'next/dynamic';
 import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
 import { faqItems } from '@/data/faqs';
+import { carouselProjects } from '@/data/projects';
+import { founderStories } from '@/data/stories';
+import { row1Cards, row2Cards } from '@/data/serviceCards';
+import SectionLabel from '@/components/SectionLabel';
 import FaqList from '@/components/FaqList';
 import CamoCtaButton from '@/components/CamoCtaButton';
+/* The one footer. /about, /services, /work, /insights, /careers, /contact and the legal pages all
+   already end with this; the home page carries it too, so the last thing anyone sees is the same
+   on every route. */
+import SiteFooter from '@/components/SiteFooter';
 
 const EtherealShadow = dynamic(
   () => import('@/components/EtherealShadow'),
@@ -41,18 +49,6 @@ const TableOfContent = dynamic(
   }
 );
 
-/* ── Section overline ──
-   One typographic label per section: heavier weight, tighter tracking, a short brand rule.
-   It replaces the hand-drawn arrow threads — those read as doodles, and they were the last
-   decorations overlapping content anywhere on the page. */
-function SectionLabel({ label }) {
-  return (
-    <p className="flinza-overline">
-      <span aria-hidden="true" />
-      {label}
-    </p>
-  );
-}
 
 const TheaterVideoPlayer = dynamic(
   () => import('@/components/TheaterVideoPlayer'),
@@ -78,50 +74,7 @@ const FramerStory = dynamic(
   }
 );
 
-// Founder stories shown above the voice notes (item 7). Each item can declare its own
-// aspect, so a portrait story and a 16:9 clip can sit in the same strip.
-const founderStories = [
-  {
-    id: 'sarah',
-    title: 'Sarah M.',
-    time: '2h',
-    image: { src: '/images/avatar_sarah.jpg', alt: 'Sarah Mitchell' },
-    items: [
-      { kind: 'image', image: { src: '/images/story_portrait.jpg', alt: 'Founder portrait' }, durationMs: 4600, aspect: '9:16', caption: 'Day 40 in the account.' },
-      { kind: 'video', videoFile: '/videos/story1.mp4', aspect: '16:9', caption: 'Creative we shipped this week.' },
-    ],
-  },
-  {
-    id: 'marcus',
-    title: 'Marcus B.',
-    time: '5h',
-    image: { src: '/images/avatar_marcus.png', alt: 'Marcus Bell' },
-    items: [
-      { kind: 'image', image: { src: '/images/story_traffic.jpg', alt: 'Traffic dashboard' }, durationMs: 4600, aspect: '9:16' },
-      { kind: 'video', videoFile: '/videos/story2.mp4', aspect: '16:9' },
-    ],
-    ctaLabel: 'See the audit',
-    ctaLink: '/contact',
-  },
-  {
-    id: 'charlie',
-    title: 'Charlie N.',
-    time: '1d',
-    image: { src: '/images/avatar_charlie.png', alt: 'Charlie Nguyen' },
-    items: [
-      { kind: 'image', image: { src: '/images/story_action.jpg', alt: 'Production still' }, durationMs: 4600, aspect: '9:16' },
-      { kind: 'video', videoFile: '/videos/story3.mp4', aspect: '16:9' },
-    ],
-  },
-];
 
-const SocialGlassRow = dynamic(
-  () => import('@/components/SocialGlassRow'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
 
 const ServicesShowcase = dynamic(
   () => import('@/components/ServicesShowcase'),
@@ -238,145 +191,6 @@ export default function Page() {
     revealRef.current = el;
   };
 
-  const carouselProjects = [
-    {
-      brand: 'StillRing · Supplements',
-      description: 'Revenue-leak audit → +$412K recovered',
-      image: { src: 'https://framerusercontent.com/images/gO7oqH62CdjjxnyUBSU5GJTvFnk.jpg?scale-down-to=1200' },
-      caseStudy: {
-        tag: '01 // REVENUE AUDIT',
-        title: 'Funnel & Attribution Audit',
-        whatWeDid: 'Audited funnel, creative, and attribution for a DTC supplement brand plateaued at $4M with climbing CAC, surfacing the bottlenecks bleeding cash.',
-        deliverables: ['Funnel conversion analysis', 'Creative performance audit', 'Attribution model review'],
-        stack: ['GA4', 'Triple Whale', 'Meta Ads', 'Northbeam'],
-        results: {
-          primary: '+$412K', primaryLabel: 'Recovered Annual Revenue',
-          metricA: '5', metricALabel: 'Leaks Found', metricB: '2.1x', metricBLabel: 'AOV Lift',
-          efficiency: 88, sparkline: 'M0,45 C30,40 60,20 90,25 C120,30 150,10 180,14 C210,18 235,4 260,3',
-        },
-      },
-    },
-    {
-      brand: 'Fashion Ecom · $12M/yr',
-      description: '48hr concept-to-cut product video',
-      image: { src: 'https://framerusercontent.com/images/K4sA5mbjMww6nIFRSGkWZeB2OI.jpg?scale-down-to=1200' },
-      caseStudy: {
-        tag: '02 // CREATIVE',
-        title: 'Scroll-Stopping Product Video',
-        whatWeDid: 'Shot, edited, and multi-angle tested product video for a fashion brand whose 6-week production cycles were killing agility.',
-        deliverables: ['AI-enhanced product videos', 'Multi-angle testing', 'Optimized for Meta / TikTok'],
-        stack: ['Premiere Pro', 'Runway', 'Meta Ads', 'TikTok'],
-        results: {
-          primary: '48hr', primaryLabel: 'Concept-to-Cut Turnaround',
-          metricA: '30', metricALabel: 'Angles Tested', metricB: '3.4x', metricBLabel: 'CTR Lift',
-          efficiency: 92, sparkline: 'M0,48 C25,42 55,25 85,28 C115,31 145,12 175,15 C205,18 235,5 260,2',
-        },
-      },
-    },
-    {
-      brand: 'DTC Beauty',
-      description: 'AI avatar UGC at $50 per video',
-      image: { src: 'https://framerusercontent.com/images/NtPZeRtjx0XeN3bHzsMaygic3Hs.jpg?scale-down-to=1200' },
-      caseStudy: {
-        tag: '03 // AI UGC',
-        title: 'AI Avatar UGC System',
-        whatWeDid: 'Trained custom AI avatars to produce unlimited user-generated content, removing creator bottlenecks and $300-per-video fees.',
-        deliverables: ['Custom AI avatar training', 'Unlimited variant production', 'Systematic angle testing'],
-        stack: ['AI Avatars', 'UGC Pipeline', 'Meta Ads', 'TikTok'],
-        results: {
-          primary: '$50', primaryLabel: 'Cost Per Video vs $300+',
-          metricA: '10x', metricALabel: 'More Angles Tested', metricB: '0', metricBLabel: 'Creator Bottlenecks',
-          efficiency: 95, sparkline: 'M0,44 C35,44 65,30 95,32 C125,34 155,14 185,16 C215,18 235,6 260,3',
-        },
-      },
-    },
-    {
-      brand: 'StillRing · Paid Media',
-      description: 'ROAS 1.8x → 4.2x in two weeks',
-      image: { src: 'https://framerusercontent.com/images/hIyXekP7SHBtRkcBBA8LoqjrdY.png?scale-down-to=1200' },
-      caseStudy: {
-        tag: '04 // PAID MEDIA',
-        title: 'Profit-First Meta & TikTok',
-        whatWeDid: 'Rebuilt Meta and TikTok campaigns around profit, not vanity metrics — testing 30 angles in two weeks to find the winner.',
-        deliverables: ['Profit-first optimization', 'Weekly creative testing', 'Real-time Slack access'],
-        stack: ['Meta Ads', 'TikTok Ads', 'Triple Whale', 'Slack'],
-        results: {
-          primary: '4.2x', primaryLabel: 'Blended ROAS (from 1.8x)',
-          metricA: '+89%', metricALabel: 'Revenue in 12 Weeks', metricB: '-31%', metricBLabel: 'Lower CAC',
-          efficiency: 90, sparkline: 'M0,42 C30,40 60,22 90,26 C120,30 150,10 180,14 C210,17 235,4 260,3',
-        },
-      },
-    },
-    {
-      brand: 'Jewellery Brand',
-      description: 'High ROAS, low profit → fixed',
-      image: { src: 'https://framerusercontent.com/images/LOUHKfxecdzS4oSB9PSeYz21fk.png?scale-down-to=1200' },
-      caseStudy: {
-        tag: '05 // OPTIMIZATION',
-        title: 'Profit Contribution Modeling',
-        whatWeDid: 'Shifted a jewellery brand from ROAS optimization to profit-contribution modeling after discovering high ROAS was masking cash burn.',
-        deliverables: ['Profit margin optimization', 'Contribution modeling', 'Wasted-spend elimination'],
-        stack: ['Northbeam', 'GA4', 'Meta Ads', 'Sheets'],
-        results: {
-          primary: '+22pts', primaryLabel: 'Contribution Margin',
-          metricA: '-38%', metricALabel: 'Wasted Spend Cut', metricB: '2.6x', metricBLabel: 'Profit Multiple',
-          efficiency: 93, sparkline: 'M0,40 C30,35 60,15 90,20 C120,25 150,6 180,8 C210,12 235,2 260,1',
-        },
-      },
-    },
-    {
-      brand: 'Flinza Testing Engine',
-      description: '48-hour cycles, 34% avg ROAS lift',
-      image: { src: 'https://framerusercontent.com/images/MClVeYvMtXA3CRA1iECQ1CPv5c.png?scale-down-to=1200' },
-      caseStudy: {
-        tag: '06 // ITERATION',
-        title: '48-Hour Testing Engine',
-        whatWeDid: 'Run systematic A/B testing on 48-hour cycles across every account, killing losers fast and scaling winners faster.',
-        deliverables: ['Rapid iteration framework', 'Weekly optimization calls', 'Transparent dashboards'],
-        stack: ['Meta Ads', 'TikTok Ads', 'A/B Framework', 'Looker'],
-        results: {
-          primary: '48hr', primaryLabel: 'Testing Cycles',
-          metricA: '34%', metricALabel: 'Avg ROAS Lift', metricB: '120+', metricBLabel: 'Variants / Quarter',
-          efficiency: 96, sparkline: 'M0,45 C30,40 60,20 90,25 C120,30 150,10 180,14 C210,18 235,4 260,3',
-        },
-      },
-    },
-    {
-      brand: 'Embedded Growth Pod',
-      description: 'Strategist in your Slack, weekly calls',
-      image: { src: 'https://framerusercontent.com/images/yldP1mipOxNl4NvNqiDxzXJC4bc.png?scale-down-to=1200' },
-      caseStudy: {
-        tag: '07 // OPERATIONS',
-        title: 'Embedded Growth Pod',
-        whatWeDid: 'Embed a strategist directly in your Slack with weekly optimization calls — challenging assumptions instead of taking orders.',
-        deliverables: ['Real-time Slack access', 'Weekly optimization calls', 'Assumption-challenging strategy'],
-        stack: ['Slack', 'Notion', 'Loom', 'Looker'],
-        results: {
-          primary: '24/7', primaryLabel: 'Real-Time Slack Access',
-          metricA: 'Weekly', metricALabel: 'Optimization Calls', metricB: '0', metricBLabel: 'Order-Taker Meetings',
-          efficiency: 97, sparkline: 'M0,48 C25,42 55,25 85,28 C115,31 145,12 175,15 C205,18 235,5 260,2',
-        },
-      },
-    },
-    {
-      brand: 'Flinza Works · Agency',
-      description: '$500K+ monthly spend managed',
-      image: { src: 'https://framerusercontent.com/images/KJSVx7BZQys31ERwSHo7766lQg.png?scale-down-to=1200' },
-      caseStudy: {
-        tag: '08 // SCALE',
-        title: '$500K+ Spend Managed',
-        whatWeDid: 'Manage over half a million dollars in monthly ad spend across ecommerce brands, optimized for profit margin at volume.',
-        deliverables: ['Multi-brand account management', 'Profit-first budget allocation', 'Volume creative execution'],
-        stack: ['Meta Ads', 'TikTok Ads', 'Google Ads', 'Triple Whale'],
-        results: {
-          primary: '$500K+', primaryLabel: 'Monthly Spend Managed',
-          metricA: '9', metricALabel: 'Brands Scaled', metricB: '3.1x', metricBLabel: 'Avg Revenue Multiple',
-          efficiency: 94, sparkline: 'M0,44 C35,44 65,30 95,32 C125,34 155,14 185,16 C215,18 235,6 260,3',
-        },
-      },
-    },
-  ];
-
   // Track scroll position for TOC visibility and quick button hide/restore
   useEffect(() => {
     const handleScroll = () => {
@@ -393,65 +207,7 @@ export default function Page() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Exactly 6 Services arranged in 3 by 2 layout (2 rows of 3 cards)
-  const row1Cards = [
-    {
-      tag: '01 • AUDIT',
-      title: 'Find Your Revenue Leaks',
-      description: 'We audit your funnel, creative, and attribution to find the 3–5 bottlenecks bleeding cash. Most brands have fixable problems worth six figures sitting in plain sight.',
-      image: { src: 'https://framerusercontent.com/images/hIyXekP7SHBtRkcBBA8LoqjrdY.png' },
-    },
-    {
-      tag: '02 • CREATIVE',
-      title: 'Launch Videos That Convert',
-      description: 'Product videos engineered for scroll-stopping impact. We shoot, edit, and test multiple angles to find what makes browsers buy — 48-hour turnaround.',
-      image: { src: 'https://framerusercontent.com/images/xWq5qlnMo4nwNQlhbzFUKWqikwQ.jpg' },
-    },
-    {
-      tag: '03 • AI UGC',
-      title: 'AI UGC Without Creators',
-      description: 'Custom AI avatars produce unlimited user-generated content. Test 10x more angles without creator bottlenecks, missed deadlines, or $300-per-video fees.',
-      image: { src: 'https://framerusercontent.com/images/N6nWcGmKkdYDhvYS1RN1VoX05k.jpg' },
-    },
-  ];
-
-  const row2Cards = [
-    {
-      tag: '04 • PAID MEDIA',
-      title: 'Ads Built to Scale Revenue',
-      description: 'Meta and TikTok campaigns optimized for profit, not vanity metrics. Weekly testing, real-time dashboards, and a strategist embedded in your Slack.',
-      image: { src: 'https://framerusercontent.com/images/gO7oqH62CdjjxnyUBSU5GJTvFnk.jpg' },
-    },
-    {
-      tag: '05 • OPTIMIZATION',
-      title: 'Profit-First Optimization',
-      description: 'We shift from ROAS to profit-contribution modeling — killing losers fast and scaling winners faster so every ad dollar works harder.',
-      image: { src: 'https://framerusercontent.com/images/yldP1mipOxNl4NvNqiDxzXJC4bc.png' },
-    },
-    {
-      tag: '06 • ITERATION',
-      title: 'Rapid Iteration at Volume',
-      description: 'Systematic A/B testing on 48-hour cycles keeps your creative pipeline fresh and your account learning, never plateauing.',
-      image: { src: 'https://framerusercontent.com/images/LOUHKfxecdzS4oSB9PSeYz21fk.png' },
-    },
-    {
-      brand: 'Creator-led commerce',
-      description: 'Creators who actually convert',
-      image: { src: '/images/story_portrait.jpg' },
-      caseStudy: {
-        tag: '09 // CREATORS',
-        title: 'Influencer Marketing',
-        whatWeDid: 'Source and vet creators on engagement quality rather than follower count, negotiate usage rights up front, then license their content into paid media where it consistently outperforms studio creative.',
-        deliverables: ['Vetted creator roster', 'Negotiated usage rights', 'Creator content in paid'],
-        stack: ['TikTok', 'Instagram', 'YouTube', 'Pinterest'],
-        results: {
-          primary: '3.2x', primaryLabel: 'Return on Creator Spend',
-          metricA: '640+', metricALabel: 'Partnerships Negotiated', metricB: '-38%', metricBLabel: 'CAC vs Studio Creative',
-          efficiency: 92, sparkline: 'M0,46 C30,44 60,30 90,32 C120,34 150,16 180,18 C210,20 235,6 260,4',
-        },
-      },
-    },
-  ];
+  // The seven service cards are data — see @/data/serviceCards (imported at the top of this file).
 
   // Preload carousel imagery so the hero never reveals blank panels. This is a warm-up only:
   // nothing waits on it, because the site no longer opens behind a preloader.
@@ -521,8 +277,12 @@ export default function Page() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        pointerEvents: (isLoaded && !scrolledPastHero) ? 'auto' : 'none',
-        opacity: (isLoaded && !scrolledPastHero) ? 1 : 0,
+        /* The header belongs to the hero, so it also has to step out of the way of the focused case
+           study. It is `position: fixed` at z-index 100 while the stage is absolutely positioned
+           inside the hero's own stacking context, so the metal mark painted straight over the open
+           case study — the one piece of chrome on the screen that has no business being there. */
+        pointerEvents: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 'auto' : 'none',
+        opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
         transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
         <a
@@ -1526,103 +1286,53 @@ export default function Page() {
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-           FOOTER — Transparent: slim content row over DiaFooter gradient glow
+           FOOTER — the shared SiteFooter on every route, over the DiaFooter glow
       ════════════════════════════════════════════════════════════ */}
-      <footer
+      {/* One footer, on every route.
+          This is the same <SiteFooter /> that /about, /services, /work, /insights, /careers and the
+          legal pages already end with. The home page used to carry a slimmer two-row footer of its
+          own, which is exactly why the footer "looked different on different pages": the brand
+          column, the service columns, the typographic close and the legal line are now the same
+          wherever anyone lands.
+
+          Two things it keeps from the old one:
+            · the `id="contact"` anchor, which the page's own table of contents links to;
+            · the DiaFooter glow, because the rise from the bottom edge is part of the home page's
+              identity. It is a layer INSIDE the footer rather than a band after it, so the glow
+              reads behind the footer instead of leaving a dead strip at the end of the page.
+
+          SiteFooter also flags the footer as on screen (`body.flinza-foot-inview`), and that is
+          what fades the fixed left rails out before they can print over the wordmark — the
+          overlap this page's own footer never reported, because it had no observer at all. */}
+      <div
         id="contact"
         ref={sectionRef(footerMountRef, footerRef)}
-        className={`${footerRevealed ? 'reveal-in' : 'reveal-init'}`}
-        style={{
-          width: '100%',
-          position: 'relative',
-          backgroundColor: 'transparent',
-          zIndex: 2,
-          marginTop: 10,
-        }}
+        className={`flinza-home-foot ${footerRevealed ? 'reveal-in' : 'reveal-init'}`}
       >
-        {/* Slim transparent content row */}
-        <div
-          style={{
-            maxWidth: 1360,
-            margin: '0 auto',
-            padding: '26px 28px 0',
-            borderTop: '1px solid rgba(9,9,11,0.10)',
-            boxSizing: 'border-box',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            flexWrap: 'wrap',
-            gap: '24px 48px',
-            position: 'relative',
-            zIndex: 3,
-          }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <img src="/images/flinza_logo_hd.png" alt="" width={40} height={40} style={{ display: 'block' }} />
-              <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.03em', color: '#09090b', fontFamily: "'Nohemi', sans-serif" }}>
-                Flinza Works
-              </span>
-            </div>
-            <span style={{ fontSize: 13.5, color: '#71717a', fontFamily: "'Nohemi', sans-serif" }}>
-              We test. We scale. We grow. Repeat.
-            </span>
-
-                        {/* Socials on the glass button component (item 6) */}
-            <SocialGlassRow />
-          </div>
-
-          <nav aria-label="Footer navigation" style={{ display: 'flex', alignItems: 'center', gap: '12px 26px', flexWrap: 'wrap' }}>
-            {[
-              { label: 'Work', href: '#stories' },
-              { label: 'Services', href: '#services' },
-              { label: 'Voices', href: '#testimonials' },
-              { label: 'Creators', href: '/influencer-marketing' },
-              { label: 'About', href: '/about' },
-              { label: 'Insights', href: '/insights' },
-              { label: 'FAQ', href: '#faq' },
-              { label: 'Careers', href: '/careers' },
-              { label: 'Contact', href: '/contact' },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                style={{ fontSize: 14, fontWeight: 600, color: '#52525b', textDecoration: 'none', letterSpacing: '-0.01em', transition: 'color 0.2s ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#0E7C93'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#52525b'; }}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
-          <div style={{ fontSize: 12.5, color: '#a1a1aa', fontFamily: "'Nohemi', sans-serif" }}>
-            © {new Date().getFullYear()} Flinza Works · hello@flinzaworks.com
-          </div>
-        </div>
-
-        {/* DiaFooter — animated gradient glow rising from the bottom edge. Its height is set in
-            CSS so it can shrink responsively: a fixed 320px box read as an empty void on phones. */}
-        <div className="flinza-footer-glow" style={{ position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
+        <div className="flinza-footer-glow" aria-hidden="true">
           <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
             {footerInView ? <DiaFooter
-            preset="Custom"
-            mode="Bars"
-            bars={11}
-            overlap={26}
-            peak={0.96}
-            valley={0.42}
-            blur={22}
-            intensity={105}
-            opacity={0.95}
-            colors={['#EAF7F9', '#9ADCE8', '#56C1D3', '#2E93AC', '#17849B', '#0A3E4C']}
-            reveal="scroll"
-            ariaLabel="Flinza gradient glow"
-            style={{ width: '100%', height: '100%' }}
-          /> : null}
+              preset="Custom"
+              mode="Bars"
+              bars={11}
+              overlap={26}
+              peak={0.96}
+              valley={0.42}
+              blur={22}
+              intensity={105}
+              opacity={0.95}
+              colors={['#EAF7F9', '#9ADCE8', '#56C1D3', '#2E93AC', '#17849B', '#0A3E4C']}
+              reveal="scroll"
+              ariaLabel="Flinza gradient glow"
+              style={{ width: '100%', height: '100%' }}
+            /> : null}
           </div>
         </div>
-      </footer>
+
+        <div className="flinza-home-foot-inner">
+          <SiteFooter />
+        </div>
+      </div>
     </main>
   );
 }

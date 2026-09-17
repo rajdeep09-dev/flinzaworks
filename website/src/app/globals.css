@@ -549,6 +549,20 @@ main {
   touch-action: pan-y !important;
 }
 
+/* ── An open case study takes the whole screen on touch widths ──
+   The mobile rule below caps the carousel to a 62vh letterbox so the cards sit clear of the
+   pinned CTA. The focused stage is absolutely positioned inside that same box, so a phone
+   rendered the case study — headline, deliverables, metrics and the client quote — into the
+   middle 62% of the screen and pushed the quote off the bottom of it. `is-focused` is set by the
+   carousel while a case study is open and hands the box back the full viewport. It is `fixed`, so
+   it also stops the page behind it from being the thing that scrolls. */
+.flinza-carousel-lock.is-focused {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* ── Hero geometry: svh for stable mobile viewport, CTA pinned above the fold on phones ── */
 .flinza-hero {
   height: 133.333vh;
@@ -582,6 +596,11 @@ main {
     .flinza-carousel-lock {
       height: 62svh !important;
       top: calc(50svh - 31svh) !important;
+    }
+    /* Specificity, not order: the open-case-study rule above must survive this block. */
+    .flinza-carousel-lock.is-focused {
+      top: 0 !important;
+      height: 100% !important;
     }
   }
 }

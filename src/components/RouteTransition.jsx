@@ -39,7 +39,12 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import LoaderPlate from "./LoaderPlate";
 
-const MIN_VISIBLE_MS = 420; // below this a loader reads as a glitch, not a transition
+/* Below roughly this, a loader reads as a glitch rather than a transition. It was 420, which was
+ * shorter than the plate's own 420ms furniture fade — so on a cold load the plate began lifting
+ * while the wordmark, the hairline and the counter were still arriving, and the whole thing read
+ * as an incomplete flash instead of an opening. Long enough to be a deliberate beat, short enough
+ * that nobody waits for it. */
+const MIN_VISIBLE_MS = 820;
 const MAX_VISIBLE_MS = 5000; // a hard stop so a failed navigation can never trap the screen
 const SETTLE_MS = 220; // beat between the route committing and the plate starting to lift
 const UNMOUNT_MS = 900; // the plate's lift (700) + the furniture fade (260), with slack
@@ -61,6 +66,20 @@ function stageFor(pct) {
   }
   return label;
 }
+
+/*── The cold-load plate runs ONCE per document, and this flag is what guarantees it. ──
+ *
+ * It is module scope rather than a ref because the failure mode is a remount: a development Fast
+ * Refresh, or any re-creation of this component, re-runs mount effects, and a mount effect that
+ * starts the plate will start it a second time — the first plate lifts away, the page is briefly
+ * visible, and a second one arrives to cover it. That is exactly the "the loader comes up twice"
+ * fault, and no amount of state inside the component can see it, because the new instance starts
+ * with clean state. A module-level flag survives the remount.
+ *
+ * Client-side navigations are unaffected: they go through `start()` from the click handler, not
+ * through the cold-load effect, so every route change still gets its own plate. Only the open of
+ * the document is one-shot. */
+let coldLoadPlateShown = false;
 
 export default function RouteTransition() {
   const pathname = usePathname();
@@ -127,6 +146,11 @@ export default function RouteTransition() {
     ) {
       return undefined;
     }
+
+    /* The one-shot guard. Everything below this line may run only for the first mount of the
+       document — see the note on `coldLoadPlateShown`. */
+    if (coldLoadPlateShown) return undefined;
+    coldLoadPlateShown = true;
 
     const bootAt = performance.now();
     start(window.location.pathname + window.location.search);
