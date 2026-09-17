@@ -43,7 +43,13 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ width: '100%', minHeight: '100%' }}>
-      <body style={{ width: '100%', minHeight: '100%', margin: 0, padding: 0, background: '#fbfcfd', overflowX: 'hidden' }}>
+      {/* No `overflow-x` here on purpose. A single-axis overflow declaration forces the other axis
+          to a scrolling value, so an inline `overflowX: 'hidden'` on the body quietly turned the
+          body into a second, unscrollable scroll container nested inside the viewport — and on a
+          touch device that is a page that will not move under the finger. The horizontal clip is
+          owned by `body { overflow-x: clip }` in overrides.css, which clips without creating a
+          scroller. */}
+      <body style={{ width: '100%', minHeight: '100%', margin: 0, padding: 0, background: '#fbfcfd' }}>
         {/* The metal mark is on every page and is the first thing anyone looks for. Preloading it
             means it is decoded before the header paints, so the logo is present in the very first
             frame instead of being swapped in afterwards. React hoists this into <head>. */}

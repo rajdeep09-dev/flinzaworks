@@ -235,17 +235,19 @@ export default function Page() {
   }, []);
 
   return (
-    <main style={{
-      width: '100%',
-      minHeight: '100vh',
-      backgroundColor: '#fbfcfd',
-      color: '#09090b',
-      position: 'relative',
-      margin: 0,
-      padding: 0,
-      overflowX: 'hidden',
-      fontFamily: "'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    }}>
+    <main
+      className="flinza-home-main"
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#fbfcfd',
+        color: '#09090b',
+        position: 'relative',
+        margin: 0,
+        padding: 0,
+        fontFamily: "'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      }}
+    >
       {/* Full-Website Ethereal Shadow Background (hardware-accelerated, zero-lag) */}
       <div
         aria-hidden="true"
@@ -324,13 +326,16 @@ export default function Page() {
       </header>
 
       {/* Hero Section */}
+      {/* `overflow` is on the class, not inline: the hero is more than one screen tall and carried
+          an inline `overflow: 'hidden'`, which is a scrollable box — one more container a touch
+          gesture could be claimed by before it reaches the scroller that moves the page. `clip`
+          clips the carousel's horizontal overflow without becoming a scroll container. */}
       <section
         id="hero"
         className="flinza-hero"
         style={{
           width: '100%',
           position: 'relative',
-          overflow: 'hidden',
           backgroundColor: 'transparent',
           zIndex: 1,
         }}

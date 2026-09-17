@@ -129,3 +129,139 @@ body.flinza-foot-inview .flinza-toc-desktop {
     grid-column: 1 / -1;
   }
 }
+
+/* ══ 7. The loader's furniture belongs to the screen, not to the surface ════
+ * The plate's surface is deliberately 120% wide so its corner radius can reach 50% on exit. Its
+ * left edge therefore sits 10% of the viewport OUTSIDE the screen, and the wordmark and the
+ * counter were positioned against that surface: on a 390px phone the wordmark's `left: 22px`
+ * resolved to -17px (the clipped letter in the mobile screenshot) and the counter's `right: 20px`
+ * ran its last digit past the right edge. On desktop the same arithmetic put the wordmark ~130px
+ * off-screen.
+ *
+ * LoaderPlate now wraps the furniture in `.flinza-loader__frame`, which is exactly the plate's
+ * box — 100/120 = 83.3333% of the surface, centred — so those offsets mean what they say again at
+ * every width. The frame stays inside the surface, so the furniture is still clipped by the
+ * surface's rounding on exit and the plate still lifts as one piece.
+ */
+.flinza-loader__frame {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 83.3333%;
+  transform: translateX(-50%);
+}
+
+/* Safe areas, so the wordmark never sits under a status bar and the counter never sits under the
+ * home indicator. `env()` resolves to 0 everywhere the insets do not exist. */
+.flinza-loader__brand {
+  left: calc(clamp(22px, 4vw, 60px) + env(safe-area-inset-left, 0px));
+  top: calc(clamp(28px, 6vh, 64px) + env(safe-area-inset-top, 0px));
+}
+.flinza-loader__counter {
+  right: calc(clamp(20px, 4vw, 58px) + env(safe-area-inset-right, 0px));
+  bottom: calc(clamp(20px, 4vw, 48px) + env(safe-area-inset-bottom, 0px));
+}
+
+/* On a phone the counter is the loudest thing on the plate by design, and 62px for two digits plus
+ * the percent sign is not loud — it reads as a stray number in the corner. It also has to clear
+ * the wordmark above it. */
+@media (max-width: 640px) {
+  .flinza-loader__num {
+    font-size: clamp(76px, 26vw, 130px);
+    letter-spacing: -0.05em;
+  }
+  .flinza-loader__brand {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+  }
+  .flinza-loader__mark {
+    width: clamp(104px, 34vw, 150px);
+  }
+}
+
+/* ══ 8. One scroller, and it is the document ═══════════════════════════════
+ * `html` and `body` were BOTH `overflow-y: auto` with an `overflow-x` of `hidden`.
+ *
+ * An `overflow-x: hidden` forces the other axis to a scrolling value in the used value, so that
+ * declaration quietly turned each of them into a scroll container — two nested vertical scrollers,
+ * with `body` (and its `overscroll-behavior-y: none`) as the inner one. On Android that is what
+ * makes a drag do nothing: the gesture is claimed by the inner container, which has no scrollable
+ * overflow of its own because the page's height lives on `html`.
+ *
+ * `body` now clips horizontally without becoming a scroller — `overflow: clip` clips and takes no
+ * gesture — so there is exactly one scroll container and the finger always has something to move.
+ * `min-height: 100%` is kept, and `overscroll-behavior-y: none` on the body still stops a pull
+ * from refreshing the page, because it is still an ancestor of the content.
+ */
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+body {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* ══ 9. An open case study owns the machine, and scrolls under the thumb ═══
+ * On a phone `is-focused` turns the letterbox into a full-screen surface, so the page behind it
+ * must stop moving: otherwise a swipe that misses the copy scrolls the article underneath the
+ * open case study and the reader returns to somewhere else on the page. `:has()` is the whole
+ * lock — no scroll class, no body style to forget to remove — and it lapses the moment the stage
+ * closes.
+ *
+ * The body inside the stage keeps its own scrolling (see FocusedStage), and `pan-y` plus
+ * `overscroll-behavior: contain` keep that scroll from chaining out to the locked page.
+ */
+@media (max-width: 900px) {
+  body:has(.flinza-carousel-lock.is-focused) {
+    overflow: hidden;
+  }
+  .flinza-carousel-lock.is-focused .flinza-stage-body {
+    pointer-events: auto;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ══ 10. The hairline belongs to the screen; a leaving plate is not a wall ══
+ * The hairline spans its containing block, and its containing block is now `.flinza-loader__frame`
+ * — the plate's own box, 83.3333% of the 120% surface. Left at `left: 0; right: 0` it would stop
+ * 10% short of each screen edge, which reads as two stray dashes rather than one rule across the
+ * plate. The frame's 83.3333% of the surface is (120 − 83.3333) / 2 / 83.3333 = 22% of the frame
+ * per side, so that is how far it has to reach to land exactly on the surface's edges — which the
+ * surface's own `overflow: clip` trims for us.
+ */
+.flinza-loader .flinza-loader__line {
+  left: -22%;
+  right: -22%;
+}
+
+/* While the plate is lifting it is on its way out, so it stops intercepting touches immediately.
+ * A plate that is still eating taps while it retracts is what makes the first tap after a load do
+ * nothing — and on iOS that tap is then replayed at the point under the finger, which can land on a
+ * link and start a second navigation. See the ghost-click guard in RouteTransition. */
+.flinza-loader.is-leaving {
+  pointer-events: none;
+}
+
+/* ══ 11. The home page's frame is not a scroll container either ═════════
+ * `<main>` carried an inline `overflowX: 'hidden'`. Exactly as on the body above, a single-axis
+ * overflow declaration forces the other axis to a scrolling value, so the home page's frame became
+ * a scroll container nested inside the viewport — one more box for a touch gesture to be claimed
+ * by before it can reach the scroller that actually moves. `clip` clips the hero's horizontal
+ * overflow, which is what the declaration was there for, without taking the gesture.
+ */
+.flinza-home-main {
+  overflow-x: clip;
+}
+
+/* The hero is taller than a phone screen and was `overflow: hidden` inline. `hidden` is a
+ * scrollable box; `clip` is not a scroll container at all, so the gesture a finger starts inside
+ * the hero goes straight to the page. Nothing inside the hero is sticky, so there is no behaviour
+ * riding on the old value. */
+.flinza-hero {
+  overflow: clip;
+}

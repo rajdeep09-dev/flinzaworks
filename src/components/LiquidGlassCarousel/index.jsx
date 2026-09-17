@@ -418,9 +418,12 @@ return /*#__PURE__*/_jsxs("div",{className:viewportLockClass,style:{...style,pos
   cursorEnabled&&/*#__PURE__*/_jsx("div",{ref:cursorRef,style:{position:"absolute",top:0,left:0,zIndex:4,pointerEvents:"none",whiteSpace:"nowrap",mixBlendMode:"exclusion",color:"white",willChange:"transform"},children:"View"}),
 
   
-  /* Focused case-study overlay — one shared editorial layout for every breakpoint */
+  /* Focused case-study overlay — an editorial row on desktop, a single column with the poster on
+     a phone. `image` is what the phone layout draws at the top of that column; see FocusedStage's
+     header for why the packed row cannot serve a phone. */
   <FocusedStage
     caseStudy={caseStudy}
+    image={current?.image?.src}
     focused={focused}
     compact={compact}
     onClose={() => engineRef.current?.closeFocus()}

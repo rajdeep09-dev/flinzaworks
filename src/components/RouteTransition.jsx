@@ -46,6 +46,13 @@ import LoaderPlate from "./LoaderPlate";
  * that nobody waits for it. */
 const MIN_VISIBLE_MS = 820;
 const MAX_VISIBLE_MS = 5000; // a hard stop so a failed navigation can never trap the screen
+/* Belt braces on MAX_VISIBLE_MS: an effect keyed on the phase re-arms this on every phase change,
+ * so a plate that is on screen ALWAYS has one timer that will take it off again — even if every
+ * timer registered through `later` was swept by a remount. */
+const WATCHDOG_MS = 7000;
+/* A click that lands in the slop right after a plate has finished is a replayed touch, not an
+ * intent to navigate (see the note in `start`). Navigations inside this window run plate-less. */
+const GHOST_CLICK_MS = 420;
 const SETTLE_MS = 220; // beat between the route committing and the plate starting to lift
 const UNMOUNT_MS = 900; // the plate's lift (700) + the furniture fade (260), with slack
 
@@ -95,6 +102,18 @@ export default function RouteTransition() {
   const targetPath = React.useRef(null);
   const rafRef = React.useRef(0);
   const timers = React.useRef([]);
+
+  /* The plate's current phase, readable from inside `start` without being one of its dependencies.
+     `start` is what a document-level click listener calls, and a listener that is torn down and
+     re-created on every phase change is a listener that can be a phase out of date while it is
+     attached. A ref cannot be stale. */
+  const phaseRef = React.useRef("idle");
+  phaseRef.current = phase;
+
+  /* When the last plate finished. See the ghost-click guard in `start`. `-Infinity` rather than 0,
+     because `performance.now()` is measured from navigation start: a 0 would make the first 420ms
+     of the document's life look like it came hot on the heels of a plate. */
+  const lastPlateEndedAt = React.useRef(-Infinity);
 
   const clearTimers = React.useCallback(() => {
     timers.current.forEach((id) => clearTimeout(id));
@@ -190,8 +209,28 @@ export default function RouteTransition() {
       setPhase("idle");
       setPct(0);
       landing.current = false;
+      lastPlateEndedAt.current = performance.now();
     }, SETTLE_MS + UNMOUNT_MS);
   }, [later]);
+
+  /* ── The watchdog ──
+   *
+   * Every exit from a plate is a timer, and a timer can be lost: a remount clears all of them and
+   * leaves the surface on screen with nothing left to take it off. This one is registered by an
+   * effect keyed on the phase rather than pushed into `timers`, so it cannot be swept — while a
+   * plate is up, the timeout that ends it is always armed, and the page can never be left covered. */
+  React.useEffect(() => {
+    if (phase === "idle") return undefined;
+    const id = window.setTimeout(() => {
+      cancelAnimationFrame(rafRef.current);
+      landing.current = false;
+      inflight.current = false;
+      setPct(0);
+      setPhase("idle");
+      lastPlateEndedAt.current = performance.now();
+    }, WATCHDOG_MS);
+    return () => window.clearTimeout(id);
+  }, [phase]);
 
   const start = React.useCallback(
     (to) => {
@@ -200,6 +239,35 @@ export default function RouteTransition() {
          landing sequence that the first click already scheduled, and the overlay would be left
          sitting at 100% on screen. Once a navigation to a path is in flight, it is in flight. */
       if (inflight.current && targetPath.current === to) return;
+
+      /* Once the plate's sequence has begun it is never re-entered — this is the fix for the
+         loader appearing to spawn twice.
+
+         `start()` is reachable from a click, and a click can land while the plate is still
+         counting or already lifting: a tap on a slow phone, a double-tap, or the browser
+         replaying a click after a cancelled touch. The old body restarted the whole sequence —
+         `clearTimers()` swept the landing timers that were in the middle of lifting the plate
+         away, `setPhase('running')` handed the surface back to its covered state, and the plate
+         animated back down over the page before lifting again. Two arrivals for one navigation,
+         which is exactly what "it spawns twice like a glitch" is.
+
+         Retargeting instead keeps the one plate: it carries on counting, and `finish` — which is
+         idempotent — lands it when the router commits whichever path is now the destination. */
+      if (phaseRef.current !== "idle") {
+        targetPath.current = to;
+        inflight.current = true;
+        return;
+      }
+
+      /* A click that arrives in the slop just after a plate finished is almost always the browser
+         replaying a touch as a click: the plate the finger actually landed on is gone, so the event
+         is delivered to whatever is under that point now — which can be a link, and a link is a
+         navigation, and a navigation is a second plate right behind the first. The one the user
+         reads as "the loader showed up twice".
+
+         Only the plate is skipped; the navigation itself still happens, and a plate-less route
+         change on an already-cached page is not something anyone notices. */
+      if (performance.now() - lastPlateEndedAt.current < GHOST_CLICK_MS) return;
 
       targetPath.current = to;
       startedAt.current = performance.now();
@@ -274,6 +342,11 @@ export default function RouteTransition() {
       return undefined;
     }
     if (!inflight.current) return undefined;
+
+    /* The plate may already have run to completion — the failsafe cap can land it before a slow
+       router commits, and a click during the exit retargets rather than restarting. Re-entering
+       `finish` there would put the surface back on screen for a navigation that is already over. */
+    if (phaseRef.current === "idle") return undefined;
 
     const elapsed = performance.now() - startedAt.current;
     const wait = Math.max(0, MIN_VISIBLE_MS - elapsed);

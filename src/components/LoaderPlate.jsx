@@ -76,36 +76,51 @@ export default function LoaderPlate({
       <div className="flinza-loader__mask">
         <div className="flinza-loader__ground" aria-hidden="true" />
 
-        {/* 1 — the brand word, top-left, per-character focus pull. */}
-        <p className="flinza-loader__brand" aria-hidden="true">
-          {WORD.split("").map((letter, index) => (
-            <i key={`${letter}-${index}`} style={{ animationDelay: charDelay(index) }}>
-              {letter}
-            </i>
-          ))}
-          <em>WORKS</em>
-        </p>
+        {/* The furniture's own coordinate system — and this frame is the whole point.
 
-        {/* 2 — the hairline that draws itself, tracking the real percentage. */}
-        <div className="flinza-loader__line" aria-hidden="true">
-          <span style={{ transform: `scaleX(${Math.max(0.012, shown / 100)})` }} />
-        </div>
+            The surface above is 120% wide and centred, so its left edge sits 10% of the viewport
+            OUTSIDE the screen. Anything positioned against that surface is positioned against a
+            box wider than the screen: on a 390px phone the wordmark's `left: 22px` resolved to
+            -17px, which is the clipped "F" in the mobile screenshot, and the counter's
+            `right: 20px` ran the last digit off the right edge. On desktop the same arithmetic
+            put the wordmark 130px off-screen.
 
-        {/* The mark, centred. The one thing this plate does that the reference does not. */}
-        <div className="flinza-loader__content" aria-hidden="true">
-          <div className="flinza-loader__mark">
-            {/* An ordinary <img>, so it paints with the plate's first frame rather than waiting
-                on the shader chunk. See SiteHeader for why the metal is layered over a still. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={MARK_SRC} alt="" width={132} height={132} decoding="sync" />
-            <span className="flinza-loader__sheen" />
+            This frame is exactly the plate's box (100/120 = 83.3333% of the surface, centred),
+            so everything inside it is positioned against the real viewport again — and it is
+            still a child of the surface, so the furniture is clipped by the surface's
+            corner-radius on exit and the whole plate still lifts as one piece. */}
+        <div className="flinza-loader__frame">
+          {/* 1 — the brand word, top-left, per-character focus pull. */}
+          <p className="flinza-loader__brand" aria-hidden="true">
+            {WORD.split("").map((letter, index) => (
+              <i key={`${letter}-${index}`} style={{ animationDelay: charDelay(index) }}>
+                {letter}
+              </i>
+            ))}
+            <em>WORKS</em>
+          </p>
+
+          {/* 2 — the hairline that draws itself, tracking the real percentage. */}
+          <div className="flinza-loader__line" aria-hidden="true">
+            <span style={{ transform: `scaleX(${Math.max(0.012, shown / 100)})` }} />
           </div>
-        </div>
 
-        {/* 3 — the counter, bottom-right, at display scale with a small `%`. */}
-        <div className="flinza-loader__counter" aria-hidden="true">
-          <span className="flinza-loader__num">{String(shown).padStart(2, "0")}</span>
-          <span className="flinza-loader__pct">%</span>
+          {/* The mark, centred. The one thing this plate does that the reference does not. */}
+          <div className="flinza-loader__content" aria-hidden="true">
+            <div className="flinza-loader__mark">
+              {/* An ordinary <img>, so it paints with the plate's first frame rather than waiting
+                  on the shader chunk. See SiteHeader for why the metal is layered over a still. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={MARK_SRC} alt="" width={132} height={132} decoding="sync" />
+              <span className="flinza-loader__sheen" />
+            </div>
+          </div>
+
+          {/* 3 — the counter, bottom-right, at display scale with a small `%`. */}
+          <div className="flinza-loader__counter" aria-hidden="true">
+            <span className="flinza-loader__num">{String(shown).padStart(2, "0")}</span>
+            <span className="flinza-loader__pct">%</span>
+          </div>
         </div>
       </div>
     </div>

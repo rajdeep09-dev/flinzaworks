@@ -10,9 +10,23 @@
  * glowing through on the right. Copy sits directly on it, and the client quote shares the
  * same stage rather than living in a box of its own.
  *
- * Layout is a flex column — header row (so Close stays reachable while the body scrolls on a
- * phone) over a body that is a two-column editorial grid on desktop and a single scrollable
- * column on mobile.
+ * ── Two layouts, because one layout cannot serve both ──
+ *
+ * DESKTOP is a two-column editorial row: the work on the left, the client on the right, both on
+ * the scrim, with the focused panel unoccluded on the right half.
+ *
+ * That row was also what a phone got, and a phone cannot carry it. The stage is only as wide as
+ * the screen, so the two columns were squeezed side by side over the panel — the media showed
+ * through the middle of the copy, the metrics grid collided with itself, and the client quote,
+ * which is the reason the stage exists, ended up below the fold inside a body that had no touch
+ * events and therefore could not be scrolled to. What the packed row produced on a phone was
+ * overlapping type, not a case study.
+ *
+ * So phones get their own column: the project's poster at the top of the screen as a real image
+ * on an opaque sheet (no scrim algebra, no panel showing through the text), then the overline,
+ * the title, the lede, the deliverables, the metrics, the stack line and finally the quote and
+ * the client — all full width, all at phone type sizes, in ONE scrollable column under a pinned
+ * Close control. Nothing overlaps because nothing is beside anything.
  */
 
 function toPlainText(value) {
@@ -34,7 +48,7 @@ const INK_FAINT = "rgba(9,9,11,0.45)";
 const HAIRLINE = "rgba(9,9,11,0.14)";
 const HAIRLINE_SOFT = "rgba(9,9,11,0.08)";
 
-export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
+export default function FocusedStage({ caseStudy, image, focused, compact, onClose }) {
   if (!caseStudy) return null;
 
   const results = caseStudy.results || {};
@@ -47,6 +61,282 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
     ["metricB", "metricBLabel"],
   ];
   const testimonial = caseStudy.testimonial;
+  const poster = image || caseStudy.image?.src || caseStudy.imageSrc || "";
+
+  /* ── The work: overline, title, lede, deliverables, metrics, stack ──
+     One block, rendered in both layouts. Everything that differs between the two is a `compact`
+     ternary, so the desktop column is byte-for-byte what it was. */
+  const workColumn = (
+    <div
+      className="flinza-stage-work"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: compact ? 12 : 16,
+        width: compact ? "100%" : undefined,
+        flex: compact ? "none" : undefined,
+        marginBlock: compact ? undefined : "auto",
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "var(--font-ui)",
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          color: "#0a3e4c",
+        }}
+      >
+        {overline}
+      </span>
+
+      <h2
+        className="flinza-display"
+        style={{
+          margin: 0,
+          fontSize: compact ? "clamp(30px, 8.6vw, 40px)" : "clamp(38px, 4.1vw, 62px)",
+          lineHeight: compact ? 1.06 : undefined,
+          color: INK,
+        }}
+      >
+        {toPlainText(caseStudy.title)}
+      </h2>
+
+      {/* The client quote on the right is set in the editorial serif and reads far better
+          than the summary did, so the summary now shares that face. Sans body copy next to a
+          serif quote made the two halves look like they came from different sites. */}
+      <p
+        className="flinza-stage-lede"
+        style={{
+          margin: 0,
+          fontFamily: "var(--font-display)",
+          fontSize: compact ? 17 : 21,
+          lineHeight: compact ? 1.52 : 1.52,
+          letterSpacing: "-0.005em",
+          color: "rgba(9,9,11,0.82)",
+          fontWeight: 400,
+          maxWidth: compact ? undefined : 540,
+        }}
+      >
+        {toPlainText(caseStudy.whatWeDid)}
+      </p>
+
+      {deliverables.length ? (
+        <ul
+          style={{
+            margin: compact ? "4px 0 0" : "8px 0 0",
+            padding: 0,
+            listStyle: "none",
+            display: "flex",
+            flexDirection: "column",
+            gap: compact ? 7 : 9,
+          }}
+        >
+          {deliverables.map((item, index) => (
+            <li
+              key={item}
+              style={{
+                display: "flex",
+                gap: 12,
+                alignItems: "baseline",
+                borderTop: index === 0 ? "none" : `1px solid ${HAIRLINE_SOFT}`,
+                paddingTop: index === 0 ? 0 : compact ? 7 : 9,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 11,
+                  color: "#17849B",
+                  fontVariantNumeric: "tabular-nums",
+                  minWidth: 18,
+                }}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-ui)",
+                  fontSize: compact ? 13.2 : 14,
+                  fontWeight: 500,
+                  letterSpacing: "0.015em",
+                  color: "rgba(9,9,11,0.84)",
+                  lineHeight: 1.5,
+                }}
+              >
+                {toPlainText(item)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* The metrics. Laid out by `.flinza-stage-metrics`, which is a grid — as a wrapping
+          flex row the three figures regularly landed as 2 + 1 with the last one orphaned.
+          See overrides.css for the phone arrangement. */}
+      <div
+        className="flinza-stage-metrics"
+        style={{
+          marginTop: compact ? 10 : 14,
+          paddingTop: compact ? 16 : 20,
+          borderTop: `1px solid ${HAIRLINE}`,
+          alignItems: "baseline",
+        }}
+      >
+        {results.primary ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+            <span
+              className="flinza-display"
+              style={{
+                fontSize: compact ? 40 : 58,
+                fontVariantNumeric: "tabular-nums",
+                background: "linear-gradient(112deg, #0A3E4C 0%, #17849B 48%, #3FB9CE 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                color: "transparent",
+              }}
+            >
+              {results.primary}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-ui)",
+                fontSize: 10.5,
+                fontWeight: 500,
+                letterSpacing: "0.05em",
+                color: INK_FAINT,
+              }}
+            >
+              {results.primaryLabel}
+            </span>
+          </div>
+        ) : null}
+
+        {metrics.map(([valueKey, labelKey]) =>
+          results[valueKey] ? (
+            <div key={valueKey} style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+              <span
+                className="flinza-display"
+                style={{
+                  fontSize: compact ? 22 : 26,
+                  color: INK,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {results[valueKey]}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-ui)",
+                  fontSize: 9.5,
+                  fontWeight: 600,
+                  letterSpacing: "0.17em",
+                  textTransform: "uppercase",
+                  color: INK_FAINT,
+                }}
+              >
+                {results[labelKey]}
+              </span>
+            </div>
+          ) : null
+        )}
+      </div>
+
+      {stackLine ? (
+        <span
+          style={{
+            fontFamily: "var(--font-ui)",
+            fontSize: 10,
+            fontWeight: 500,
+            letterSpacing: "0.19em",
+            textTransform: "uppercase",
+            color: "rgba(9,9,11,0.34)",
+          }}
+        >
+          {stackLine}
+        </span>
+      ) : null}
+    </div>
+  );
+
+  /* ── The client, on the same stage: quote, then avatar, name and role ── */
+  const quoteFigure = testimonial ? (
+    <figure
+      className="flinza-stage-quote"
+      style={{
+        margin: 0,
+        /* Width, the left rule and the padding all live in globals.css, because they
+           have to change together at the phone breakpoint. Stacked, a left rule is a stray
+           vertical line and the correct treatment is a top rule instead. */
+        width: compact ? "100%" : undefined,
+        flex: compact ? "none" : undefined,
+        display: "flex",
+        flexDirection: "column",
+        gap: compact ? 18 : 22,
+        paddingLeft: compact ? 0 : undefined,
+        paddingTop: compact ? 20 : undefined,
+        marginBlock: compact ? undefined : "auto",
+        borderLeft: compact ? "none" : undefined,
+        borderTop: compact ? `1px solid ${HAIRLINE}` : undefined,
+      }}
+    >
+      <blockquote
+        className="flinza-quote"
+        style={{
+          margin: 0,
+          fontSize: compact ? 17 : "clamp(17px, 1.42vw, 21px)",
+          color: "#27272a",
+        }}
+      >
+        &ldquo;{toPlainText(testimonial.quote)}&rdquo;
+      </blockquote>
+      <figcaption style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {testimonial.avatar ? (
+          <img
+            src={testimonial.avatar}
+            alt=""
+            width={40}
+            height={40}
+            loading="lazy"
+            decoding="async"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 999,
+              objectFit: "cover",
+              flex: "none",
+              boxShadow: "0 0 0 1px rgba(9,9,11,0.14), 0 8px 20px -12px rgba(9,9,11,0.45)",
+            }}
+          />
+        ) : null}
+        <span style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+          <span
+            style={{
+              fontFamily: "var(--font-ui)",
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: INK,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {testimonial.name}
+          </span>
+          <span
+            style={{
+              fontFamily: "var(--font-ui)",
+              fontSize: 11.5,
+              fontWeight: 400,
+              color: INK_FAINT,
+            }}
+          >
+            {testimonial.role}
+          </span>
+        </span>
+      </figcaption>
+    </figure>
+  ) : null;
 
   return (
     <div
@@ -65,19 +355,15 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
         overflow: "hidden",
       }}
     >
-      {/* The stage ground is a scrim, not a veil.
-          Previous versions painted a near-white wash (0.9–0.95 alpha) across the whole stage.
-          That whitened out the site's noisy gradient — the page behind the stage is the
-          textured brand ground — and it dimmed the focused artwork to the point where the
-          project photo read as a faint rectangle. It was, in effect, the white panel the
-          design is not allowed to have, just sprayed instead of framed.
+      {/* The stage ground.
+          Desktop: a scrim, not a veil. It starts soft on the left, fades to fully transparent by
+          56% of the width and stops before the media column, so the noise stays visible through it
+          and the artwork behind the right half is completely unoccluded.
 
-          Now the scrim only protects the copy column: it starts soft on the left, fades to
-          fully transparent by 56% of the width, and stops before the media column. The noise
-          stays visible through it, the copy stays legible on it (the ink is near-black, so it
-          only needs a light veil, not a white one), and the artwork behind the right half is
-          completely unoccluded. Vertical scrim on phones for the same reason — the column is
-          stacked, so the copy sits above the poster instead of beside it. */}
+          Phone: the stage's own layout is now a real sheet rather than copy laid over the panel, so
+          the ground is a near-opaque wash edge to edge. The panel is not doing typographic duty any
+          more — the poster at the top of the column is — and text that sits on a translucent scrim
+          over a photograph is exactly the unreadable thing this rewrite is removing. */}
       <div
         aria-hidden="true"
         className="flinza-stage-ground"
@@ -85,11 +371,7 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
           position: "absolute",
           inset: 0,
           background: compact
-            ? /* Phone: the scrim is anchored to the BOTTOM, where the copy actually is, and is
-                 fully transparent by 74% of the height. The old version shaded from the top
-                 down, which dimmed the poster — the one thing on a phone there is room to
-                 show — while leaving the bottom, under the copy, unprotected. */
-              "linear-gradient(0deg, rgba(240,248,250,0.95) 0%, rgba(240,248,250,0.86) 26%, rgba(240,248,250,0.45) 52%, rgba(240,248,250,0) 74%)"
+            ? "linear-gradient(180deg, rgba(243,250,252,0.97) 0%, rgba(238,247,250,0.985) 42%, rgba(235,246,249,0.995) 100%)"
             : "linear-gradient(96deg, rgba(245,251,253,0.86) 0%, rgba(244,251,253,0.6) 22%, rgba(244,251,253,0) 40%)",
         }}
       />
@@ -138,286 +420,68 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
              there is room and safely top-aligned when there is not. */
           overflowY: "auto",
           overscrollBehavior: "contain",
+          /* …and it has to be reachable by a finger.
+
+             The stage root is deliberately `pointer-events: none` so a closed stage can never
+             swallow a gesture, and only the Close button opted back in. That made
+             `overflow-y: auto` here decorative on a phone: the body had no pointer events at all,
+             so a touch fell straight through it to the canvas, the body never scrolled, and the
+             foot of a long case study — the metrics, the stack line and the client quote — could
+             not be reached. While the stage is focused the body takes pointer events back, which
+             is what makes it scroll under the thumb. */
+          pointerEvents: focused ? "auto" : "none",
           display: "flex",
           flexDirection: compact ? "column" : "row",
           alignItems: compact ? "stretch" : "flex-start",
           justifyContent: compact ? "flex-start" : "space-between",
-          gap: compact ? 20 : 40,
-          padding: compact ? "14px 18px 34px" : "40px clamp(30px, 4.2vw, 76px)",
+          gap: compact ? 18 : 40,
+          /* The last 34px used to be the whole bottom inset, which on a phone with a home
+             indicator put the client's name under it. */
+          padding: compact
+            ? "16px 18px calc(38px + env(safe-area-inset-bottom, 0px))"
+            : "40px clamp(30px, 4.2vw, 76px)",
           boxSizing: "border-box",
+          /* Phone: one column, and a scroll container the browser is happy to pan. */
+          touchAction: compact ? "pan-y" : undefined,
+          WebkitOverflowScrolling: compact ? "touch" : undefined,
         }}
       >
-        {/* ── The work ──
-            The column's width is set by `.flinza-stage-work` in globals.css, not here. It used to
-            be `min(566px, 48vw)` inline: `vw` resolves against the VIEWPORT, not the stage, so the
-            row's min-content width grew with the screen and the body ended up 472px wider than the
-            viewport at 1440 — the client quote pushed off the right edge and the copy jammed into
-            the left. A flex base with `min-width: 0` cannot do that. */}
-        <div
-          className="flinza-stage-work"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: compact ? 12 : 16,
-            width: compact ? "100%" : undefined,
-            flex: compact ? "none" : undefined,
-            marginBlock: compact ? undefined : "auto",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "var(--font-ui)",
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: "0.28em",
-              textTransform: "uppercase",
-              color: "#0a3e4c",
-            }}
-          >
-            {overline}
-          </span>
-
-          <h2
-            className="flinza-display"
-            style={{
-              margin: 0,
-              fontSize: compact ? "clamp(31px, 9.4vw, 38px)" : "clamp(38px, 4.1vw, 62px)",
-              color: INK,
-            }}
-          >
-            {toPlainText(caseStudy.title)}
-          </h2>
-
-          {/* The client quote on the right is set in the editorial serif and reads far better
-              than the summary did, so the summary now shares that face. Sans body copy next to a
-              serif quote made the two halves look like they came from different sites. */}
-          <p
-            className="flinza-stage-lede"
-            style={{
-              margin: 0,
-              fontFamily: "var(--font-display)",
-              fontSize: compact ? 17.5 : 21,
-              lineHeight: compact ? 1.5 : 1.52,
-              letterSpacing: "-0.005em",
-              color: "rgba(9,9,11,0.82)",
-              fontWeight: 400,
-              maxWidth: compact ? undefined : 540,
-            }}
-          >
-            {toPlainText(caseStudy.whatWeDid)}
-          </p>
-
-          {deliverables.length ? (
-            <ul
-              style={{
-                margin: compact ? "4px 0 0" : "8px 0 0",
-                padding: 0,
-                listStyle: "none",
-                display: "flex",
-                flexDirection: "column",
-                gap: compact ? 7 : 9,
-              }}
-            >
-              {deliverables.map((item, index) => (
-                <li
-                  key={item}
-                  style={{
-                    display: "flex",
-                    gap: 12,
-                    alignItems: "baseline",
-                    borderTop: index === 0 ? "none" : `1px solid ${HAIRLINE_SOFT}`,
-                    paddingTop: index === 0 ? 0 : compact ? 7 : 9,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: 11,
-                      color: "#17849B",
-                      fontVariantNumeric: "tabular-nums",
-                      minWidth: 18,
-                    }}
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-ui)",
-                      fontSize: compact ? 13.2 : 14,
-                      fontWeight: 500,
-                      letterSpacing: "0.015em",
-                      color: "rgba(9,9,11,0.84)",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {toPlainText(item)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-
-          {/* The metrics. Laid out by `.flinza-stage-metrics`, which is a grid — as a wrapping
-              flex row the three figures regularly landed as 2 + 1 with the last one orphaned. */}
-          <div
-            className="flinza-stage-metrics"
-            style={{
-              marginTop: compact ? 8 : 14,
-              paddingTop: compact ? 16 : 20,
-              borderTop: `1px solid ${HAIRLINE}`,
-              alignItems: "baseline",
-            }}
-          >
-            {results.primary ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                <span
-                  className="flinza-display"
-                  style={{
-                    fontSize: compact ? 42 : 58,
-                    fontVariantNumeric: "tabular-nums",
-                    background: "linear-gradient(112deg, #0A3E4C 0%, #17849B 48%, #3FB9CE 100%)",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    color: "transparent",
-                  }}
-                >
-                  {results.primary}
-                </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-ui)",
-                    fontSize: 10.5,
-                    fontWeight: 500,
-                    letterSpacing: "0.05em",
-                    color: INK_FAINT,
-                  }}
-                >
-                  {results.primaryLabel}
-                </span>
-              </div>
-            ) : null}
-
-            {metrics.map(([valueKey, labelKey]) =>
-              results[valueKey] ? (
-                <div key={valueKey} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                  <span
-                    className="flinza-display"
-                    style={{
-                      fontSize: compact ? 22 : 26,
-                      color: INK,
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    {results[valueKey]}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-ui)",
-                      fontSize: 9.5,
-                      fontWeight: 600,
-                      letterSpacing: "0.17em",
-                      textTransform: "uppercase",
-                      color: INK_FAINT,
-                    }}
-                  >
-                    {results[labelKey]}
-                  </span>
-                </div>
-              ) : null
-            )}
-          </div>
-
-          {stackLine ? (
-            <span
-              style={{
-                fontFamily: "var(--font-ui)",
-                fontSize: 10,
-                fontWeight: 500,
-                letterSpacing: "0.19em",
-                textTransform: "uppercase",
-                color: "rgba(9,9,11,0.34)",
-              }}
-            >
-              {stackLine}
-            </span>
-          ) : null}
-        </div>
-
-        {/* ── The client, on the same stage: quote, then avatar, name and role ── */}
-        {testimonial ? (
+        {/* Phone only: the project itself, as a real image at the top of the column. This is the
+            one thing the packed row could never show properly — the panel image is drawn by the
+            WebGL canvas as a rectangle the width of one column, so on a phone it appeared as a hard
+            edged block behind the type. */}
+        {compact && poster ? (
           <figure
-            className="flinza-stage-quote"
+            className="flinza-stage-poster"
             style={{
               margin: 0,
-              /* Width, the left rule and the padding all live in globals.css now, because they
-                 have to change together at the phone breakpoint: stacked, a left rule is a stray
-                 vertical line and the correct treatment is a top rule instead. */
-              width: compact ? "100%" : undefined,
-              flex: compact ? "none" : undefined,
-              display: "flex",
-              flexDirection: "column",
-              gap: compact ? 18 : 22,
-              paddingLeft: compact ? 0 : undefined,
-              marginBlock: compact ? undefined : "auto",
-              borderLeft: compact ? "none" : undefined,
+              flex: "none",
+              width: "100%",
+              borderRadius: 18,
+              overflow: "hidden",
+              boxShadow: "0 18px 40px -24px rgba(9,9,11,0.55), inset 0 0 0 1px rgba(9,9,11,0.06)",
+              background: "rgba(9,9,11,0.06)",
             }}
           >
-            <blockquote
-              className="flinza-quote"
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={poster}
+              alt=""
+              loading="eager"
+              decoding="async"
               style={{
-                margin: 0,
-                fontSize: compact ? 16.5 : "clamp(17px, 1.42vw, 21px)",
-                color: "#27272a",
+                display: "block",
+                width: "100%",
+                height: "clamp(180px, 34svh, 300px)",
+                objectFit: "cover",
               }}
-            >
-              &ldquo;{toPlainText(testimonial.quote)}&rdquo;
-            </blockquote>
-            <figcaption style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              {testimonial.avatar ? (
-                <img
-                  src={testimonial.avatar}
-                  alt=""
-                  width={40}
-                  height={40}
-                  loading="lazy"
-                  decoding="async"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 999,
-                    objectFit: "cover",
-                    flex: "none",
-                    boxShadow: "0 0 0 1px rgba(9,9,11,0.14), 0 8px 20px -12px rgba(9,9,11,0.45)",
-                  }}
-                />
-              ) : null}
-              <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span
-                  style={{
-                    fontFamily: "var(--font-ui)",
-                    fontSize: 13.5,
-                    fontWeight: 600,
-                    color: INK,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {testimonial.name}
-                </span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-ui)",
-                    fontSize: 11.5,
-                    fontWeight: 400,
-                    color: INK_FAINT,
-                  }}
-                >
-                  {testimonial.role}
-                </span>
-              </span>
-            </figcaption>
+            />
           </figure>
         ) : null}
+
+        {workColumn}
+
+        {quoteFigure}
       </div>
     </div>
   );
