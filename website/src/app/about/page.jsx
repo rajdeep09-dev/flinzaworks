@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
+import CamoCtaButton from "@/components/CamoCtaButton";
 
 /*
  * About — who runs this and how they work.
@@ -63,7 +64,7 @@ export default function AboutPage() {
           and needs the machine around it to work.
         </p>
         <div className="flinza-pagehead-actions">
-          <Link href="/contact" className="flinza-btn flinza-btn-solid">Book a discovery call</Link>
+          <CamoCtaButton href="/contact">Book a discovery call</CamoCtaButton>
           <Link href="/work" className="flinza-btn flinza-btn-ghost">See the work</Link>
         </div>
       </div>

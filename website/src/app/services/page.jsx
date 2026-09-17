@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
+import CamoCtaButton from "@/components/CamoCtaButton";
 
 /*
  * Services index — the seven offers in one place, each with what it is and who it is for.
@@ -77,7 +78,7 @@ export default function ServicesPage() {
           happens.
         </p>
         <div className="flinza-pagehead-actions">
-          <Link href="/contact" className="flinza-btn flinza-btn-solid">Start with an audit</Link>
+          <CamoCtaButton href="/contact">Start with an audit</CamoCtaButton>
           <Link href="/influencer-marketing" className="flinza-btn flinza-btn-ghost">Creator partnerships</Link>
         </div>
       </div>
@@ -146,7 +147,7 @@ export default function ServicesPage() {
           That is what the audit is for. We will tell you which lever moves first — and which ones
           can wait.
         </p>
-        <Link href="/contact" className="flinza-btn flinza-btn-solid">Book a discovery call</Link>
+        <CamoCtaButton href="/contact">Book a discovery call</CamoCtaButton>
       </div>
     </PageShell>
   );

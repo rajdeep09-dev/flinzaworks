@@ -3,6 +3,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import { caseStudyTestimonials } from "@/data/testimonials";
+import CamoCtaButton from "@/components/CamoCtaButton";
 
 /*
  * Case studies index. The homepage shows the results mosaic; this is the written version, with
@@ -94,7 +95,7 @@ export default function WorkPage() {
           margin, that is what it says.
         </p>
         <div className="flinza-pagehead-actions">
-          <Link href="/contact" className="flinza-btn flinza-btn-solid">Discuss your account</Link>
+          <CamoCtaButton href="/contact">Discuss your account</CamoCtaButton>
           <Link href="/services" className="flinza-btn flinza-btn-ghost">How we work</Link>
         </div>
       </div>

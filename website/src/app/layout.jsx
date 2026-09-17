@@ -1,4 +1,5 @@
 import './globals.css';
+import RouteTransition from '@/components/RouteTransition';
 
 export const metadata = {
   title: 'Flinza Works | We Test. We Scale. We Grow.',
@@ -40,7 +41,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ width: '100%', minHeight: '100%' }}>
       <body style={{ width: '100%', minHeight: '100%', margin: 0, padding: 0, background: '#fbfcfd', overflowX: 'hidden' }}>
+        {/* The metal mark is on every page and is the first thing anyone looks for. Preloading it
+            means it is decoded before the header paints, so the logo is present in the very first
+            frame instead of being swapped in afterwards. React hoists this into <head>. */}
+        <link rel="preload" as="image" href="/images/flinza_logo_hd.png" fetchPriority="high" />
         {children}
+        {/* Every client-side navigation gets the same branded plate with a real percent counter,
+            so a route change never exposes a bare white frame and the header shaders have
+            something holding the screen while their chunks arrive. */}
+        <RouteTransition />
       </body>
     </html>
   );

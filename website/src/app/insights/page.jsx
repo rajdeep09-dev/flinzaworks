@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
+import CamoCtaButton from "@/components/CamoCtaButton";
 
 /*
  * Insights index. These are written as notes with a reading time rather than links, because
@@ -90,7 +91,7 @@ export default function InsightsPage() {
           Full essays publish as they are finished. If you want the next one, or the reasoning behind
           any of these in your own account, that is a conversation rather than a subscription.
         </p>
-        <Link href="/contact" className="flinza-btn flinza-btn-solid">Ask us about your account</Link>
+        <CamoCtaButton href="/contact">Ask us about your account</CamoCtaButton>
       </div>
     </PageShell>
   );

@@ -65,7 +65,19 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
         overflow: "hidden",
       }}
     >
-      {/* The stage ground: a gradient background, never a panel. */}
+      {/* The stage ground is a scrim, not a veil.
+          Previous versions painted a near-white wash (0.9–0.95 alpha) across the whole stage.
+          That whitened out the site's noisy gradient — the page behind the stage is the
+          textured brand ground — and it dimmed the focused artwork to the point where the
+          project photo read as a faint rectangle. It was, in effect, the white panel the
+          design is not allowed to have, just sprayed instead of framed.
+
+          Now the scrim only protects the copy column: it starts soft on the left, fades to
+          fully transparent by 56% of the width, and stops before the media column. The noise
+          stays visible through it, the copy stays legible on it (the ink is near-black, so it
+          only needs a light veil, not a white one), and the artwork behind the right half is
+          completely unoccluded. Vertical scrim on phones for the same reason — the column is
+          stacked, so the copy sits above the poster instead of beside it. */}
       <div
         aria-hidden="true"
         className="flinza-stage-ground"
@@ -73,8 +85,12 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
           position: "absolute",
           inset: 0,
           background: compact
-            ? "radial-gradient(120% 80% at 50% 8%, rgba(255,255,255,0.86) 0%, rgba(238,245,248,0.94) 44%, rgba(223,234,238,0.97) 100%), linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(226,238,242,0.97) 62%, rgba(214,229,235,0.98) 100%)"
-            : "linear-gradient(98deg, rgba(255,255,255,0.965) 0%, rgba(252,254,255,0.955) 34%, rgba(238,247,249,0.93) 58%, rgba(222,240,244,0.88) 80%, rgba(206,232,238,0.82) 100%), radial-gradient(90% 120% at 96% 50%, rgba(23,132,155,0.22) 0%, rgba(255,255,255,0) 62%)",
+            ? /* Phone: the scrim is anchored to the BOTTOM, where the copy actually is, and is
+                 fully transparent by 74% of the height. The old version shaded from the top
+                 down, which dimmed the poster — the one thing on a phone there is room to
+                 show — while leaving the bottom, under the copy, unprotected. */
+              "linear-gradient(0deg, rgba(240,248,250,0.95) 0%, rgba(240,248,250,0.86) 26%, rgba(240,248,250,0.45) 52%, rgba(240,248,250,0) 74%)"
+            : "linear-gradient(96deg, rgba(245,251,253,0.86) 0%, rgba(244,251,253,0.6) 22%, rgba(244,251,253,0) 40%)",
         }}
       />
 
@@ -115,35 +131,47 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
           zIndex: 2,
           flex: "1 1 auto",
           minHeight: 0,
-          overflowY: compact ? "auto" : "hidden",
+          /* Both modes scroll. The desktop column was `overflow: hidden` with the row centred,
+             and a centred flex row that overflows clips at BOTH ends — which is what cut the
+             overline and the first line of the title off on a short desktop viewport. Scrolling
+             plus auto block margins on the columns (below) keeps them optically centred when
+             there is room and safely top-aligned when there is not. */
+          overflowY: "auto",
           overscrollBehavior: "contain",
           display: "flex",
           flexDirection: compact ? "column" : "row",
-          alignItems: compact ? "stretch" : "center",
+          alignItems: compact ? "stretch" : "flex-start",
           justifyContent: compact ? "flex-start" : "space-between",
-          gap: compact ? 26 : 40,
-          padding: compact ? "18px 20px 30px" : "0 clamp(30px, 4.2vw, 76px)",
+          gap: compact ? 20 : 40,
+          padding: compact ? "14px 18px 34px" : "40px clamp(30px, 4.2vw, 76px)",
           boxSizing: "border-box",
         }}
       >
-        {/* ── The work ── */}
+        {/* ── The work ──
+            The column's width is set by `.flinza-stage-work` in globals.css, not here. It used to
+            be `min(566px, 48vw)` inline: `vw` resolves against the VIEWPORT, not the stage, so the
+            row's min-content width grew with the screen and the body ended up 472px wider than the
+            viewport at 1440 — the client quote pushed off the right edge and the copy jammed into
+            the left. A flex base with `min-width: 0` cannot do that. */}
         <div
+          className="flinza-stage-work"
           style={{
             display: "flex",
             flexDirection: "column",
             gap: compact ? 12 : 16,
-            width: compact ? "100%" : "min(566px, 48vw)",
-            flex: compact ? "none" : "0 1 auto",
+            width: compact ? "100%" : undefined,
+            flex: compact ? "none" : undefined,
+            marginBlock: compact ? undefined : "auto",
           }}
         >
           <span
             style={{
               fontFamily: "var(--font-ui)",
-              fontSize: 10.5,
-              fontWeight: 600,
-              letterSpacing: "0.3em",
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: "#0E7C93",
+              color: "#0a3e4c",
             }}
           >
             {overline}
@@ -160,15 +188,20 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
             {toPlainText(caseStudy.title)}
           </h2>
 
+          {/* The client quote on the right is set in the editorial serif and reads far better
+              than the summary did, so the summary now shares that face. Sans body copy next to a
+              serif quote made the two halves look like they came from different sites. */}
           <p
+            className="flinza-stage-lede"
             style={{
               margin: 0,
-              fontFamily: "var(--font-ui)",
-              fontSize: compact ? 14.5 : 16.5,
-              lineHeight: 1.72,
-              color: INK_DIM,
-              fontWeight: 300,
-              maxWidth: compact ? undefined : 520,
+              fontFamily: "var(--font-display)",
+              fontSize: compact ? 17.5 : 21,
+              lineHeight: compact ? 1.5 : 1.52,
+              letterSpacing: "-0.005em",
+              color: "rgba(9,9,11,0.82)",
+              fontWeight: 400,
+              maxWidth: compact ? undefined : 540,
             }}
           >
             {toPlainText(caseStudy.whatWeDid)}
@@ -210,10 +243,10 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
                   <span
                     style={{
                       fontFamily: "var(--font-ui)",
-                      fontSize: compact ? 12.8 : 13.5,
-                      fontWeight: 400,
+                      fontSize: compact ? 13.2 : 14,
+                      fontWeight: 500,
                       letterSpacing: "0.015em",
-                      color: "rgba(9,9,11,0.78)",
+                      color: "rgba(9,9,11,0.84)",
                       lineHeight: 1.5,
                     }}
                   >
@@ -224,15 +257,15 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
             </ul>
           ) : null}
 
+          {/* The metrics. Laid out by `.flinza-stage-metrics`, which is a grid — as a wrapping
+              flex row the three figures regularly landed as 2 + 1 with the last one orphaned. */}
           <div
+            className="flinza-stage-metrics"
             style={{
               marginTop: compact ? 8 : 14,
               paddingTop: compact ? 16 : 20,
               borderTop: `1px solid ${HAIRLINE}`,
-              display: "flex",
               alignItems: "baseline",
-              gap: compact ? 22 : 44,
-              flexWrap: "wrap",
             }}
           >
             {results.primary ? (
@@ -317,13 +350,17 @@ export default function FocusedStage({ caseStudy, focused, compact, onClose }) {
             className="flinza-stage-quote"
             style={{
               margin: 0,
-              width: compact ? "100%" : "min(392px, 33vw)",
-              flex: compact ? "none" : "0 1 auto",
+              /* Width, the left rule and the padding all live in globals.css now, because they
+                 have to change together at the phone breakpoint: stacked, a left rule is a stray
+                 vertical line and the correct treatment is a top rule instead. */
+              width: compact ? "100%" : undefined,
+              flex: compact ? "none" : undefined,
               display: "flex",
               flexDirection: "column",
               gap: compact ? 18 : 22,
-              paddingLeft: compact ? 18 : 30,
-              borderLeft: `1px solid ${HAIRLINE}`,
+              paddingLeft: compact ? 0 : undefined,
+              marginBlock: compact ? undefined : "auto",
+              borderLeft: compact ? "none" : undefined,
             }}
           >
             <blockquote

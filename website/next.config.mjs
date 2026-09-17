@@ -17,6 +17,9 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@/components': path.resolve(__dirname, '../src/components'),
+      /* Shared, app-level config (booking link, contact email) lives with the shared components so
+         the website and the root app read the same values. Mirrors the `@/components` alias. */
+      '@/lib': path.resolve(__dirname, '../src/lib'),
       framer: path.resolve(__dirname, '../src/lib/framer/index.js'),
       '@': path.resolve(__dirname, 'src'),
     };

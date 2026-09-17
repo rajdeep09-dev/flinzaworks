@@ -3,6 +3,7 @@
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import FaqList from "@/components/FaqList";
+import CamoCtaButton from "@/components/CamoCtaButton";
 
 /*
  * Influencer marketing — the seventh service, as its own page.
@@ -101,9 +102,9 @@ export default function InfluencerMarketingPage() {
           cost per acquired customer — then we scale only the partnerships that clear it.
         </p>
         <div className="flinza-pagehead-actions">
-          <Link href="/contact" className="flinza-btn flinza-btn-solid">
+          <CamoCtaButton href="/contact">
             Plan a creator programme
-          </Link>
+          </CamoCtaButton>
           <Link href="/services" className="flinza-btn flinza-btn-ghost">
             All services
           </Link>
@@ -247,9 +248,9 @@ export default function InfluencerMarketingPage() {
         <p style={{ margin: "0 auto 26px", maxWidth: "52ch", fontSize: 16, fontWeight: 300, lineHeight: 1.6, color: "#52525b" }}>
           A 30-minute call, an honest answer, and a scoped plan within 48 hours.
         </p>
-        <Link href="/contact" className="flinza-btn flinza-btn-solid">
+        <CamoCtaButton href="/contact">
           Book a discovery call
-        </Link>
+        </CamoCtaButton>
       </div>
     </PageShell>
   );

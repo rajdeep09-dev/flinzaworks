@@ -28,6 +28,32 @@ html {
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
+  /* The root element was painting PURE WHITE. The site's ground is a fixed layer, and a fixed
+     layer stops at the scrollbar gutter — so the reserved gutter strip down the right edge of
+     every page on every device exposed `html`'s white. That strip is the "whitish boundary".
+     Root now paints the same paper tone as the body, so there is no white anywhere on the site. */
+  background-color: #fbfcfd;
+}
+
+/* Branded scrollbar: the gutter becomes part of the design instead of a white notch. */
+* {
+  scrollbar-color: rgba(23, 132, 155, 0.45) transparent;
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fbfcfd;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(23, 132, 155, 0.38);
+  border: 2px solid #fbfcfd;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(23, 132, 155, 0.6);
 }
 
 body {
@@ -241,7 +267,7 @@ body {
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: #ffffff;
+  background-color: #fbfcfd;
   color: #09090b;
   font-family: 'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 400;
@@ -340,87 +366,52 @@ main {
   height: 100%;
 }
 
-/* ── Section connector threads ──
-   Brand-aqua threads that draw themselves once scrolled into view. They sit in normal flow
-   (never absolutely positioned), so they can not cross a video tile or clip at any width. ── */
-.flinza-thread {
+/* ── Section overline ──
+   The section labels are pure type now. The hand-drawn arrows that used to sit under them
+   are gone for good: nothing decorative overlaps content, and the label reads as part of the
+   type system instead of a doodle. The short rule that follows the label is drawn with a
+   transform, so it costs nothing to animate. */
+.flinza-overline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   max-width: 1240px;
-  margin: 0 auto;
+  margin: 0 auto clamp(14px, 2.4vw, 26px);
   padding: 0 24px;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.flinza-thread-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
   font-family: 'Nohemi', sans-serif;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.28em;
+  font-size: clamp(11px, 1.05vw, 12.5px);
+  font-weight: 800;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #0E7C93;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.7s ease 0.15s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+  color: #0a3e4c;
 }
 
-.flinza-thread-label::before {
-  content: '';
-  width: 20px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.45;
+.flinza-overline > span {
+  width: clamp(22px, 3.4vw, 46px);
+  height: 2px;
+  flex: none;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0a3e4c, #3fb9ce);
+  transform-origin: left center;
+  animation: flinza-overline-draw 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.flinza-thread svg {
-  width: 100%;
-  height: clamp(30px, 7vw, 92px);
-  display: block;
-  overflow: visible;
-}
-
-.flinza-thread svg path {
-  stroke-dasharray: 2000;
-  stroke-dashoffset: 2000;
-}
-
-.flinza-thread.is-visible svg path {
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 2.4s cubic-bezier(0.65, 0, 0.35, 1) var(--draw-delay, 0s);
-}
-
-.flinza-thread.is-visible .flinza-thread-label {
-  opacity: 1;
-  transform: none;
-}
-
-/* Threads are decorative — on phones they would add meaningless scroll length, so keep them short */
-@media (max-width: 900px) {
-  .flinza-thread svg {
-    height: clamp(26px, 9vw, 46px);
+@keyframes flinza-overline-draw {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
   }
-  .flinza-thread-label {
-    font-size: 9.5px;
-    letter-spacing: 0.24em;
+  to {
+    transform: scaleX(1);
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flinza-thread svg path {
-    stroke-dasharray: none;
-    stroke-dashoffset: 0;
-  }
-  .flinza-thread-label {
-    opacity: 1;
-    transform: none;
+  .flinza-overline > span {
+    animation: none;
   }
 }
 
@@ -1093,18 +1084,15 @@ html {
   pointer-events: none;
   opacity: 0.55;
 }
+/* The dark veil is gone: it painted the noisy brand ground black and made the whole route
+   read as a different website. This is a faint brand bloom instead, so the gradient and its
+   grain stay visible edge to edge. */
 .flinza-contact-veil {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(4, 7, 10, 0.92) 0%,
-    rgba(4, 7, 10, 0.52) 34%,
-    rgba(4, 7, 10, 0.3) 58%,
-    rgba(4, 7, 10, 0.88) 100%
-  );
+  background: radial-gradient(120% 80% at 50% 0%, rgba(63, 185, 206, 0.14) 0%, rgba(255, 255, 255, 0) 58%);
 }
 .flinza-contact-head {
   position: relative;
@@ -1122,11 +1110,11 @@ html {
   gap: 9px;
   margin: 0;
   font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.34em;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--aqua);
+  color: #0a3e4c;
 }
 .flinza-contact-head p span {
   width: 6px;
@@ -1142,7 +1130,7 @@ html {
 }
 .flinza-contact-head h1 em {
   font-style: italic;
-  background: linear-gradient(112deg, #cff3f8, #7fd1de 46%, #3fb9ce);
+  background: linear-gradient(112deg, #0a3e4c 0%, #17849b 52%, #3fb9ce 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1150,9 +1138,9 @@ html {
 }
 .flinza-contact-sub {
   font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--ink-dim);
+  font-size: 15.5px;
+  font-weight: 400;
+  color: rgba(9, 9, 11, 0.66);
 }
 .flinza-contact-stage {
   position: relative;
@@ -1177,7 +1165,7 @@ html {
 }
 .flinza-contact-chrome {
   display: inline-flex;
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.65));
+  filter: drop-shadow(0 16px 32px rgba(9, 58, 72, 0.28));
 }
 .flinza-contact-form {
   position: relative;
@@ -1187,11 +1175,11 @@ html {
   padding: 26px 26px 24px;
   border-radius: 24px;
   box-sizing: border-box;
-  background: linear-gradient(152deg, rgba(244, 247, 249, 0.09) 0%, rgba(244, 247, 249, 0.03) 100%);
-  border: 1px solid rgba(244, 247, 249, 0.14);
+  background: linear-gradient(152deg, rgba(255, 255, 255, 0.62) 0%, rgba(240, 250, 252, 0.4) 100%);
+  border: 1px solid rgba(9, 58, 72, 0.1);
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
-  box-shadow: 0 30px 80px -44px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(244, 247, 249, 0.16);
+  box-shadow: 0 30px 80px -48px rgba(9, 58, 72, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 .flinza-contact-back {
   position: relative;
@@ -1199,7 +1187,7 @@ html {
   font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 600;
-  color: rgba(244, 247, 249, 0.5);
+  color: rgba(9, 9, 11, 0.55);
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -1249,9 +1237,13 @@ html {
   border: 0;
   padding: 0;
   cursor: pointer;
-  background: rgba(3, 6, 9, 0.74);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* The scheduler modal was authored on a near-black site: dark scrim, dark panel, and the
+     shared `--ink` token for its text. Now that the page around it is the light noisy ground,
+     that combination rendered dark-on-dark — the header line was effectively invisible. The
+     whole modal is re-themed to the light glass the rest of the site uses. */
+  background: rgba(9, 44, 54, 0.32);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
 }
 .flinza-cal-panel {
   position: relative;
@@ -1261,9 +1253,9 @@ html {
   flex-direction: column;
   border-radius: 24px;
   overflow: hidden;
-  border: 1px solid rgba(244, 247, 249, 0.16);
-  background: linear-gradient(152deg, rgba(12, 20, 26, 0.94), rgba(6, 10, 14, 0.96));
-  box-shadow: 0 50px 120px -50px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(244, 247, 249, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  background: linear-gradient(152deg, rgba(255, 255, 255, 0.9), rgba(236, 246, 249, 0.94));
+  box-shadow: 0 50px 120px -54px rgba(9, 58, 72, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 .flinza-cal-head {
   display: flex;
@@ -1271,7 +1263,7 @@ html {
   justify-content: space-between;
   gap: 14px;
   padding: 16px 18px;
-  border-bottom: 1px solid rgba(244, 247, 249, 0.1);
+  border-bottom: 1px solid rgba(9, 9, 11, 0.08);
 }
 .flinza-cal-head span {
   display: flex;
@@ -1289,8 +1281,8 @@ html {
 .flinza-cal-head strong {
   font-family: var(--font-display);
   font-size: 19px;
-  font-weight: 500;
-  color: var(--ink);
+  font-weight: 400;
+  color: #09090b;
 }
 .flinza-cal-close {
   display: inline-flex;
@@ -1299,9 +1291,9 @@ html {
   min-height: 40px;
   padding: 9px 15px 9px 13px;
   border-radius: 999px;
-  border: 1px solid rgba(244, 247, 249, 0.18);
-  background: rgba(244, 247, 249, 0.08);
-  color: var(--ink);
+  border: 1px solid rgba(9, 9, 11, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+  color: #09090b;
   font-family: var(--font-ui);
   font-size: 10.5px;
   font-weight: 600;
@@ -1311,13 +1303,38 @@ html {
 }
 .flinza-cal-close:hover,
 .flinza-cal-close:focus-visible {
-  background: rgba(244, 247, 249, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(23, 132, 155, 0.45);
   outline: none;
 }
 .flinza-cal-body {
   flex: 1 1 auto;
   min-height: 0;
-  background: #0a0f14;
+  /* Was #0a0f14: the iframe therefore flashed a black rectangle for as long as the scheduler
+     took to come over the network. A light plate in the brand tint means the wait reads as the
+     site loading rather than as a hole in the page. */
+  background: #f4fafb;
+}
+/* The always-available route out of the scheduler, for when the embed cannot load */
+.flinza-cal-fallback {
+  margin: 0;
+  padding: 10px 18px;
+  border-top: 1px solid rgba(9, 9, 11, 0.08);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(9, 9, 11, 0.58);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.6);
+}
+.flinza-cal-fallback a {
+  color: #0f6f86;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(23, 132, 155, 0.4);
+}
+.flinza-cal-fallback a:hover {
+  border-bottom-color: #17849b;
 }
 
 /* 
@@ -1575,6 +1592,10 @@ html {
   background: linear-gradient(120deg, rgba(10, 62, 76, 0.9), rgba(23, 132, 155, 0.72));
   box-shadow: 0 18px 42px -22px rgba(23, 132, 155, 0.8);
 }
+/* The 404 game frame was authored for a dark page: a light wash over a light ground (which is
+   what read as the white placeholder box) and hairlines in rgba(244,247,249) — invisible on
+   paper. Re-tuned for the light noisy ground: a brand-tinted recess the play field sits in, a
+   dark hairline, and a shadow that reads as depth rather than as a black halo. */
 .flinza-404-frame {
   position: relative;
   margin: 22px 0 0;
@@ -1583,11 +1604,15 @@ html {
   flex-direction: column;
   border-radius: 22px;
   overflow: hidden;
-  border: 1px solid rgba(244, 247, 249, 0.14);
-  background: linear-gradient(152deg, rgba(244, 247, 249, 0.08) 0%, rgba(244, 247, 249, 0.02) 100%);
-  backdrop-filter: blur(18px) saturate(150%);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(244, 247, 249, 0.16), 0 40px 90px -50px rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(9, 9, 11, 0.12);
+  background: linear-gradient(152deg, rgba(23, 132, 155, 0.08) 0%, rgba(23, 132, 155, 0.03) 100%);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 34px 70px -46px rgba(9, 58, 72, 0.5);
+}
+.flinza-404-frame figcaption {
+  border-top: 1px solid rgba(9, 9, 11, 0.1);
+  color: rgba(9, 9, 11, 0.5);
 }
 .flinza-404-frame > div:first-child {
   min-height: 210px;
@@ -3004,4 +3029,2828 @@ html {
     justify-content: space-between;
     gap: 10px;
   }
+}
+/* ══ Camo CTA — the site's single call to action ═══════════════════════════
+   The CamoLiquid shader is painted permanently rather than only on hover, so a CTA reads
+   as brand texture at rest. The sheen animates forever: the button always looks "live". */
+.flinza-camo-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 999px;
+  padding: 13px 26px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #f6fbfd;
+  text-decoration: none;
+  border: 1px solid rgba(246, 251, 253, 0.32);
+  box-shadow: 0 18px 34px -20px rgba(9, 58, 72, 0.75), inset 0 1px 0 rgba(246, 251, 253, 0.36);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease,
+    border-color 0.5s ease;
+  -webkit-tap-highlight-color: transparent;
+  isolation: isolate;
+}
+.flinza-camo-cta--sm {
+  padding: 9px 18px;
+  font-size: 13px;
+}
+.flinza-camo-cta--lg {
+  padding: 17px 34px;
+  font-size: 16px;
+}
+.flinza-camo-cta__shader {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.flinza-camo-cta__shader canvas {
+  border-radius: inherit !important;
+  display: block;
+}
+.flinza-camo-cta__sheen {
+  position: absolute;
+  top: -60%;
+  left: -45%;
+  width: 42%;
+  height: 220%;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.34) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(14deg);
+  animation: flinza-camo-sheen 4.6s cubic-bezier(0.42, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+.flinza-camo-cta__label {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0 1px 6px rgba(4, 26, 34, 0.45);
+  /* Every CTA label on the site is short enough to hold one line at the phone breakpoints, so it
+     is now forbidden from breaking. Previously the label was allowed to wrap under a 360px
+     max-width, which split "Book a discovery call" across two lines and read as damage rather
+     than a decision. Long labels opt back into wrapping with the --wrap modifier. */
+  white-space: nowrap;
+  line-height: 1.1;
+}
+@media (max-width: 640px) {
+  .flinza-camo-cta {
+    max-width: 94vw;
+  }
+  /* The pill keeps one line by getting tighter rather than taller, so a 320px screen still fits
+     the longest label in the set ("Ask us about your account"). */
+  .flinza-camo-cta {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  .flinza-camo-cta--lg {
+    padding-left: 22px;
+    padding-right: 22px;
+    font-size: 14.5px;
+  }
+  .flinza-camo-cta--sm {
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 12.5px;
+  }
+}
+@media (max-width: 380px) {
+  .flinza-camo-cta--lg {
+    font-size: 13.5px;
+  }
+  .flinza-camo-cta {
+    font-size: 13px;
+  }
+}
+.flinza-camo-cta:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(246, 251, 253, 0.62);
+  box-shadow: 0 26px 46px -20px rgba(9, 58, 72, 0.82), inset 0 1px 0 rgba(246, 251, 253, 0.5);
+}
+.flinza-camo-cta:active {
+  transform: translateY(0) scale(0.99);
+}
+.flinza-camo-cta:focus-visible {
+  outline: 2px solid rgba(126, 208, 221, 0.9);
+  outline-offset: 3px;
+}
+@keyframes flinza-camo-sheen {
+  0% {
+    left: -45%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  58% {
+    left: 118%;
+    opacity: 0;
+  }
+  100% {
+    left: 118%;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-camo-cta__sheen {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ══ Shared site header — the metal mark dead centre ═══════════════════════ */
+.flinza-site-head {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px clamp(14px, 3.6vw, 40px);
+  background: linear-gradient(180deg, rgba(251, 252, 253, 0.92) 0%, rgba(251, 252, 253, 0) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+}
+.flinza-safe-top {
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+}
+.flinza-site-head-nav a::after {
+  background: linear-gradient(90deg, #0a3e4c, #3fb9ce);
+}
+.flinza-site-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.flinza-site-head-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  filter: drop-shadow(0 6px 16px rgba(9, 58, 72, 0.16));
+  -webkit-tap-highlight-color: transparent;
+}
+.flinza-site-head-mark canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.flinza-site-head + .flinza-shell-menu {
+  top: 66px;
+}
+@media (max-width: 980px) {
+  .flinza-site-head-nav {
+    display: none;
+  }
+  .flinza-site-head .flinza-shell-menu-btn {
+    display: block;
+  }
+  .flinza-site-head-mark {
+    width: 46px;
+    height: 46px;
+  }
+}
+@media (max-width: 560px) {
+  .flinza-site-head {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .flinza-camo-cta--sm {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}
+
+/* ══ Footer — rebuilt from scratch ════════════════════════════════════════ */
+.flinza-foot {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(56px, 8vw, 130px);
+  padding: clamp(34px, 5vw, 72px) clamp(18px, 4.4vw, 56px)
+    calc(clamp(20px, 3vw, 32px) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(9, 9, 11, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 62%);
+}
+.flinza-foot-cta {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(18px, 4vw, 48px);
+  flex-wrap: wrap;
+  padding-bottom: clamp(26px, 4vw, 52px);
+  border-bottom: 1px solid rgba(9, 9, 11, 0.08);
+}
+.flinza-foot-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.flinza-foot-cta h3 {
+  margin: 10px 0 0;
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.2vw, 50px);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.flinza-foot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: clamp(26px, 5vw, 72px);
+  padding: clamp(28px, 4vw, 52px) 0;
+}
+.flinza-foot-brand > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.flinza-foot-brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+.flinza-foot-brand .flinza-foot-word {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.flinza-foot-brand .flinza-foot-tag {
+  margin: 14px 0 20px;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+.flinza-foot-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 3vw, 40px);
+}
+.flinza-foot-cols h4 {
+  margin: 0 0 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.flinza-foot-cols a {
+  display: block;
+  padding: 5px 0;
+  font-size: 14px;
+  color: rgba(9, 9, 11, 0.74);
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-foot-cols a:hover {
+  color: var(--aqua-deep, #0a3e4c);
+  transform: translateX(3px);
+}
+.flinza-foot-base {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: clamp(18px, 3vw, 30px);
+  border-top: 1px solid rgba(9, 9, 11, 0.08);
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+
+/* Footer socials: light glass on a light ground, brand gradient on hover */
+.flinza-foot .flinza-social-glass .framer-12a0jpd {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(9, 58, 72, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 12px 24px -16px rgba(9, 58, 72, 0.55) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+.flinza-foot .flinza-social-glass .framer-et0dyg {
+  color: #0a3e4c !important;
+}
+.flinza-foot .flinza-social-glass-link {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-foot .flinza-social-glass-link:hover {
+  transform: translateY(-3px);
+}
+.flinza-foot .flinza-social-glass-link:hover .framer-12a0jpd {
+  background: linear-gradient(130deg, #0a3e4c 0%, #17849b 62%, #3fb9ce 100%) !important;
+  box-shadow: 0 18px 32px -16px rgba(10, 62, 76, 0.8) !important;
+}
+.flinza-foot .flinza-social-glass-link:hover .framer-et0dyg {
+  color: #ffffff !important;
+}
+
+@media (max-width: 900px) {
+  .flinza-foot-grid {
+    grid-template-columns: 1fr;
+  }
+  .flinza-foot-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 18px;
+  }
+  .flinza-foot-cta {
+    align-items: flex-start;
+  }
+  .flinza-foot-cta h3 {
+    font-size: clamp(26px, 7.6vw, 34px);
+  }
+}
+/* 404 with the shared header above it */
+.flinza-404--head {
+  min-height: calc(100vh - 78px);
+}
+@supports (height: 100svh) {
+  .flinza-404--head {
+    min-height: calc(100svh - 78px);
+  }
+}
+/* The header must span the viewport even inside a centred flex column (contact, careers) */
+.flinza-site-head {
+  width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+.flinza-contact-page:has(.flinza-site-head) {
+  padding-top: 12px;
+  gap: 34px;
+}
+/* The camo CTA also works as a <button>, so it must not inherit the UA button skin */
+button.flinza-camo-cta {
+  font: inherit;
+  cursor: pointer;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* The old gradient book-call pill is gone; the camo shader paints it now */
+.flinza-book-call {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 17px 34px !important;
+}
+
+/* ── Footer socials — the liquid glass chrome from the contact page ──
+   These were small opaque discs. They now carry the same specular, translucent chrome as the
+   contact page's liquid-glass control: a real inner highlight, a bright top edge and a soft
+   brand bloom underneath, so they read as glass buttons rather than icon badges. */
+.flinza-foot .flinza-social-glass {
+  gap: 12px;
+}
+.flinza-foot .flinza-social-glass .framer-3ylwgl {
+  width: 54px !important;
+  height: 54px !important;
+}
+.flinza-foot .flinza-social-glass .framer-12a0jpd {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(233, 246, 249, 0.66) 46%,
+    rgba(198, 229, 236, 0.52) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 8px 18px rgba(255, 255, 255, 0.85),
+    inset 0 -10px 20px rgba(23, 132, 155, 0.14),
+    0 14px 28px -18px rgba(9, 58, 72, 0.55) !important;
+}
+.flinza-foot .flinza-social-glass .framer-1oh833b,
+.flinza-foot .flinza-social-glass .framer-et0dyg {
+  width: 24px !important;
+  height: 24px !important;
+}
+.flinza-foot .flinza-social-glass .framer-et0dyg {
+  color: #0a3e4c !important;
+}
+.flinza-foot .flinza-social-glass-link:hover .framer-12a0jpd {
+  background: linear-gradient(140deg, #0a3e4c 0%, #17849b 60%, #3fb9ce 100%) !important;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.flinza-foot .flinza-social-glass-link:hover .framer-et0dyg {
+  color: #ffffff !important;
+}
+
+/* ── Expand on hover: the services index ── */
+.flinza-svc-list > li {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+}
+.flinza-svc-list:hover > li:not(:hover) {
+  opacity: 0.55;
+}
+@media (hover: hover) and (pointer: fine) {
+  .flinza-svc-list > li:hover {
+    transform: translateX(6px);
+  }
+  .flinza-svc-list > li:hover .flinza-svc-head {
+    transform: translateX(2px);
+  }
+}
+
+/* ── Expand on hover: the careers role rows (animated, not a clamp snap) ── */
+.flinza-role-row .flinza-role-blurb {
+  display: block;
+  -webkit-line-clamp: unset !important;
+  max-height: 3em;
+  overflow: hidden;
+  transition: max-height 0.55s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s ease;
+}
+.flinza-role-row:hover .flinza-role-blurb,
+.flinza-role-row:focus-within .flinza-role-blurb {
+  max-height: 16em;
+}
+
+/* ── Type hierarchy: overlines shout, body copy reads, display type carries the page ── */
+.flinza-overline,
+.flinza-stage-label,
+.flinza-svc-label {
+  font-weight: 800;
+}
+.flinza-display {
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+h2.flinza-display,
+h3.flinza-display {
+  line-height: 1.02;
+}
+.flinza-contact-head h1,
+.flinza-404 h1 {
+  font-weight: 400;
+}
+/* Body copy reads heavier than before: 300 weight disappeared on phones */
+p,
+li {
+  font-weight: 400;
+}
+@media (max-width: 900px) {
+  .flinza-display {
+    letter-spacing: -0.015em;
+  }
+}
+
+button.flinza-camo-cta[disabled] {
+  cursor: wait;
+  opacity: 0.72;
+}
+/* ── Contact: CircleCards ring with the contact button held dead centre ──
+   The button is pinned to the exact centre of the ring container, so it stays in the middle
+   of the orbiting cards at every width instead of floating above them. */
+.flinza-contact-ring {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  min-height: clamp(340px, 92vw, 560px);
+  margin: 0 auto;
+}
+.flinza-contact-ring-cards,
+.flinza-contact-ring-cards > *,
+.flinza-contact-ring-cards > * > * {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+}
+.flinza-contact-ring .flinza-orbit-contact {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: auto;
+}
+
+/* Footer socials: the chrome button carries its own glass, so the wrapper only spaces them */
+.flinza-foot .flinza-social-glass {
+  align-items: center;
+}
+.flinza-foot .flinza-social-glass-link {
+  display: inline-flex;
+  line-height: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   TYPE SCALE, SERVICE DECK, MEDIA PLACEHOLDERS, VOICES MOTION
+   These rules sit last on purpose: they own a few properties that earlier blocks also set,
+   and the cascade lets them win without editing (and risking) the older rules.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. One heading ladder ──
+   Each section set its own heading: some took the display serif, others were hard-coded to
+   the UI sans at 32–38px. On a phone the section headline, its body copy and its labels all
+   landed within a few pixels of each other, so nothing read as a headline — and because a
+   heading cannot outrank its own body copy, the page read flat. One rule now owns every
+   section heading: the editorial serif, at a size that clearly outranks the copy. */
+/* `!important` is load-bearing here, not laziness: several of these headings carry an inline
+   `font-family`/`font-size` set in JSX, and an inline declaration outranks an ordinary rule.
+   That is exactly how the testimonials heading ended up in the UI sans while the rest of the
+   page set its headings in the serif. */
+#stories h2,
+#services h2,
+#testimonials h2,
+#faq h2,
+.flinza-stage h2,
+.flinza-contact-head h1,
+.flinza-404 h1 {
+  font-family: var(--font-display) !important;
+  font-weight: 400 !important;
+  font-size: clamp(34px, 5.2vw, 66px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.028em !important;
+  color: #09090b !important;
+}
+/* The stage headline is read mid-interaction and sits beside a quote, so it keeps a lower
+   ceiling than a static section heading. */
+.flinza-stage h2 {
+  font-size: clamp(32px, 4.1vw, 56px) !important;
+}
+
+/* Small type gets louder. Labels, FAQ questions and names all sat at 400–500 directly beside
+   400-weight body copy, which is the other half of "everything looks the same". */
+.flinza-overline,
+.flinza-stage-label,
+.flinza-svc-label,
+.flinza-faqrow-head,
+.flinza-story-name,
+.flinza-stage-quote figcaption span,
+.flinza-contact-head span {
+  font-weight: 700;
+}
+.flinza-faqrow-head {
+  font-size: clamp(15px, 4vw, 17.5px);
+  letter-spacing: -0.012em;
+}
+.flinza-svc-copy,
+.flinza-story-quote,
+.flinza-stage-quote blockquote {
+  font-weight: 400;
+}
+p,
+li {
+  color: #3f3f46;
+}
+
+/* ── 1b. The client quote sits over the artwork ──
+   The scrim deliberately stops before the media column, so the poster is unoccluded — which
+   also means the quote can land on a dark frame. A soft light halo keeps near-black ink legible
+   on any photo without introducing a panel or dimming the image. */
+.flinza-stage-quote blockquote,
+.flinza-stage-quote figcaption {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.72), 0 0 18px rgba(255, 255, 255, 0.5);
+}
+
+/* ── 2. Service deck ──
+   Only the active plate moves, so the deck is a single transform per interaction instead of
+   seven chasing each other, and no plate carries an opacity below 1 anymore. */
+.flinza-svc-plate {
+  /* 72% of the column, not 82%: the deck has to show seven staggered card edges inside a
+     405px column, and at 82% each card covered the previous one except for a ~20px sliver,
+     which is why only three plates read as separate. Narrower plates plus a larger step means
+     every service keeps a clearly visible band of its own. */
+  width: 72%;
+  transform-origin: 50% 94%;
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+  opacity: 1;
+  will-change: transform;
+}
+.flinza-svc-plate.is-active {
+  box-shadow: 0 46px 80px -36px rgba(9, 9, 11, 0.66), 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-svc-plate {
+    transition: none;
+  }
+}
+
+/* ── 3. Media placeholders ──
+   Photographs used to arrive over a bare transparent box, so artwork flashed in as a hard
+   rectangle popping against the gradient ("assets look garbage while loading"). Every media
+   surface now reserves its own box and sits on a static brand-tinted plate while it decodes.
+   It is deliberately NOT animated: a looping shimmer on every photo would keep repainting
+   the whole page, which is the opposite of what a slow phone needs. */
+.flinza-svc-plate,
+.flinza-svc-inline-media,
+.flinza-svc-plate img,
+.flinza-svc-inline-media img,
+.flinza-story-grid > div,
+.flinza-story-grid img,
+.flinza-stage-quote img {
+  background-color: rgba(23, 132, 155, 0.09);
+}
+
+/* ── 4. Voices: the label strip between the headline and the notes ── */
+.flinza-voices-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  max-width: 880px;
+  margin: -28px 0 52px;
+  padding: 0 4px;
+}
+.flinza-voices-meta > span {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px clamp(14px, 3vw, 30px);
+  border-left: 1px solid rgba(9, 9, 11, 0.12);
+  text-align: left;
+}
+.flinza-voices-meta > span:first-child {
+  border-left: 0;
+}
+.flinza-voices-meta strong {
+  font-size: clamp(19px, 2.1vw, 25px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #0a3e4c;
+  font-weight: 400;
+}
+.flinza-voices-meta em {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: rgba(9, 9, 11, 0.5);
+}
+@media (max-width: 900px) {
+  .flinza-voices-meta {
+    margin: -20px 0 38px;
+  }
+  .flinza-voices-meta > span {
+    flex: 1 1 100%;
+    border-left: 0;
+    border-top: 1px solid rgba(9, 9, 11, 0.1);
+    padding: 12px 2px;
+  }
+  .flinza-voices-meta > span:first-child {
+    border-top: 0;
+  }
+}
+
+/* ── 5. Voices: the cards arrive with the scroll ──
+   A progressive enhancement — Chrome/Safari 26+ run this on the compositor with no JS and
+   no scroll listener; everywhere else the cards simply render in place. */
+@keyframes flinza-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  .flinza-voices-card {
+    animation: flinza-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 4% cover 24%;
+  }
+}
+.flinza-voices-card {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .flinza-voices-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px -34px rgba(9, 58, 72, 0.42);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-voices-card {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ROUTE LOADER + FIRST-PAINT FALLBACKS
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* The brand ground, painted from the very first frame of a navigation. Deliberately a plain
+   gradient + the noise tile rather than the shader ground: this has to be paintable before any
+   JS runs, or it cannot hide the white frame.
+
+   Two components share this shell: `app/loading.jsx` for a route the server is still fetching,
+   and `RouteTransition` for a client navigation that never suspends. Same plate either way, so a
+   route change looks identical no matter how it was triggered. */
+.flinza-route-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  transition: opacity 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
+  contain: strict;
+}
+.flinza-route-shell.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+.flinza-route-shell__curtain,
+.flinza-route-shell__veil {
+  position: absolute;
+  background-color: #f5fafc;
+  background-image: radial-gradient(
+      120% 90% at 12% 0%,
+      rgba(23, 132, 155, 0.16) 0%,
+      rgba(245, 250, 252, 0) 62%
+    ),
+    radial-gradient(100% 80% at 92% 100%, rgba(63, 185, 206, 0.16) 0%, rgba(245, 250, 252, 0) 60%),
+    linear-gradient(168deg, #fbfdfe 0%, #eef7fa 52%, #e6f3f7 100%);
+  overflow: hidden;
+}
+/* The grain is a blend layer, not a background image.
+   Used directly as a `background-image` the noise tile paints at full alpha and the plate turns
+   into television static — the noise texture is a high-contrast map that is only meant to be
+   multiplied in. Laid over the gradient at low opacity with `multiply` it reads as the same
+   paper grain the site's ground has. */
+.flinza-route-shell__curtain::after,
+.flinza-route-shell__veil::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/ground-noise.webp");
+  background-size: 300px 300px;
+  background-repeat: repeat;
+  opacity: 0.13;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.flinza-route-shell__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 0 24px;
+}
+.flinza-route-shell.is-leaving .flinza-route-shell__inner {
+  transform: translateY(-10px) scale(0.985);
+}
+/* The mark floats, and a liquid sheen sweeps across it: the wait is branded rather than a
+   generic spinner, and both effects are transform/opacity only. */
+.flinza-route-shell__mark {
+  position: relative;
+  display: block;
+  width: clamp(72px, 14vw, 104px);
+  height: clamp(72px, 14vw, 104px);
+  animation: flinza-shell-float 3.6s ease-in-out infinite;
+}
+.flinza-route-shell__mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 32px rgba(9, 58, 72, 0.22));
+}
+/* The highlight is masked by the logo's own artwork, so it travels across the letterforms and
+   never paints as a rectangle. An unmasked band (or a blend mode over the transparent part of
+   the mark box) reads as a coloured box sliding past the logo — which is exactly what a blend
+   mode does here, since screen-blending against transparency leaves the source colour intact. */
+.flinza-route-shell__shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    104deg,
+    rgba(255, 255, 255, 0) 34%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0) 66%
+  );
+  opacity: 0.7;
+  -webkit-mask-image: url("/images/flinza_logo_hd.png");
+  mask-image: url("/images/flinza_logo_hd.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  animation: flinza-shell-shine 2s cubic-bezier(0.42, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+@keyframes flinza-shell-shine {
+  0% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+  26% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(130%);
+    opacity: 0;
+  }
+}
+@keyframes flinza-shell-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+/* The progress rule is a transform on a full-width bar — never an animated width, so the counter
+   never triggers layout and never drops frames. */
+.flinza-route-shell__rule {
+  width: min(300px, 70vw);
+  height: 2px;
+  transform-origin: 0 50%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0a3e4c 0%, #17849b 58%, #3fb9ce 100%);
+  box-shadow: 0 0 22px rgba(23, 132, 155, 0.45);
+  transition: transform 0.14s linear;
+}
+.flinza-route-shell__readout {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.44);
+}
+.flinza-route-shell__num {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #0a3e4c;
+  font-variant-numeric: tabular-nums;
+}
+.flinza-route-shell__pct {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: rgba(10, 62, 76, 0.5);
+}
+.flinza-route-shell__stage {
+  margin-left: 10px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(9, 9, 11, 0.16);
+  white-space: nowrap;
+  color: rgba(10, 62, 76, 0.62);
+}
+@media (max-width: 420px) {
+  .flinza-route-shell__stage {
+    letter-spacing: 0.2em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-route-shell__mark,
+  .flinza-route-shell__shine {
+    animation: none;
+  }
+  .flinza-route-shell__rule {
+    transition: none;
+  }
+  .flinza-route-shell,
+  .flinza-route-shell__inner {
+    transition: none;
+  }
+}
+
+/* ── First-paint fallbacks for the two WebGL pieces ── */
+/* The header mark: the logo image stands in until the metal shader chunk arrives, then the
+   canvas paints over it in the same box, so there is no pop and no empty slot. */
+.flinza-site-head-mark-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(9, 58, 72, 0.18));
+}
+/* The CTA: a static mix of the same camo palette the shader paints, so the pill has a surface
+   and a legible label on the first frame. */
+.flinza-camo-cta__static {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background-image:
+    radial-gradient(38% 70% at 18% 26%, #0a3e4c 0%, rgba(10, 62, 76, 0) 62%),
+    radial-gradient(42% 64% at 74% 30%, #17849b 0%, rgba(23, 132, 155, 0) 66%),
+    radial-gradient(46% 70% at 42% 82%, #4ab2c7 0%, rgba(74, 178, 199, 0) 68%),
+    linear-gradient(126deg, #0a3e4c 0%, #17849b 52%, #4ab2c7 100%);
+  background-size: 62% 62%, 58% 58%, 64% 64%, 100% 100%;
+  background-position: 0% 0%, 100% 0%, 40% 100%, 0 0;
+  background-repeat: no-repeat;
+}
+
+/* ── 6. Service stage: one plate, one rail ──
+   Supersedes the fanned-pile rules above. The pile container keeps no height of its own now
+   (the single plate is in flow), and the six services live in an even thumbnail rail, so the
+   column is a composition instead of seven overlapping photographs. */
+.flinza-svc-pile {
+  position: static;
+  aspect-ratio: auto;
+  padding-bottom: 0;
+  width: 100%;
+}
+.flinza-svc-plate {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  rotate: none;
+  transform: none;
+  opacity: 1;
+  border-radius: 24px;
+  box-shadow: 0 44px 80px -44px rgba(9, 58, 72, 0.5);
+  animation: flinza-plate-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes flinza-plate-in {
+  from {
+    opacity: 0;
+    transform: scale(1.012);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.flinza-svc-rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+.flinza-svc-thumb {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 0;
+  border-radius: 13px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(23, 132, 155, 0.1);
+  opacity: 0.52;
+  filter: saturate(0.7);
+  transition: opacity 0.4s ease, filter 0.4s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+}
+.flinza-svc-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.flinza-svc-thumb span {
+  position: absolute;
+  left: 7px;
+  bottom: 5px;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+.flinza-svc-thumb:hover,
+.flinza-svc-thumb:focus-visible {
+  opacity: 0.9;
+  filter: none;
+  outline: none;
+}
+.flinza-svc-thumb.is-active {
+  opacity: 1;
+  filter: none;
+  transform: translateY(-3px);
+  box-shadow: 0 20px 34px -18px rgba(9, 58, 72, 0.55), 0 0 0 2px rgba(23, 132, 155, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-svc-plate {
+    animation: none;
+  }
+  .flinza-svc-thumb {
+    transition: none;
+  }
+}
+
+/* ══ In-page section rail for every inner route ══════════════════════════════
+   The counterpart to the home page's table of contents. It is generated from each page's own
+   h2s (see PageToc), so a new section appears in the rail the moment it is added — there is no
+   list to keep in sync. Transform-and-opacity only, and it simply does not render under 1180px
+   rather than collapsing into a cramped pill. */
+.flinza-pagetoc {
+  position: fixed;
+  left: clamp(18px, 2.4vw, 34px);
+  top: 50%;
+  z-index: 998;
+  transform: translate3d(-14px, -50%, 0);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  max-width: 208px;
+}
+.flinza-pagetoc.is-revealed {
+  opacity: 1;
+  transform: translate3d(0, -50%, 0);
+  pointer-events: auto;
+}
+.flinza-pagetoc__label {
+  margin: 0 0 14px;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.5);
+}
+.flinza-pagetoc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.flinza-pagetoc a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 0;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(9, 9, 11, 0.44);
+  transition: color 0.35s ease;
+  min-height: 0;
+}
+/* The dash doubles as the progress indicator: it grows into the brand gradient on the active
+   section, which is a background-size change on a 12px rule — cheap, and no layout shift. */
+.flinza-pagetoc a i {
+  flex: none;
+  width: 12px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0a3e4c 0%, #17849b 58%, #3fb9ce 100%);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  background-color: rgba(9, 9, 11, 0.22);
+  transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1), width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-pagetoc a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flinza-pagetoc a:hover,
+.flinza-pagetoc a:focus-visible {
+  color: #0a3e4c;
+  outline: none;
+}
+.flinza-pagetoc a:hover i,
+.flinza-pagetoc a:focus-visible i {
+  background-size: 100% 100%;
+}
+.flinza-pagetoc a.is-active {
+  color: #09090b;
+}
+.flinza-pagetoc a.is-active i {
+  width: 26px;
+  background-size: 100% 100%;
+}
+@media (max-width: 1180px) {
+  .flinza-pagetoc {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-pagetoc,
+  .flinza-pagetoc a,
+  .flinza-pagetoc a i {
+    transition: none;
+  }
+}
+
+/* ══ The metal mark, painting instantly ════════════════════════════════════
+   The logo is a still image with the liquid-metal shader layered over it, never instead of it.
+   The still image is in the first paint (it is preloaded in the head and rendered by the server
+   markup), the shader chunk lands whenever it lands, and because the canvas is transparent until
+   it actually draws a frame, the swap is invisible. No empty slot, no pop, no spinner. */
+/* NOTE: this must not set `position`.
+   The header mark is `position: absolute` (it is optically centred on the header's true midpoint
+   rather than flex-centred). A bare `.flinza-mark-stack { position: relative }` here wins on
+   source order at equal specificity and the mark gets offset by its own 50%/50% rules, which
+   pushes it up out of the viewport. Only the hero mark, which has no positioning of its own,
+   is given a containing block below. */
+.flinza-mark-stack {
+  isolation: isolate;
+}
+.flinza-logo-btn {
+  position: relative;
+}
+.flinza-mark-stack .flinza-mark-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 0;
+  filter: drop-shadow(0 6px 18px rgba(9, 58, 72, 0.2));
+}
+.flinza-mark-stack > div {
+  position: relative;
+  z-index: 1;
+}
+/* The vendored LiquidMetal component paints its own "processing" state over the mark: a 50%
+   black plate with a white spinning ring, shown while it parses the logo image. That is the
+   loading animation that used to appear where the logo should be. The still mark underneath is
+   the correct thing to show during that parse, so the veil is removed everywhere. */
+.flinza-mark-stack div[style*="rgba(0, 0, 0, 0.5)"] {
+  display: none !important;
+}
+.flinza-route-shell__mark div[style*="rgba(0, 0, 0, 0.5)"],
+.flinza-loader-mark div[style*="rgba(0, 0, 0, 0.5)"] {
+  display: none !important;
+}
+
+/* ══ Loader polish ═════════════════════════════════════════════════════════
+   A soft brand halo behind the mark so the plate has depth rather than a logo floating on a
+   gradient, plus a live shimmer travelling the rule. Both are pure paint on a fixed-size layer:
+   no layout, no jank, and they stop entirely under prefers-reduced-motion. */
+.flinza-route-shell__mark::before {
+  content: "";
+  position: absolute;
+  inset: -68%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 46%,
+    rgba(23, 132, 155, 0.22) 0%,
+    rgba(63, 185, 206, 0.12) 38%,
+    rgba(251, 252, 253, 0) 70%
+  );
+  pointer-events: none;
+  animation: flinza-shell-halo 4.2s ease-in-out infinite;
+}
+@keyframes flinza-shell-halo {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+.flinza-route-shell__rule::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: flinza-shell-travel 1.5s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  pointer-events: none;
+}
+@keyframes flinza-shell-travel {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(110%);
+  }
+}
+.flinza-route-shell__rule {
+  position: relative;
+  overflow: hidden;
+}
+/* Entry and exit are both transitions rather than keyframes.
+   A keyframe animation with `fill: both` outranks the `is-leaving` transform for the whole life of
+   the loader, which is how a loader ends up snapping away instead of dissolving — so the plate
+   rises on a transition, and the same transform is free to travel upward on the way out. */
+.flinza-route-shell__inner {
+  opacity: 1;
+  transform: none;
+  transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1), opacity 420ms ease;
+}
+.flinza-route-shell.is-entering .flinza-route-shell__inner {
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+}
+.flinza-route-shell.is-leaving .flinza-route-shell__inner {
+  opacity: 0;
+  transform: translateY(-14px) scale(0.985);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-route-shell__mark::before,
+  .flinza-route-shell__rule::after {
+    animation: none;
+  }
+  .flinza-route-shell__inner {
+    transition: none;
+  }
+}
+
+/* ══ Loader: the two curtains, the dial and the lockup ═════════════════════
+   The plate is cut in half. Each half carries the SAME gradient at 200% height, anchored to its
+   own edge, so the two halves read as one continuous plate while they are closed — and when the
+   route commits they slide apart vertically and uncover the page instead of fading out. */
+.flinza-route-shell__curtain {
+  left: 0;
+  right: 0;
+  z-index: 0;
+  background-size: 100% 200%, 100% 200%, 100% 200%;
+  transition: transform 640ms cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: transform;
+}
+.flinza-route-shell__curtain--top {
+  top: 0;
+  height: 50.5%;
+  background-position: 0 0;
+}
+.flinza-route-shell__curtain--bottom {
+  bottom: 0;
+  height: 50.5%;
+  background-position: 0 100%;
+}
+.flinza-route-shell.is-leaving .flinza-route-shell__curtain--top {
+  transform: translate3d(0, -101%, 0);
+}
+.flinza-route-shell.is-leaving .flinza-route-shell__curtain--bottom {
+  transform: translate3d(0, 101%, 0);
+}
+
+/* The dial: a hairline track with the brand-coloured fill sweeping around it. The fill is driven
+   by stroke-dashoffset, which is a paint-only property, so the ring can update every frame
+   without ever re-laying anything out. */
+.flinza-route-shell__dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(124px, 24vw, 164px);
+  height: clamp(124px, 24vw, 164px);
+  animation: flinza-shell-float 3.6s ease-in-out infinite;
+}
+.flinza-route-shell__dial svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.flinza-route-shell__dial-track {
+  fill: none;
+  stroke: rgba(10, 62, 76, 0.13);
+  stroke-width: 2;
+}
+.flinza-route-shell__dial-fill {
+  fill: none;
+  stroke: #17849b;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px rgba(23, 132, 155, 0.5));
+  transition: stroke-dashoffset 0.16s linear;
+}
+/* The mark sits inside the ring, so it needs the dial to own its size and float. */
+.flinza-route-shell__mark {
+  width: 46%;
+  height: 46%;
+  animation: none;
+}
+
+/* The number is the readout, so it gets the display face at real size — tabular figures so it
+   does not jitter as the digits change. */
+.flinza-route-shell__num {
+  font-size: clamp(38px, 8.4vw, 58px);
+  line-height: 0.94;
+}
+.flinza-route-shell__pct {
+  font-size: 15px;
+}
+.flinza-route-shell__readout {
+  gap: 4px;
+}
+/* The progress rule was a full-width bar; under the readout it becomes a short measure rule. */
+.flinza-route-shell__rule {
+  width: min(212px, 54vw);
+  margin-top: -6px;
+}
+
+/* The wordmark rises out of a mask, one letter at a time. */
+.flinza-route-shell__word {
+  display: inline-flex;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.78);
+  padding-bottom: 2px;
+}
+.flinza-route-shell__word i {
+  display: inline-block;
+  font-style: normal;
+  transform: translate3d(0, 120%, 0);
+  animation: flinza-shell-letter 0.78s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes flinza-shell-letter {
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+/* The stage line is its own row now rather than a suffix inside the readout. */
+.flinza-route-shell__stage {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.5);
+}
+@media (max-width: 420px) {
+  .flinza-route-shell__word {
+    font-size: 9.5px;
+    letter-spacing: 0.36em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-route-shell__dial,
+  .flinza-route-shell__word i {
+    animation: none;
+  }
+  .flinza-route-shell__word i {
+    transform: none;
+  }
+  .flinza-route-shell__dial-fill {
+    transition: none;
+  }
+  .flinza-route-shell__curtain {
+    transition: none;
+  }
+}
+
+/* ══ Page rail — page routes, pinned top-left ══════════════════════════════
+   Sits above the section rail in the same left margin, so the edge carries both levels of
+   navigation: where you can go, and where you are. Deliberately the same visual language as the
+   section rail (dash + letterspaced label) so they read as one system rather than two widgets.
+   Above 1180px only; below that the header's menu button owns navigation. */
+.flinza-pagerail {
+  position: fixed;
+  left: clamp(18px, 2.4vw, 34px);
+  top: calc(clamp(84px, 11vh, 132px) + env(safe-area-inset-top, 0px));
+  z-index: 999;
+  opacity: 0;
+  transform: translate3d(-12px, 0, 0);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.flinza-pagerail.is-revealed {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.flinza-pagerail__label {
+  margin: 0 0 12px;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.42);
+}
+.flinza-pagerail ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.flinza-pagerail a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 5px 0;
+  min-height: 0;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(9, 9, 11, 0.42);
+  transition: color 0.35s ease;
+}
+.flinza-pagerail a i {
+  flex: none;
+  width: 12px;
+  height: 3px;
+  border-radius: 999px;
+  background-color: rgba(9, 9, 11, 0.2);
+  background-image: linear-gradient(90deg, #0a3e4c 0%, #17849b 58%, #3fb9ce 100%);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1), width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-pagerail a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flinza-pagerail a:hover,
+.flinza-pagerail a:focus-visible {
+  color: #0a3e4c;
+  outline: none;
+}
+.flinza-pagerail a:hover i,
+.flinza-pagerail a:focus-visible i {
+  background-size: 100% 100%;
+}
+.flinza-pagerail a.is-active {
+  color: #09090b;
+  font-weight: 700;
+}
+.flinza-pagerail a.is-active i {
+  width: 26px;
+  background-size: 100% 100%;
+}
+/* The header's own link row is retired once the rail has the job. */
+@media (min-width: 1180px) {
+  .flinza-site-head-nav {
+    display: none !important;
+  }
+}
+@media (max-width: 1180px) {
+  .flinza-pagerail {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-pagerail,
+  .flinza-pagerail a,
+  .flinza-pagerail a i {
+    transition: none;
+  }
+}
+/* Phones in landscape (and any short viewport) cannot fit two rails down the margin, so the page
+   rail yields and leaves the section rail the space. */
+@media (max-height: 620px) {
+  .flinza-pagerail {
+    display: none !important;
+  }
+}
+
+/* ══ Loader: the flight ════════════════════════════════════════════════════
+   Final layer of the loader, and the reason the rest of it is arranged the way it is:
+
+     - the dial owns the centre and the ring stays concentric with the mark,
+     - the mark lives in its own layer so it can leave the ring behind and travel,
+     - the readout is a small corner instrument, so the middle is only ever the mark.
+
+   On settle the mark is translated onto the header mark's real bounding box (measured in
+   LoaderPlate) at the header mark's real size. The header's own mark is held back by the
+   `flinza-flying` class on <html> for exactly as long as the overlay is up, then revealed as the
+   flying copy fades out — same artwork, same coordinates, so it reads as the mark settling into
+   the header rather than as a swap. */
+.flinza-route-shell__inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  gap: 0;
+  pointer-events: none;
+}
+.flinza-route-shell__dial {
+  position: relative;
+  animation: none;
+}
+.flinza-route-shell__word {
+  position: absolute;
+  top: calc(100% + 28px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+/* The mark's layer: centred while loading, then carried to the header. */
+.flinza-route-shell__fly {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+}
+.flinza-route-shell__mark {
+  width: clamp(76px, 15vw, 108px);
+  height: clamp(76px, 15vw, 108px);
+  animation: none;
+}
+/* The ring, lockup and corner instrument get out of the way as the mark starts to lift. */
+.flinza-route-shell__inner,
+.flinza-route-shell__corner {
+  transition: opacity 240ms ease, transform 440ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-route-shell.is-flying .flinza-route-shell__inner {
+  opacity: 0;
+  transform: scale(0.94);
+}
+.flinza-route-shell.is-flying .flinza-route-shell__corner {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.flinza-route-shell.is-landed .flinza-route-shell__fly {
+  opacity: 0;
+}
+
+/* The corner readout. Small, bottom-right, out of the mark's way, and inset past the home
+   indicator on a phone. */
+.flinza-route-shell__corner {
+  position: absolute;
+  right: clamp(18px, 3.4vw, 42px);
+  bottom: calc(clamp(18px, 3.4vw, 42px) + env(safe-area-inset-bottom, 0px));
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 9px;
+  pointer-events: none;
+}
+.flinza-route-shell__readout {
+  gap: 3px;
+  font-size: 9px;
+}
+.flinza-route-shell__num {
+  font-size: clamp(26px, 5vw, 38px);
+  line-height: 0.9;
+}
+.flinza-route-shell__pct {
+  font-size: 12px;
+}
+.flinza-route-shell__rule {
+  width: min(104px, 26vw);
+  margin: 0;
+}
+
+/* The header mark is no longer hidden by the loading overlay — the loader is a surface that lifts
+   instead of a mark that flies into the header, so there is nothing left that can hide the logo. */
+.flinza-site-head-mark,
+.flinza-logo-btn {
+  transition: opacity 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-route-shell__fly,
+  .flinza-route-shell__inner,
+  .flinza-route-shell__corner {
+    transition: none;
+  }
+}
+
+/* ── Footer social placeholder ──
+   Drawn while the lazy social row loads, at the same size as the real control so there is no
+   layout shift when it swaps in. Same glass recipe as the real thing, minus the WebGL material. */
+.flinza-social-glass-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background:
+    radial-gradient(60% 60% at 34% 28%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.7) 0%, rgba(214, 238, 243, 0.55) 52%, rgba(190, 226, 234, 0.42) 100%);
+  border: 1px solid rgba(9, 58, 72, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 12px 26px -18px rgba(9, 58, 72, 0.5);
+}
+
+/* ── Booking panel: no scheduler configured ── */
+.flinza-cal-unset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  padding: 28px;
+  text-align: center;
+}
+.flinza-cal-unset__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--ink);
+}
+.flinza-cal-unset__copy {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.flinza-cal-unset__mail {
+  font-family: var(--font-display);
+  font-size: clamp(19px, 3.6vw, 26px);
+  color: #0a3e4c;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(10, 62, 76, 0.3);
+  padding-bottom: 2px;
+}
+.flinza-cal-unset__mail:hover {
+  border-bottom-color: #17849b;
+  color: #17849b;
+}
+
+/* ══ Ground: the CSS half ══════════════════════════════════════════════════
+   Two layers so the site's background never depends on a JavaScript chunk arriving. The base is
+   the same gradient composition the vendored haze approximates; the grain is the self-hosted
+   noise tile blended in rather than laid over at full alpha (at full alpha it reads as television
+   static, which is a mistake this file has already made once). The vendored layer sits on top of
+   both for depth and can fail silently. */
+.flinza-ground-base {
+  position: absolute;
+  inset: 0;
+  background-color: #fbfcfd;
+  background-image: radial-gradient(
+      120% 90% at 12% 0%,
+      rgba(23, 132, 155, 0.14) 0%,
+      rgba(251, 252, 253, 0) 62%
+    ),
+    radial-gradient(100% 80% at 92% 100%, rgba(63, 185, 206, 0.16) 0%, rgba(251, 252, 253, 0) 60%),
+    linear-gradient(168deg, #fbfdfe 0%, #f1f8fa 52%, #e7f3f7 100%);
+}
+.flinza-ground-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/ground-noise.webp");
+  background-size: 300px 300px;
+  background-repeat: repeat;
+  opacity: 0.12;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.flinza-ground-shadow {
+  position: absolute;
+  inset: 0;
+}
+
+/* ══ Loader plate ══════════════════════════════════════════════════════════
+   Modelled on the Framer `Animation loader` (eHagKV): brand word top-left with a per-character
+   focus pull, a hairline that draws across, a display-scale counter in the bottom-right, and an
+   exit where the plate's corners animate to 50% and the whole surface lifts away.
+
+   In front of a tinted site, a flat white plate flashes the brand colour on every navigation, so
+   the surface here is the site's own gradient and grain.
+
+   Only transform / opacity / filter / border-radius animate, all of which the compositor owns. A
+   loader that drops frames is worse than no loader: it makes every navigation feel broken. */
+.flinza-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  overflow: clip;
+  pointer-events: auto;
+}
+
+.flinza-loader__mask {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 120%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: clip;
+  border-radius: 0;
+  transform: translate3d(-50%, 0, 0);
+  transition:
+    border-radius 620ms cubic-bezier(0.77, 0.02, 0.24, 1.02),
+    transform 700ms cubic-bezier(0.83, 0.05, 0.25, 0.98);
+  will-change: transform, border-radius;
+}
+
+/* Arriving. The plate does NOT move here, and that is the fix for the flash at the start of every
+   navigation.
+
+   It used to start one screen below and slide up. The problem is what is visible during that
+   slide: the plate is off-screen for the first frames, so the page underneath is exposed — you
+   saw the new page appear, then a panel sweep up over it and cover it. Two states of the same
+   page in 300ms is the glitch.
+
+   Now the plate is at rest and covering from its very first painted frame, and only the furniture
+   on it — the word, the hairline, the counter, the mark — fades up. The only movement is the exit
+   at the end, which is the one place a moving surface reads as intentional. */
+.flinza-loader.is-entering .flinza-loader__brand,
+.flinza-loader.is-entering .flinza-loader__line,
+.flinza-loader.is-entering .flinza-loader__counter,
+.flinza-loader.is-entering .flinza-loader__content {
+  opacity: 0;
+}
+.flinza-loader__brand,
+.flinza-loader__line,
+.flinza-loader__counter,
+.flinza-loader__content {
+  transition: opacity 420ms ease;
+}
+
+/* Leaving: the corners reach 50% — the plate becomes a lens — and it lifts away. */
+.flinza-loader.is-leaving .flinza-loader__mask {
+  border-radius: 50%;
+  transform: translate3d(-50%, -102%, 0);
+}
+
+/* The gradient. Two radial lobes over a soft diagonal, matching .flinza-ground-base, plus the
+   self-hosted grain so the loader and the page it uncovers are the same surface. */
+.flinza-loader__ground {
+  position: absolute;
+  inset: 0;
+  background-color: #f7fbfc;
+  background-image: radial-gradient(
+      120% 90% at 12% 0%,
+      rgba(23, 132, 155, 0.3) 0%,
+      rgba(251, 252, 253, 0) 62%
+    ),
+    radial-gradient(100% 80% at 92% 100%, rgba(63, 185, 206, 0.34) 0%, rgba(251, 252, 253, 0) 60%),
+    linear-gradient(168deg, #f2fafc 0%, #e6f4f8 52%, #d8ecf2 100%);
+}
+.flinza-loader__ground::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/ground-noise.webp");
+  background-size: 300px 300px;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+}
+
+/* ── 1 — the brand word ── */
+.flinza-loader__brand {
+  position: absolute;
+  top: clamp(28px, 6vh, 64px);
+  left: clamp(22px, 4vw, 60px);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.42em;
+  font-family: var(--font-ui);
+  font-size: clamp(13px, 1.1vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #0a3e4c;
+  z-index: 3;
+}
+.flinza-loader__brand i,
+.flinza-loader__brand em {
+  font-style: normal;
+  display: inline-block;
+  opacity: 0;
+  /* The reference's reveal: a 10px rise out of a 10px blur on a spring. */
+  animation: flinza-loader-char 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.flinza-loader__brand em {
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  color: rgba(10, 62, 76, 0.42);
+}
+@keyframes flinza-loader-char {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+/* ── 2 — the hairline ── */
+.flinza-loader__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: rgba(10, 62, 76, 0.1);
+  z-index: 3;
+  overflow: hidden;
+}
+.flinza-loader__line span {
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #0a3e4c 0%, #17849b 60%, #7fd1de 100%);
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* ── the mark, centred ── */
+.flinza-loader__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+.flinza-loader__mark {
+  position: relative;
+  width: clamp(96px, 15vw, 168px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  animation: flinza-loader-float 3.4s ease-in-out infinite;
+}
+.flinza-loader__mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  /* A soft pool of light under the mark so it sits on the gradient instead of floating on it. */
+  filter: drop-shadow(0 22px 40px rgba(9, 58, 72, 0.22));
+}
+/* The liquid sweep. Masked onto the mark's own pixels via the same artwork as an alpha mask, so
+   it reads as light travelling across the metal rather than a band laid over the logo. */
+.flinza-loader__sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    104deg,
+    rgba(255, 255, 255, 0) 34%,
+    rgba(255, 255, 255, 0.82) 49%,
+    rgba(255, 255, 255, 0) 64%
+  );
+  -webkit-mask-image: url("/images/flinza_logo_hd.png");
+  mask-image: url("/images/flinza_logo_hd.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  animation: flinza-loader-sheen 2.4s cubic-bezier(0.5, 0, 0.4, 1) infinite;
+}
+@keyframes flinza-loader-sheen {
+  0% {
+    transform: translate3d(-62%, 0, 0);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(62%, 0, 0);
+    opacity: 0;
+  }
+}
+@keyframes flinza-loader-float {
+  0%,
+  100% {
+    transform: translate3d(0, -5px, 0);
+  }
+  50% {
+    transform: translate3d(0, 5px, 0);
+  }
+}
+
+/* ── 3 — the counter ── */
+.flinza-loader__counter {
+  position: absolute;
+  right: clamp(20px, 4vw, 58px);
+  bottom: clamp(20px, 4vw, 48px);
+  display: flex;
+  align-items: flex-start;
+  z-index: 3;
+  font-family: var(--font-display);
+  color: #0a3e4c;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.82;
+}
+.flinza-loader__num {
+  font-size: clamp(62px, 13vw, 176px);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+}
+.flinza-loader__pct {
+  font-size: clamp(20px, 3.4vw, 44px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  margin-top: 0.28em;
+  color: rgba(10, 62, 76, 0.5);
+}
+
+/* The furniture dissolves a beat before the plate lifts, so the exit is the surface moving and
+   not five things leaving at once. */
+.flinza-loader.is-leaving .flinza-loader__brand,
+.flinza-loader.is-leaving .flinza-loader__counter,
+.flinza-loader.is-leaving .flinza-loader__content {
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+.flinza-loader.is-leaving .flinza-loader__line span {
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+/* Reduced motion: no journey, just the plate and the mark. */
+.flinza-loader.is-static .flinza-loader__mark {
+  animation: none;
+}
+.flinza-loader.is-static .flinza-loader__sheen {
+  animation: none;
+  opacity: 0;
+}
+
+@media (max-width: 640px) {
+  .flinza-loader__counter {
+    right: 20px;
+    bottom: 60px;
+  }
+  .flinza-loader__brand {
+    gap: 0.3em;
+    letter-spacing: 0.2em;
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer, rebuilt.
+   ══════════════════════════════════════════════════════════════════════════
+   The old footer was three link columns under a small CTA, sitting on a white panel
+   (`rgba(255,255,255,0.4)` to transparent) that read as a card laid over the gradient. Two rules
+   govern the rebuild: nothing is opaque, and the type has a ladder.
+
+   The ladder is the important part. The previous version set the CTA headline at 28-50px, the
+   column headings at 11px and every link at 14px - so the footer had one big line, then a wall of
+   identical small text with no way to scan it. Here: the headline is display type at up to 74px,
+   the column headings are letter-spaced uppercase at 10.5px with real weight, the links are 15px,
+   and the legal line is 12px and dim. Four distinct sizes, each doing a different job. */
+.flinza-foot {
+  margin-top: clamp(64px, 9vw, 150px);
+  padding: clamp(40px, 5.4vw, 88px) clamp(20px, 4.6vw, 64px)
+    calc(clamp(22px, 3vw, 34px) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(9, 58, 72, 0.13);
+  /* No panel. The footer is continuous with the page, marked only by its hairline. */
+  background: none;
+}
+
+/* ── The CTA band ── */
+.flinza-foot-cta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) auto;
+  align-items: end;
+  gap: clamp(22px, 4vw, 56px);
+  padding-bottom: clamp(30px, 4.4vw, 60px);
+  border-bottom: 1px solid rgba(9, 58, 72, 0.13);
+}
+.flinza-foot-kicker {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.55);
+}
+.flinza-foot-cta h3 {
+  margin: 14px 0 0;
+  max-width: 17ch;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5.6vw, 74px);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.028em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.flinza-foot-cta h3 em {
+  font-style: italic;
+  background: linear-gradient(104deg, #0a3e4c 0%, #17849b 46%, #56c1d3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── The body grid ── */
+.flinza-foot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: clamp(30px, 5vw, 84px);
+  padding: clamp(32px, 4.4vw, 60px) 0;
+  border-bottom: 1px solid rgba(9, 58, 72, 0.1);
+}
+.flinza-foot-brand > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.flinza-foot-brand img {
+  display: block;
+  width: 38px;
+  height: 38px;
+}
+.flinza-foot-brand .flinza-foot-word {
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+.flinza-foot-brand .flinza-foot-tag {
+  margin: 16px 0 24px;
+  max-width: 33ch;
+  font-size: 15px;
+  line-height: 1.68;
+  color: rgba(9, 9, 11, 0.66);
+}
+.flinza-foot-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 46px);
+}
+.flinza-foot-cols h4 {
+  margin: 0 0 16px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.52);
+}
+.flinza-foot-cols a {
+  display: inline-block;
+  padding: 6px 0;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: rgba(9, 9, 11, 0.76);
+  text-decoration: none;
+  transition: color 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-foot-cols a:hover {
+  color: #0a3e4c;
+  transform: translateX(4px);
+}
+
+/* ── The socials row, given room to breathe ── */
+.flinza-foot-social {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.flinza-foot-social-label {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.52);
+}
+
+/* ── The wordmark: a full-width typographic close ──
+   Display type set as large as the viewport allows, filled with the site's gradient at low
+   strength. It is decoration, so it never takes space a link needs and never competes with the
+   columns above it. */
+.flinza-foot-mark {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: clamp(20px, 2.6vw, 34px) 0 clamp(14px, 1.8vw, 22px);
+  font-family: var(--font-display);
+  font-size: clamp(46px, 15.4vw, 230px);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 62, 76, 0.17) 0%,
+    rgba(23, 132, 155, 0.06) 62%,
+    rgba(23, 132, 155, 0) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── The base bar ── */
+.flinza-foot-base {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 26px;
+  flex-wrap: wrap;
+  padding-top: clamp(18px, 2.6vw, 28px);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: rgba(9, 9, 11, 0.5);
+}
+.flinza-foot-base nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.flinza-foot-base a {
+  color: rgba(9, 9, 11, 0.62);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.flinza-foot-base a:hover {
+  color: #0a3e4c;
+}
+
+@media (max-width: 900px) {
+  .flinza-foot-cta {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .flinza-foot-cta h3 {
+    max-width: 22ch;
+  }
+  .flinza-foot-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+  .flinza-foot-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px 20px;
+  }
+  /* Three link groups share the grid two across - so a phone gets a readable index instead of
+     three cramped columns of four links each. The odd third group simply starts a new row. */
+  .flinza-foot-brand .flinza-foot-tag {
+    max-width: 40ch;
+  }
+  .flinza-foot-base {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .flinza-foot-social {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 560px) {
+  .flinza-foot-cols {
+    gap: 22px 16px;
+  }
+  .flinza-foot-cols a {
+    font-size: 14.5px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Booking form - the scheduler's stand-in, inside the booking modal.
+   ══════════════════════════════════════════════════════════════════════════ */
+.flinza-book-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: clamp(18px, 3.6vw, 30px);
+  box-sizing: border-box;
+}
+.flinza-book-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.flinza-book-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.flinza-book-form label > span,
+.flinza-book-form legend {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.58);
+}
+.flinza-book-form input,
+.flinza-book-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 15px;
+  border-radius: 13px;
+  border: 1px solid rgba(9, 58, 72, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+.flinza-book-form input::placeholder,
+.flinza-book-form textarea::placeholder {
+  color: rgba(9, 9, 11, 0.34);
+}
+.flinza-book-form input:focus,
+.flinza-book-form textarea:focus {
+  border-color: rgba(23, 132, 155, 0.62);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 4px rgba(23, 132, 155, 0.12);
+}
+.flinza-book-form textarea {
+  resize: vertical;
+  min-height: 78px;
+}
+.flinza-book-form__slots {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.flinza-book-form__slots legend {
+  padding: 0;
+  margin-bottom: 9px;
+}
+.flinza-book-form__slots > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.flinza-book-form__slots button {
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(9, 58, 72, 0.18);
+  background: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(9, 9, 11, 0.72);
+  cursor: pointer;
+  transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease, transform 0.24s ease;
+}
+.flinza-book-form__slots button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(23, 132, 155, 0.5);
+}
+.flinza-book-form__slots button.is-on {
+  background: linear-gradient(130deg, #0a3e4c 0%, #17849b 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 10px 22px -12px rgba(10, 62, 76, 0.8);
+}
+.flinza-book-form__error {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b4324a;
+}
+.flinza-book-form__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.flinza-book-form__send {
+  padding: 13px 26px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: linear-gradient(130deg, #0a3e4c 0%, #17849b 58%, #3fb9ce 100%);
+  box-shadow: 0 16px 32px -18px rgba(10, 62, 76, 0.9);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+}
+.flinza-book-form__send:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 40px -18px rgba(10, 62, 76, 0.95);
+}
+.flinza-book-form__send:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.flinza-book-form__foot a {
+  font-size: 12.5px;
+  color: rgba(9, 9, 11, 0.55);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(9, 9, 11, 0.18);
+}
+.flinza-book-form__foot a:hover {
+  color: #17849b;
+  border-bottom-color: #17849b;
+}
+
+.flinza-book-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: clamp(30px, 6vw, 60px) 24px;
+  text-align: center;
+}
+.flinza-book-done__tick {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, #3fb9ce, #17849b);
+  box-shadow: 0 16px 30px -16px rgba(10, 62, 76, 0.8);
+}
+.flinza-book-done h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 25px;
+  font-weight: 400;
+  color: var(--ink);
+}
+.flinza-book-done p {
+  margin: 0;
+  max-width: 40ch;
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: var(--ink-dim);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   The chrome orb that opens the booking modal.
+   ══════════════════════════════════════════════════════════════════════════ */
+.flinza-chrome-orb {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 16px 32px rgba(9, 58, 72, 0.28));
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+}
+.flinza-chrome-orb:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 22px 40px rgba(9, 58, 72, 0.34));
+}
+.flinza-chrome-orb:focus-visible {
+  outline: 2px solid #17849b;
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+/* Same footprint as the orb, so the row does not reflow when the chunk lands. */
+.flinza-chrome-orb-fallback {
+  display: block;
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  background: radial-gradient(
+      60% 60% at 34% 28%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0) 62%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(214, 238, 243, 0.55) 52%,
+      rgba(190, 226, 234, 0.45) 100%
+    );
+  border: 1px solid rgba(9, 58, 72, 0.16);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CircleCards ring on the contact page.
+   ══════════════════════════════════════════════════════════════════════════
+   The previous configuration handed the component a ring radius of 123px around cards 90px tall
+   inside a 700x560 box, which left a 169px hole for a contact button whose resting state is 134px
+   across - so the button very nearly touched the cards, and the expanded card overlapped them.
+   The box is taller and wider here, and the ring radius is large enough that the component's own
+   clamp is what limits it rather than the scale factor. See the props in contact/page.jsx. */
+.flinza-contact-ring {
+  width: 100%;
+  max-width: 980px;
+  min-height: clamp(360px, 104vw, 700px);
+}
+/* The component's root and its inner wrappers must be fully transparent - its default background
+   is opaque white, which is what put a white rectangle in the middle of the gradient. */
+.flinza-contact-ring-cards,
+.flinza-contact-ring-cards > *,
+.flinza-contact-ring-cards > * > * {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+/* The ring is decoration; only the button in the middle is interactive. Leaving the cards
+   pointer-active on a phone meant a drag over the ring rotated cards instead of scrolling. */
+@media (hover: none) {
+  .flinza-contact-ring-cards {
+    pointer-events: none;
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   No panels. The forms sit on the ground.
+   ══════════════════════════════════════════════════════════════════════════
+   /contact's message form was `rgba(255,255,255,0.62)` over a 24px radius with a large soft
+   shadow and a backdrop blur: a white card, pasted on the gradient, with a visible edge. It is
+   the one treatment this design does not use, and it was the most prominent piece of it on the
+   page — the same mistake the case-study stage and the footer each had.
+
+   Two changes, and they are the whole fix. The panel is gone, so the form is marked by a top
+   hairline like every other section boundary on the site. And the fields stop being filled
+   boxes: they are hairline-ruled lines the text sits on, which reads as editorial rather than
+   as a boxed-in form. Focus is still unmistakable — the rule thickens and takes the brand
+   colour — so the affordance is not lost with the fill. */
+.flinza-contact-form {
+  max-width: 620px;
+  padding: clamp(30px, 4vw, 44px) 0 0;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid rgba(9, 58, 72, 0.16);
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.flinza-contact-form .flinza-form-submit {
+  align-self: center;
+}
+
+/* The ruled field. Applied through a class rather than the page's inline style object, because
+   the contact page sets its fields inline and an inline style cannot be overridden from CSS
+   without an `!important` on every property. */
+.flinza-field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 2px;
+  border: 0;
+  border-bottom: 1px solid rgba(9, 58, 72, 0.2);
+  border-radius: 0;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.24s ease, box-shadow 0.24s ease;
+}
+.flinza-field::placeholder {
+  color: rgba(9, 9, 11, 0.3);
+  font-weight: 400;
+}
+/* Focus reads as the rule taking the brand colour and thickening to 2px, without moving any
+   text: the extra pixel is drawn inside the box with a box-shadow rather than added as a border. */
+.flinza-field:focus {
+  border-bottom-color: transparent;
+  box-shadow: inset 0 -2px 0 0 #17849b;
+}
+.flinza-field--area {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.6;
+}
+
+/* The success state swaps the form for a confirmation. It was the only remaining filled panel on
+   the route; it is now text on the ground with a gradient tick, matching the booking panel. */
+.flinza-contact-form .flinza-form-done {
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ══ Careers: the application box ══
+   Same treatment. `ApplyBox` opened a white rounded panel with a blur behind it; it now opens a
+   hairline-topped sheet on the ground, with the same ruled fields. */
+.flinza-apply-sheet {
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid rgba(9, 58, 72, 0.16);
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ══ Mobile: the header must not collide with the mark ══
+   Below 720px the centred mark and the CTA share a row that is not wide enough for both, so the
+   mark was overlapping the camo pill. The CTA shortens to its label and the mark scales down —
+   the two changes together leave real space between them at 390px and at 320px. */
+@media (max-width: 720px) {
+  .flinza-site-head {
+    gap: 8px;
+  }
+  .flinza-site-head .flinza-camo-cta--sm {
+    padding: 7px 12px;
+    font-size: 11.5px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  /* The mark is absolutely centred in the header, so a button whose label wraps to two lines
+     pushes the row taller and the mark drifts off the optical centre. Never wrap it. */
+  .flinza-site-head .flinza-camo-cta__label {
+    white-space: nowrap;
+  }
+}
+
+/* Every camo CTA label stays on one line. A CTA that wraps mid-label reads as a layout bug, and
+   on a phone several of them were doing exactly that. The pill grows instead of the text
+   wrapping — see the padding clamp, which keeps it inside a 320px viewport. */
+.flinza-camo-cta {
+  white-space: nowrap;
+}
+.flinza-camo-cta__label {
+  white-space: nowrap;
+}
+
+@media (max-width: 400px) {
+  .flinza-camo-cta--lg {
+    padding: 14px 20px;
+    font-size: 13.5px;
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   Mobile header: the mark, with real clearance on both sides.
+   ══════════════════════════════════════════════════════════════════════════
+   The mark is absolutely centred, and the CTA and menu button sat together on the right. At 390px
+   that put the pill's left edge at roughly x=186 while the mark spanned x=172 to x=218, so the
+   mark was drawn on top of the button — visible in the mobile screenshot as the metal logo eating
+   the "Book a call" label.
+
+   The fix is to stop stacking both controls on one side: below 720px the menu button moves to the
+   LEFT margin and the CTA stays right, which gives the centred mark its own column of empty space.
+   The mark also drops to 44px. Nothing overlaps at 390px, and nothing overlaps at 320px either —
+   the CTA is also never allowed to wrap its label, so it cannot grow sideways. */
+@media (max-width: 720px) {
+  .flinza-site-head {
+    /* Room for the menu button on the left, so the mark's clearance is symmetric. */
+    padding-left: 60px;
+    padding-right: 14px;
+    gap: 8px;
+  }
+  .flinza-site-head .flinza-shell-menu-btn {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+  }
+  .flinza-site-head-mark {
+    width: 44px;
+    height: 44px;
+  }
+  .flinza-site-head .flinza-camo-cta--sm {
+    padding: 7px 12px;
+    font-size: 11.5px;
+  }
+}
+
+/* ══ Form fields: labels over rules, not captions inside boxes ══
+   The ruled-field treatment is pointless without a label above it — a bare underline says nothing
+   about what goes on it, and the placeholder disappears the moment someone types. */
+.flinza-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.flinza-field-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(10, 62, 76, 0.55);
+}
+
+/* ══ The contact ring, enlarged ══
+   The stage was capped at 780px, which capped the ring with it — the component derives its ring
+   radius from the shorter side of the box, so a wider box is a wider ring. The CTA row below it
+   stays narrower, since two controls side by side at 980px would sit absurdly far apart. */
+.flinza-contact-stage {
+  max-width: 100%;
+}
+.flinza-contact-ring {
+  max-width: min(980px, 100%);
+}
+.flinza-contact-actions {
+  max-width: 620px;
+}
+
+/* The ring is the widest thing on the page, so on a phone it should use every pixel available
+   without the cards touching the edges. */
+@media (max-width: 640px) {
+  .flinza-contact-ring {
+    max-width: 100%;
+  }
+}
+/* ══ Footer: link stacking, social row, label contrast ══
+   Three corrections found by screenshotting the real page rather than reading the CSS.
+
+   1. `display: inline-block` on the footer links was added so the hover `translateX` would move the
+      link without stretching it across the column. It also stopped them stacking, so the rendered
+      output read "AboutCase studies" and "InsightsCareers" — two links welded together. A block
+      with `width: fit-content` gives both behaviours: one per line, and a transform that moves the
+      text rather than a full-width box.
+
+   2. The five social orbs wrapped 4 + 1, which leaves one sphere orphaned on its own row and reads
+      as a mistake. They stay on one row now, with the gap tightening on narrow viewports: five 52px
+      spheres plus four 5px gaps is 280px, which is exactly what a 320px viewport leaves inside the
+      footer's padding.
+
+   3. The column headings were at 0.52 alpha on a tinted ground, faint enough that they read as
+      decorative smudges rather than as labels for the links beneath them. */
+.flinza-foot-cols a {
+  display: block;
+  width: fit-content;
+}
+.flinza-foot-cols h4 {
+  color: rgba(10, 62, 76, 0.68);
+}
+.flinza-foot-social-label {
+  color: rgba(10, 62, 76, 0.68);
+}
+
+@media (max-width: 640px) {
+  .flinza-foot-social .flinza-social-glass {
+    flex-wrap: nowrap;
+    gap: clamp(4px, 1.5vw, 10px);
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   The focused case-study stage: containment, then the phone layout.
+   ══════════════════════════════════════════════════════════════════════════
+   THE DESKTOP FAULT, measured rather than guessed. The stage body reported a layout width of
+   1891px inside a 1419px viewport — 472px wider than the screen. Its two columns were sized with
+   `min(566px, 48vw)` and `min(392px, 33vw)`, and `vw` does not resolve against the stage; it
+   resolves against the viewport and then the row's min-content width steps up with it. A flex row
+   whose items have `min-width: auto` cannot shrink below its min-content, so the whole body
+   overflowed to the right, `space-between` threw the client quote off-screen, and the left column
+   sat hard against the left edge with its metrics row jammed. That is the "fault in the left side
+   text and formatting".
+
+   The fix is to stop expressing the columns in viewport units and let them be flex items with
+   explicit bases and `min-width: 0`:
+     · percentages of the REAL container, so they cannot outgrow it;
+     · `min-width: 0`, so a long headline shrinks the column instead of pushing the row wider;
+     · `box-sizing: border-box` on the body, so its padding is inside its width.
+   Nothing here is a tweak to the visual design — the columns land in the same places at 1440. What
+   changes is that they can no longer exceed the viewport at any width. */
+.flinza-stage,
+.flinza-stage-body {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.flinza-stage-body {
+  overflow-x: hidden;
+}
+/* The two columns. `flex: 0 1 <base>` plus `min-width: 0` is the whole repair. */
+.flinza-stage-work {
+  flex: 0 1 566px;
+  min-width: 0;
+  max-width: 566px;
+}
+.flinza-stage-quote {
+  flex: 0 1 392px;
+  min-width: 0;
+  max-width: 392px;
+}
+/* The metrics row is a grid, so three figures line up as three columns instead of wrapping into
+   an accidental 2 + 1. */
+.flinza-stage-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: clamp(16px, 2.4vw, 34px);
+  align-items: end;
+}
+.flinza-stage-metrics > * {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  /* Phone: one column, and the columns lose their bases entirely.
+     The breakpoint is 860px, not a round 900, because that is the exact query the carousel uses
+     for `compact` in LiquidGlassCarousel. A mismatch between the two would render the JSX desktop
+     layout with the mobile stylesheet — stacked columns still carrying a desktop flex base. */
+  .flinza-stage-work,
+  .flinza-stage-quote {
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+  }
+  /* The client quote's left rule only makes sense when it sits BESIDE the copy. Stacked, it is a
+     stray vertical line down the left edge of the lower half, so it becomes a top rule that
+     separates the two blocks instead. */
+  .flinza-stage-quote {
+    padding-left: 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid rgba(9, 9, 11, 0.14);
+    padding-top: 22px;
+  }
+  .flinza-stage-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+/* ══ The phone scrim ══
+   On a phone the stage is a single stacked column, so the copy sits ON the artwork rather than
+   beside it. The previous scrim ramped from 0.95 alpha at the bottom to transparent at 74% of the
+   height, which is a near-opaque wash over the bottom three quarters of the poster — the artwork
+   was effectively erased on the one device where there is no room to show it beside the text.
+
+   A much lighter ramp keeps the near-black ink legible while letting the image read through it,
+   and the copy gets a soft halo instead of a veil: the same trick the client quote already uses
+   over a dark poster on desktop. */
+@media (max-width: 860px) {
+  .flinza-stage .flinza-stage-ground {
+    background: linear-gradient(
+      0deg,
+      rgba(246, 252, 253, 0.9) 0%,
+      rgba(246, 252, 253, 0.76) 34%,
+      rgba(246, 252, 253, 0.3) 62%,
+      rgba(246, 252, 253, 0) 82%
+    ) !important;
+  }
+  .flinza-stage-work h2,
+  .flinza-stage-lede {
+    text-shadow: 0 1px 18px rgba(250, 253, 254, 0.85);
+  }
+}
+
+/* The stage body on a phone: a tighter rhythm than desktop, because the same gaps that read as
+   generous in two columns read as disconnected in one. */
+@media (max-width: 860px) {
+  .flinza-stage-body > * + * {
+    margin-top: 0;
+  }
+}
+
+/* ══ The header is not a panel ══
+   This is the blurred rectangle that ran across the top of every inner page, behind the metal
+   mark and the "Book a call" pill. It was a 92%-opaque paper gradient with a 14px backdrop blur
+   and a saturation boost, i.e. a translucent bar: the one opaque chrome treatment this design
+   does not use, sitting permanently at the top of every route.
+
+   It is gone entirely rather than reduced. The header is now fully transparent and the page's own
+   noisy gradient is the only thing behind the mark. Legibility when content scrolls underneath is
+   handled per element instead — the mark already carries a drop shadow, and the pill brings its
+   own surface — which is the right trade: chrome that is always visible costs the design far more
+   than chrome that is occasionally overlapped. */
+.flinza-site-head {
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }

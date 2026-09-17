@@ -1,0 +1,145 @@
+"use client";
+
+/*
+ * SiteFooter — the one footer, on every route.
+ *
+ * It lived inline in PageShell, which meant the two pages that do NOT use PageShell — /contact and
+ * /careers, both of which are composition-led and render their own headers — had no footer at all.
+ * A visitor who landed on /contact from a search result could scroll to the bottom of the page and
+ * find nothing: no way to see the services, no way to reach the socials, no legal line. Extracting
+ * it is what makes "every page has a footer" a fact rather than a thing to remember.
+ *
+ * Three things it is deliberately NOT:
+ *
+ *   · Not a white panel. It is continuous with the page and marked by a hairline, because an
+ *     opaque footer box on a tinted ground is the card treatment this design does not use.
+ *   · Not flat type. The headline is display serif at up to 74px, the column headings are
+ *     letter-spaced uppercase, the links are 15px and the legal line is 12px and dim. Four sizes,
+ *     four jobs — the previous footer set almost everything at 14px, so it read as a wall.
+ *   · Not decoration at the bottom. The socials sit in a labelled row, because five 52px glass
+ *     spheres trailing a paragraph read as ornament rather than as a way to reach the studio.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import CamoCtaButton from "./CamoCtaButton";
+import { MAILTO } from "@/lib/site";
+
+/* The socials are lazy, and that is a performance decision rather than a nicety.
+ *
+ * The row is built on the vendored Liquid Chrome Button, which drives its glass with a real WebGL
+ * material and therefore imports `three`. Imported statically, `three` was pulled into the FIRST
+ * LOAD of every inner page — /about, /services, /work and the legal pages all shipped roughly
+ * 440 kB of JavaScript against the home page's 111 kB, purely to draw five 52px circles at the
+ * very bottom of the page. That was the single biggest reason the inner routes felt heavy.
+ *
+ * The placeholder is drawn from CSS at the same 52px, so the real buttons replace like for like
+ * and nothing shifts. */
+const SocialFallback = () => (
+  <div className="flinza-social-glass" aria-hidden="true">
+    {[0, 1, 2, 3, 4].map((index) => (
+      <span key={index} className="flinza-social-glass-link flinza-social-glass-placeholder" />
+    ))}
+  </div>
+);
+
+const SocialGlassRow = dynamic(() => import("./SocialGlassRow"), {
+  ssr: false,
+  loading: SocialFallback,
+});
+
+const COLUMNS = [
+  {
+    heading: "Services",
+    links: [
+      { label: "Revenue audit", href: "/services" },
+      { label: "Creative production", href: "/services" },
+      { label: "AI UGC", href: "/services" },
+      { label: "Influencer marketing", href: "/influencer-marketing" },
+      { label: "Paid media", href: "/services" },
+    ],
+  },
+  {
+    heading: "Company",
+    links: [
+      { label: "About", href: "/about" },
+      { label: "Case studies", href: "/work" },
+      { label: "Insights", href: "/insights" },
+      { label: "Careers", href: "/careers" },
+    ],
+  },
+];
+
+export default function SiteFooter() {
+  return (
+    <footer className="flinza-foot">
+      <div className="flinza-foot-cta">
+        <div>
+          <p className="flinza-foot-kicker">Start</p>
+          <h3>
+            Let&apos;s find the <em>revenue</em> you&apos;re leaving on the table.
+          </h3>
+        </div>
+        <CamoCtaButton href="/contact" size="lg">
+          Book a call
+        </CamoCtaButton>
+      </div>
+
+      <div className="flinza-foot-grid">
+        <div className="flinza-foot-brand">
+          <Link href="/" aria-label="Flinza Works home">
+            <img src="/images/flinza_logo_hd.png" alt="" width={38} height={38} loading="lazy" />
+            <span className="flinza-foot-word">Flinza Works</span>
+          </Link>
+          <p className="flinza-foot-tag">
+            We test. We scale. We grow. Repeat. A senior performance team for ecommerce brands that
+            want profit, not vanity metrics.
+          </p>
+          <div className="flinza-foot-social">
+            <p className="flinza-foot-social-label">Follow &amp; reach us</p>
+            <SocialGlassRow />
+          </div>
+        </div>
+
+        <nav className="flinza-foot-cols" aria-label="Footer">
+          {COLUMNS.map((column) => (
+            <div key={column.heading}>
+              <h4>{column.heading}</h4>
+              {column.links.map((link) => (
+                <Link key={`${column.heading}-${link.label}`} href={link.href}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+          <div>
+            <h4>Start</h4>
+            <Link href="/contact">Book a call</Link>
+            <a href={MAILTO}>hello@flinzaworks.com</a>
+            <Link href="/work">See the work</Link>
+            <Link href="/careers">We&apos;re hiring</Link>
+          </div>
+        </nav>
+      </div>
+
+      {/* A full-width typographic close. Decorative, so it is hidden from assistive tech — the
+          wordmark in the brand column above is the real, readable one. */}
+      <span className="flinza-foot-mark" aria-hidden="true">
+        FLINZA WORKS
+      </span>
+
+      <div className="flinza-foot-base">
+        <span>
+          © {new Date().getFullYear()} Flinza Works — ecommerce growth agency. Built for profit,
+          not vanity metrics.
+        </span>
+        <nav aria-label="Legal">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <a href={MAILTO}>Email</a>
+        </nav>
+      </div>
+    </footer>
+  );
+}

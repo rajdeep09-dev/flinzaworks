@@ -105,38 +105,59 @@ export default function ServicesShowcase({ cards = [] }) {
         })}
       </ol>
 
-      {/* ── Media pile (desktop only) ──
-          All six service images are held at once, fanned behind the active one, instead of a
-          single plate that swapped on every hover. Each plate offsets by its distance from the
-          active service, so nothing is hidden and the motion is pure transform — no layout,
-          no reflow, no flicker between frames. */}
-      <div className="flinza-svc-stage" aria-hidden="true">
-        <div className="flinza-svc-pile">
-          {services.map((service, index) => {
-            const offset = index - active;
-            const distance = Math.abs(offset);
-            const style = {
-              zIndex: 40 - distance,
-              transform: `translate3d(${offset === 0 ? -10 : offset * 6}px, ${offset * 26}px, 0) scale(${1 - distance * 0.045})`,
-              opacity: distance === 0 ? 1 : distance === 1 ? 0.72 : distance === 2 ? 0.45 : 0.24,
-            };
-            return (
-              <figure
-                key={service.key}
-                className={`flinza-svc-plate${offset === 0 ? " is-active" : ""}`}
-                style={style}
-              >
-                {service.image ? (
-                  <img src={service.image} alt="" loading="lazy" decoding="async" />
-                ) : null}
-                <figcaption className="flinza-svc-plate-tag">
-                  <span>{service.index}</span>
-                  {service.label}
-                </figcaption>
-              </figure>
-            );
-          })}
+      {/* ── Media stage (desktop only) ──
+          Two earlier attempts at this column are worth recording, because both failed in the
+          same way. The first stacked the six plates by distance from the active service and
+          faded them (1 / 0.72 / 0.45 / 0.24), so only three read as separate plates. The second
+          kept them all opaque in a cascade — which does show every card, but as seven
+          overlapping photographs, and a pile of overlapping photos is what it looks like: a
+          pile. Neither is a composition.
+
+          A single plate is the honest answer: one service on screen at a time at full size and
+          full clarity, with the rest of the set present as an even rail of thumbnails beneath
+          it. Nothing overlaps, nothing is dimmed to invisibility, every service is visible at a
+          glance, and the only motion is a cross-fade on the plate plus a small lift on the
+          active thumbnail.
+
+      ── */}
+      <div className="flinza-svc-stage">
+        <figure className="flinza-svc-plate is-active">
+          {current.image ? (
+            <img
+              key={current.key}
+              src={current.image}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          ) : null}
+          <figcaption className="flinza-svc-plate-tag">
+            <span>{current.index}</span>
+            {current.label}
+          </figcaption>
+        </figure>
+
+        <div className="flinza-svc-rail" role="tablist" aria-label="Our services">
+          {services.map((service, index) => (
+            <button
+              key={service.key}
+              type="button"
+              role="tab"
+              aria-selected={index === active}
+              aria-label={`${service.index} ${service.title}`}
+              className={`flinza-svc-thumb${index === active ? " is-active" : ""}`}
+              onMouseEnter={() => setActive(index)}
+              onFocus={() => setActive(index)}
+              onClick={() => setActive(index)}
+            >
+              {service.image ? (
+                <img src={service.image} alt="" loading="lazy" decoding="async" />
+              ) : null}
+              <span aria-hidden="true">{service.index}</span>
+            </button>
+          ))}
         </div>
+
         <div className="flinza-svc-stage-meta">
           <span className="flinza-svc-stage-num flinza-display">{current.index}</span>
           <span className="flinza-svc-stage-label">{current.label}</span>

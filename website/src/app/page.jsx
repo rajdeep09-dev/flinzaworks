@@ -6,14 +6,7 @@ import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
 import { faqItems } from '@/data/faqs';
 import FaqList from '@/components/FaqList';
-
-const BrandLoader = dynamic(
-  () => import('@/components/BrandLoader'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+import CamoCtaButton from '@/components/CamoCtaButton';
 
 const EtherealShadow = dynamic(
   () => import('@/components/EtherealShadow'),
@@ -39,13 +32,6 @@ const LiquidMetal = dynamic(
   }
 );
 
-const CamoLiquidButton = dynamic(
-  () => import('@/components/CamoLiquidButton'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
 
 const TableOfContent = dynamic(
   () => import('@/components/TableOfContent'),
@@ -55,72 +41,16 @@ const TableOfContent = dynamic(
   }
 );
 
-/* ── Section connector thread ──
-   Replaces the old hand-drawn "doodle" overlays. Those were absolutely positioned at
-   z-index 15 (so they could cross straight over video tiles), only rendered above 1280px,
-   and animated on fixed time delays. A thread is a normal in-flow band: it reserves its own
-   height so it can never overlap a video, keeps its stroke weight via non-scaling-stroke,
-   scales with the viewport on every device, and draws itself only once it scrolls into view. */
-const THREAD_CURVES = [
-  { path: 'M 14 92 C 190 92, 300 26, 520 32 C 740 38, 860 96, 1180 68', tip: 'M 1150 50 L 1183 67 L 1148 86' },
-  { path: 'M 14 34 C 220 34, 330 92, 560 84 C 800 76, 900 26, 1180 46', tip: 'M 1152 26 L 1183 45 L 1150 64' },
-  { path: 'M 14 70 C 200 70, 320 20, 540 40 C 780 62, 900 104, 1180 58', tip: 'M 1150 46 L 1183 63 L 1148 82' },
-];
-
-function SectionThread({ label, variant = 0, delay = 0 }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return undefined;
-    if (typeof IntersectionObserver !== 'function') {
-      setVisible(true);
-      return undefined;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '0px 0px -8% 0px' }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  const curve = THREAD_CURVES[variant % THREAD_CURVES.length];
-
+/* ── Section overline ──
+   One typographic label per section: heavier weight, tighter tracking, a short brand rule.
+   It replaces the hand-drawn arrow threads — those read as doodles, and they were the last
+   decorations overlapping content anywhere on the page. */
+function SectionLabel({ label }) {
   return (
-    <div
-      ref={ref}
-      className={`flinza-thread${visible ? ' is-visible' : ''}`}
-      style={{ '--draw-delay': `${delay}s` }}
-      aria-hidden="true"
-    >
-      {label ? <span className="flinza-thread-label">{label}</span> : null}
-      <svg viewBox="0 0 1200 120" preserveAspectRatio="xMidYMid meet" role="presentation">
-        <path
-          d={curve.path}
-          stroke="#17849B"
-          strokeOpacity="0.5"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
-        <path
-          d={curve.tip}
-          stroke="#17849B"
-          strokeOpacity="0.5"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-    </div>
+    <p className="flinza-overline">
+      <span aria-hidden="true" />
+      {label}
+    </p>
   );
 }
 
@@ -282,9 +212,6 @@ function useInView() {
 
 export default function Page() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [loaderRemoved, setLoaderRemoved] = useState(false);
-  const [loaderExited, setLoaderExited] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [camoDismissed, setCamoDismissed] = useState(false);
   // The fixed side rail must disappear over the FAQ/footer/contact region, where it collided with copy
@@ -526,22 +453,30 @@ export default function Page() {
     },
   ];
 
-  // Preload carousel imagery so the hero never reveals blank panels.
+  // Preload carousel imagery so the hero never reveals blank panels. This is a warm-up only:
+  // nothing waits on it, because the site no longer opens behind a preloader.
   useEffect(() => {
-    let cancelled = false;
-    const urls = carouselProjects.map((p) => p.image?.src).filter(Boolean);
-    let pending = urls.length;
-    if (pending === 0) { setAssetsReady(true); return; }
-    const done = () => { if (cancelled) return; pending -= 1; if (pending <= 0) setAssetsReady(true); };
-    urls.forEach((src) => { const img = new Image(); img.onload = done; img.onerror = done; img.src = src; });
-    const safety = setTimeout(() => { if (!cancelled) setAssetsReady(true); }, 3500);
-    return () => { cancelled = true; clearTimeout(safety); };
+    carouselProjects
+      .map((p) => p.image?.src)
+      .filter(Boolean)
+      .forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
   }, []);
 
-  // Reveal the site only once the loader has exited AND carousel images are ready.
+  /* The site paints immediately.
+   *
+   * There used to be a full-screen preloader here that held the page for ~1.9s and only then
+   * revealed the hero — which meant the first thing anyone saw was a loading animation instead of
+   * the metal mark. Everything on this page is either preloaded, static, or a shader that fades
+   * itself in, so the only thing the gate was doing was hiding the site. `isLoaded` now flips on
+   * the first painted frame: it still drives the hero's entry animation and the header's fade,
+   * but nothing is waiting on the network to start. */
   useEffect(() => {
-    if (loaderExited && assetsReady) setIsLoaded(true);
-  }, [loaderExited, assetsReady]);
+    const frame = requestAnimationFrame(() => setIsLoaded(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   return (
     <main style={{
@@ -555,29 +490,6 @@ export default function Page() {
       overflowX: 'hidden',
       fontFamily: "'Nohemi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     }}>
-      {/* Preloader Animation Overlay (smooth film dissolve transition into hero) */}
-      {!loaderRemoved && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 9999,
-            pointerEvents: isLoaded ? 'none' : 'auto',
-            opacity: isLoaded ? 0 : 1,
-            transform: isLoaded ? 'scale(1.025)' : 'scale(1)',
-            transition: 'opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1)',
-            willChange: 'opacity, transform',
-          }}
-        >
-          <BrandLoader
-            brandName="FLINZA"
-            note="Growth systems for ecommerce"
-            onStartExit={() => setLoaderExited(true)}
-            onComplete={() => setLoaderRemoved(true)}
-          />
-        </div>
-      )}
-
       {/* Full-Website Ethereal Shadow Background (hardware-accelerated, zero-lag) */}
       <div
         aria-hidden="true"
@@ -616,7 +528,7 @@ export default function Page() {
         <a
           href="#hero"
           aria-label="Home"
-          className="flinza-logo-btn"
+          className="flinza-logo-btn flinza-mark-stack"
           style={{
             width: 68,
             height: 68,
@@ -628,6 +540,18 @@ export default function Page() {
             filter: 'drop-shadow(0 4px 14px rgba(0, 0, 0, 0.08))',
           }}
         >
+          {/* The still mark paints on the very first frame; the metal shader is layered over it
+              and simply takes over as it draws. There is no moment where the slot is empty. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="flinza-mark-still"
+            src="/images/flinza_logo_hd.png"
+            alt=""
+            width={68}
+            height={68}
+            fetchPriority="high"
+            decoding="sync"
+          />
           <LiquidMetal
             speed={0.15}
             dispersion={0.015}
@@ -714,7 +638,7 @@ export default function Page() {
           Flinza Works — We Test. We Scale. We Grow.
         </h1>
 
-        {/* Bottom CTA row — single brand-recolored CamoLiquidButton */}
+        {/* Bottom CTA row — the shared camo CTA, identical to every other CTA on the site */}
         <div
           className="flinza-hero-cta"
           style={{
@@ -734,24 +658,13 @@ export default function Page() {
         >
           <div
             style={{
-              transform: 'scale(0.58)',
-              transformOrigin: 'center center',
-              filter: 'drop-shadow(0 14px 32px rgba(14, 124, 147, 0.3))',
+              filter: 'drop-shadow(0 16px 34px rgba(14, 124, 147, 0.32))',
               pointerEvents: (focusedCaseStudy || camoDismissed || scrolledPastHero || !isLoaded) ? 'none' : 'auto',
             }}
           >
-            <CamoLiquidButton
-              label="Explore Stories ↓"
-              link="#stories"
-              showDots={false}
-              dotsAnimate={false}
-              textColor="rgb(255,255,255)"
-              camoDark="rgb(10,62,76)"
-              camoMid="rgb(23,132,155)"
-              camoLight="rgb(46,147,172)"
-              borderGlowA="rgb(127,209,222)"
-              borderGlowB="rgb(46,147,172)"
-            />
+            <CamoCtaButton href="#stories" size="lg">
+              Explore Stories ↓
+            </CamoCtaButton>
           </div>
         </div>
       </section>
@@ -1012,7 +925,7 @@ export default function Page() {
         </div>
       </section>
 
-      <SectionThread label="What We Do" variant={0} />
+      <SectionLabel label="What We Do" />
 
       {/* Services Section: Exactly 6 Services in 3 by 2 Layout */}
       <section
@@ -1115,7 +1028,7 @@ export default function Page() {
         </div>
       </section>
 
-      <SectionThread label="The Results" variant={1} delay={0.1} />
+      <SectionLabel label="The Results" />
 
       {/* ════════════════════════════════════════════════════════════
            TESTIMONIALS SECTION — WhatsApp Audio Voice Notes (Real Component)
@@ -1192,6 +1105,22 @@ export default function Page() {
           }}>
             Real voice memos from founders and growth leads, sent right after we scaled their accounts. Hit play to hear what working with Flinza Works actually sounds like.
           </p>
+        </div>
+
+        {/* A second beat between the headline and the media: three hairline-separated facts
+            about what the notes actually are. Deliberately no invented statistics — it labels
+            the section instead of decorating it, which is what the layout was missing. */}
+        <div className="flinza-voices-meta" role="list">
+          {[
+            ['Unedited', 'Sent as recorded, in one take'],
+            ['Owners & growth leads', 'The people who signed off the work'],
+            ['Post-result', 'Recorded after the numbers moved'],
+          ].map(([title, sub]) => (
+            <span key={title} role="listitem">
+              <strong className="flinza-display">{title}</strong>
+              <em>{sub}</em>
+            </span>
+          ))}
         </div>
 
         {/* Founder Stories — the story ring sits directly above the voice notes (item 7).
@@ -1474,7 +1403,7 @@ export default function Page() {
         </div>
       </section>
 
-      <SectionThread label="Good Questions" variant={2} delay={0.1} />
+      <SectionLabel label="Good Questions" />
 
       {/* ════════════════════════════════════════════════════════════
            FAQ SECTION — ExpandOnHoverList × 4 (10 Questions)

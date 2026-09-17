@@ -3,6 +3,9 @@
 import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 import SiteGround from '@/components/SiteGround';
+import SiteHeader from '@/components/SiteHeader';
+import PageToc from '@/components/PageToc';
+import SiteFooter from '@/components/SiteFooter';
 
 const CamoLiquidButton = dynamic(
   () => import('@/components/CamoLiquidButton'),
@@ -493,6 +496,17 @@ export default function CareersPage() {
       }}
     >
       <SiteGround />
+      <SiteHeader active="/careers" />
+
+      {/* Careers is composition-led (intro, role list, apply), so its rail is declared. */}
+      <PageToc
+        label="Careers"
+        items={[
+          { id: 'careers-intro', label: 'The team' },
+          { id: 'careers-roles', label: 'Open roles' },
+          { id: 'careers-apply', label: 'Apply' },
+        ]}
+      />
       <style jsx global>{`
         .flinza-role-row .flinza-role-blurb {
           display: -webkit-box;
@@ -518,7 +532,7 @@ export default function CareersPage() {
       `}</style>
 
       {/* ── Header ── */}
-      <section style={{ maxWidth: 900, margin: '0 auto', padding: '120px 24px 56px', textAlign: 'center' }}>
+      <section id="careers-intro" style={{ maxWidth: 900, margin: '0 auto', padding: '120px 24px 56px', textAlign: 'center' }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: '#0E7C93', margin: '0 0 16px' }}>
           Careers
         </p>
@@ -531,7 +545,7 @@ export default function CareersPage() {
       </section>
 
       {/* ── Open roles ── */}
-      <section style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '0 24px 40px' }}>
+      <section id="careers-roles" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '0 24px 40px' }}>
         <div style={{ width: '100%', maxWidth: 1060 }}>
           <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#71717a', margin: '0 0 18px' }}>
             Open roles · {roles.length}
@@ -602,7 +616,7 @@ export default function CareersPage() {
       </section>
 
       {/* ── Apply CTA ── */}
-      <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, padding: '24px 24px 96px', textAlign: 'center' }}>
+      <section id="careers-apply" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, padding: '24px 24px 96px', textAlign: 'center' }}>
         <p style={{ fontSize: 14.5, color: '#71717a', margin: 0, maxWidth: 460, lineHeight: 1.6 }}>
           Don&apos;t see your role? Send us something that proves you can move a number — we read everything.
         </p>
@@ -633,6 +647,11 @@ export default function CareersPage() {
           ← Back to home
         </a>
       </div>
+
+      {/* This route renders its own frame rather than using PageShell, so it mounts the footer
+          itself. It had none, which meant a candidate who scrolled to the bottom of the page —
+          the exact person we want — found no way to see the work, the team or the legal pages. */}
+      <SiteFooter />
 
       {openRole && <ApplyBox role={openRole} onClose={() => setOpenRole(null)} />}
     </main>
