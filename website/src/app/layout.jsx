@@ -2,6 +2,7 @@ import './globals.css';
 /* Deliberately second: it carries the handful of rules that must beat declarations already set in
    globals.css or as inline styles. See the file header for what is in it and why. */
 import './overrides.css';
+import './hero.css';
 import RouteTransition from '@/components/RouteTransition';
 import SectionReveal from '@/components/SectionReveal';
 import JsonLd from '@/components/JsonLd';

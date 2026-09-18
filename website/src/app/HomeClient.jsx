@@ -371,18 +371,18 @@ export default function Page({ heroPhoto = null }) {
             <p className="flinza-hero-note">{POSITIONING}</p>
           </div>
 
+          {/* The claim stands between the head and the foot, where the reference puts its
+              wordmark: the middle of the frame, with air on both sides. The bottom edge is left
+              to the small text and the numbers, which is where the reference keeps its weight.
+              The two lines are separate blocks so the break belongs to the composition rather
+              than to whatever width the viewport happens to be. */}
+          <h1 className="flinza-hero-claim">
+            <span>Ecommerce growth,</span>
+            <em>engineered for profit.</em>
+          </h1>
+
           <div className="flinza-hero-bottom">
             <div className="flinza-hero-copy">
-              {/* No giant wordmark on the first screen, on the client's instruction — and he was
-                  right. The loudest element of a hero should be the claim, not the company's own
-                  name, so the h1 is the claim and the brand is the quiet label above it. The two
-                  lines are separate blocks so the break belongs to the composition rather than to
-                  whatever width the viewport happens to be. */}
-              <h1 className="flinza-hero-claim">
-                <span>Ecommerce growth,</span>
-                <em>engineered for profit.</em>
-              </h1>
-
               {/* One understated line. The long version of this paragraph lives on /services and
                   /about, where there is room for it; a hero that explains everything explains
                   nothing. The CTA is no longer here either — it is in the corner of the frame, and
@@ -392,7 +392,7 @@ export default function Page({ heroPhoto = null }) {
               </p>
 
               <a className="flinza-hero-scroll" href="#work">
-                <span aria-hidden="true">↓</span> Scroll
+                Scroll Down <span aria-hidden="true">↓</span>
               </a>
             </div>
 

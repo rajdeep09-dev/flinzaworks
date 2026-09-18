@@ -40,11 +40,14 @@ import { faqSchema, breadcrumbSchema } from '@/data/seo';
  * filesystem should fall back to the vector rather than fail the deploy.
  */
 const HERO_PHOTO_NAMES = [
-  'hero-silhouette.png',
-  'hero-silhouette.jpg',
-  'hero-silhouette.jpeg',
+  /* Modern formats first: `hero-silhouette.webp` is the shipping file (28 kB, generated from the
+   * 1.7 MB PNG master, which stays in the repo as the source of truth). A build that has only
+   * the PNG still works — it just serves the heavier file. */
   'hero-silhouette.webp',
   'hero-silhouette.avif',
+  'hero-silhouette.jpg',
+  'hero-silhouette.jpeg',
+  'hero-silhouette.png',
 ];
 
 function findHeroPhoto() {
