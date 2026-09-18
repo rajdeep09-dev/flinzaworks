@@ -1216,6 +1216,36 @@ select.flinza-talent-field option {
   }
 }
 
+/* ── The site credit, under the team band on /about ──
+ * Moved out of the shared footer at the client's request. One quiet line set like the
+ * scaleband's own caption: the label in the tracked small caps, the name and handle as links in
+ * the accent colour. `rel="me"` keeps the microformat that ties the page to the profile. */
+.flinza-creditband {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+  margin: clamp(18px, 3vw, 28px) auto 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.44);
+}
+.flinza-creditband a {
+  color: var(--aqua-deep);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(23, 132, 155, 0.35);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.flinza-creditband a:hover,
+.flinza-creditband a:focus-visible {
+  color: var(--ink);
+  border-color: currentColor;
+}
+
 /* Creator roster monograms. The roster is anonymised, so there is no portrait — an honest stand-in
  * that still gives the card a left edge to align to. */
 .flinza-roster-initials {

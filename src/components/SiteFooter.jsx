@@ -25,7 +25,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import CamoCtaButton from "./CamoCtaButton";
 import { MAILTO } from "@/lib/site";
-import { DEVELOPER } from "@/data/seo";
 
 /* The socials are lazy, and that is a performance decision rather than a nicety.
  *
@@ -174,19 +173,10 @@ export default function SiteFooter() {
         FLINZA WORKS
       </span>
 
-      {/* Who built this. One line, on every route, in the HTML rather than injected afterwards —
-          which is what makes "who made the flinzaworks website" answerable at all. The profile
-          link carries `rel="me"`, the microformat that links a page to the profile it belongs to,
-          and it points at the same Instagram URL as the Person node in the JSON-LD and the
-          /colophon page, so the three statements agree rather than compete. */}
-      <p className="flinza-foot-credit">
-        <span>Site design &amp; development by</span>
-        <Link href={DEVELOPER.path}>{DEVELOPER.name}</Link>
-        <span aria-hidden="true">·</span>
-        <a href={DEVELOPER.instagram} rel="me noopener noreferrer" target="_blank">
-          {DEVELOPER.instagramHandle}
-        </a>
-      </p>
+      {/* The site credit moved out of the footer at the client's request — it lives on /about,
+          under the team grid, where "who made this" reads as a fact about the studio rather than
+          as small print on every route. The Person entity (/colophon + JSON-LD + llms.txt) still
+          carries the same name, role and profile URL, so the structured answer is unchanged. */}
 
       <div className="flinza-foot-base">
         <span>

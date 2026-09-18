@@ -195,6 +195,24 @@ export default function AboutPage() {
         </p>
       </div>
 
+      {/* Who made this website. One quiet line under the team, on the page where "the people
+          behind the work" is the subject — not small print repeated on every route. The link
+          carries `rel="me"`, the microformat that ties this page to the profile it belongs to,
+          and it points at the same Instagram URL as the Person node in the JSON-LD and the
+          /colophon page, so the three statements agree rather than compete. */}
+      <p className="flinza-creditband">
+        <span>This website was designed &amp; built by</span>
+        <Link href="/colophon">Rajdeep Debnath</Link>
+        <span aria-hidden="true">·</span>
+        <a
+          href="https://instagram.com/rajdeep.0.21"
+          rel="me noopener noreferrer"
+          target="_blank"
+        >
+          @rajdeep.0.21
+        </a>
+      </p>
+
       <div className="flinza-section-title">
         <h2>Working with us</h2>
         <p>

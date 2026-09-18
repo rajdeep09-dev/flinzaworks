@@ -257,30 +257,30 @@
   max-width: 30ch;
 }
 
-/* The second small text — the narrow bottom-left column from the reference and
- * from the client's own mockup, at its size. */
+/* The second small text — the narrow bottom-left column from the reference, at its size:
+ * ~13–15px, four quiet lines, light weight. */
 .flinza-hero-interest {
   margin: 0;
   font-family: var(--font-ui);
-  font-size: clamp(12.5px, 1vw, 14.5px);
-  font-weight: 300;
-  line-height: 1.75;
-  color: rgba(9, 9, 11, 0.56);
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 400;
+  line-height: 1.7;
+  color: rgba(9, 9, 11, 0.58);
 }
 
-/* The third small text — "SCROLL DOWN ↓", uppercase and tracked like the
- * client's mockup. The arrow nudges on the compositor; the label never moves. */
+/* The third small text — the reference's "Scroll Down ↓" is sentence case at ~13px with no
+ * tracking; the uppercase micro-caps version read like a different design system. The arrow
+ * nudges on the compositor; the label never moves. */
 .flinza-hero-scroll {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: clamp(16px, 2.4vh, 26px);
+  margin-top: clamp(14px, 2.2vh, 24px);
   font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(9, 9, 11, 0.5);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: rgba(9, 9, 11, 0.62);
   text-decoration: none;
   transition: color 0.25s ease;
 }
@@ -303,43 +303,41 @@
   }
 }
 
-/* The numbers — ONE row, packed to the right edge, sentence-case labels under
- * each figure. This is the reference's stat row, and the change from the 2×2
- * uppercase block: same numbers as /about and the Organization schema (they
- * come from src/data/stats.js), different dress. */
+/* The numbers — ONE row, packed to the right edge, exactly like the reference: a bold figure
+ * with a sentence-case label under it, nothing tracked, nothing uppercase. Same numbers as
+ * /about and the Organization schema (they come from src/data/stats.js). */
 .flinza-hero-stats {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: flex-end;
-  gap: clamp(28px, 4.5vw, 72px);
+  gap: clamp(30px, 4.5vw, 76px);
 }
 .flinza-hero-stats li {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 7px;
   min-width: 0;
 }
 .flinza-hero-stats strong {
   font-family: var(--font-ui);
-  font-weight: 600;
-  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 700;
+  font-size: clamp(23px, 2.3vw, 32px);
   line-height: 1;
   letter-spacing: -0.01em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-/* The labels read uppercase and tracked in the client's mockup — smaller than
- * the sentence-case version, quieter, and applied here so stats.js stays the
- * single source of the wording. */
+/* The reference's labels are sentence case at roughly 14px — larger and quieter than the
+ * uppercase micro-caps this used to wear, and applied here so stats.js stays the single
+ * source of the wording. */
 .flinza-hero-stats span {
   font-family: var(--font-ui);
-  font-size: clamp(10px, 0.8vw, 11.5px);
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(9, 9, 11, 0.5);
+  font-size: clamp(11.5px, 0.95vw, 14px);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgba(9, 9, 11, 0.55);
   white-space: nowrap;
 }
 
@@ -426,17 +424,17 @@
     line-height: 1.62;
   }
   .flinza-hero-scroll {
-    margin-top: 14px;
-    font-size: 10px;
+    margin-top: 12px;
+    font-size: 12px;
   }
   .flinza-hero-stats {
-    gap: 12px 16px;
+    gap: 14px 18px;
   }
   .flinza-hero-stats strong {
-    font-size: 21px;
+    font-size: 22px;
   }
   .flinza-hero-stats span {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
@@ -456,5 +454,355 @@
 @media (prefers-reduced-motion: reduce) {
   .flinza-hero-scroll span {
     animation: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ * THE PROOF BAND — marquee · statement · clients
+ * ════════════════════════════════════════════════════════════════════════
+ *
+ * Replaces the founder-stories video mosaic. Three stacked elements:
+ *
+ *   1. a capabilities marquee — one composited transform, paused on hover,
+ *   2. the positioning statement with its market column (the sentence reused
+ *      verbatim on /about and in the schema, so the wording stays consistent
+ *      for answer engines),
+ *   3. the client cards — anonymised sectors with the results those accounts
+ *      produced, linked to /work where the numbers are stated in full.
+ *
+ * Everything here is static layout and one CSS animation — no video elements,
+ * no lazy mount gates, no WebGL. The band got LIGHTER than what it replaced.
+ * ════════════════════════════════════════════════════════════════════ */
+
+.flinza-proof-band {
+  width: 100%;
+  padding: clamp(56px, 8vh, 96px) 0 clamp(72px, 10vh, 128px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── 1. The capabilities marquee ──
+ * The band's top rule. Items run right-to-left and wrap seamlessly (the track
+ * holds two copies of the list, each 50% of the track, translated by -50%). */
+
+.flinza-proof-marquee {
+  width: 100%;
+  overflow: hidden;
+  border-top: 1px solid rgba(9, 9, 11, 0.12);
+  border-bottom: 1px solid rgba(9, 9, 11, 0.12);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+
+.flinza-proof-track {
+  display: flex;
+  width: max-content;
+  animation: flinza-proof-scroll 38s linear infinite;
+}
+.flinza-proof-marquee:hover .flinza-proof-track {
+  animation-play-state: paused;
+}
+
+.flinza-proof-track ul {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flinza-proof-track li {
+  flex: none;
+  padding: 18px clamp(22px, 3vw, 42px);
+  font-family: var(--font-ui);
+  font-size: clamp(12px, 1.1vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(9, 9, 11, 0.62);
+}
+
+.flinza-proof-track li + li {
+  border-left: 1px solid rgba(9, 9, 11, 0.1);
+}
+
+@keyframes flinza-proof-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ── 2. The statement ──
+ * The market column sits left, the sentence right — the reference's two-column
+ * statement block. The em keeps the serif accent the site's headings use; the
+ * closing span is the greyed run, like the reference's fading second half. */
+
+.flinza-proof-statement {
+  width: 100%;
+  max-width: 1080px;
+  margin: clamp(48px, 7vh, 88px) auto clamp(56px, 8vh, 104px);
+  padding: 0 clamp(20px, 4vw, 40px);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+.flinza-proof-meta {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.flinza-proof-meta li {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.4);
+}
+
+.flinza-proof-statement h2 {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: clamp(22px, 2.6vw, 34px);
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.flinza-proof-statement h2 em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--aqua-deep);
+}
+
+.flinza-proof-statement h2 span {
+  color: rgba(9, 9, 11, 0.42);
+}
+
+/* ── 3. The clients ──
+ * “Our Clients” with the count note on the right — the reference's header pair —
+ * then a full-bleed row of cards that scrolls horizontally on phones. No logos:
+ * the cards are anonymised descriptors plus the result each account produced,
+ * which is the honest version of a logo wall. */
+
+.flinza-proof-head {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto clamp(24px, 4vh, 40px);
+  padding: 0 clamp(20px, 4vw, 40px);
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.flinza-proof-head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.flinza-proof-head p {
+  margin: 0;
+  max-width: 40ch;
+  text-align: right;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(9, 9, 11, 0.5);
+}
+
+.flinza-proof-head p a {
+  color: var(--aqua-deep);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(23, 132, 155, 0.35);
+  white-space: nowrap;
+}
+.flinza-proof-head p a:hover,
+.flinza-proof-head p a:focus-visible {
+  color: var(--ink);
+  border-color: currentColor;
+}
+
+.flinza-proof-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 32px);
+  box-sizing: border-box;
+}
+
+.flinza-proof-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: clamp(20px, 2.4vw, 30px);
+  border-radius: 20px;
+  box-sizing: border-box;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+  border: 1px solid rgba(9, 9, 11, 0.08);
+  text-decoration: none;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.flinza-proof-card:hover,
+.flinza-proof-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(23, 132, 155, 0.35);
+  box-shadow: 0 18px 44px rgba(9, 40, 50, 0.08);
+}
+
+.flinza-proof-index {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--aqua-deep);
+  margin-bottom: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.flinza-proof-sector {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: clamp(16px, 1.5vw, 19px);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.flinza-proof-role {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 300;
+  color: rgba(9, 9, 11, 0.5);
+}
+
+.flinza-proof-result {
+  margin-top: auto;
+  padding-top: 18px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+}
+
+/* ── Mobile ──
+ * The statement stacks (column above sentence), the cards become a swipe row
+ * with scroll-snap — four cards across a 360px screen would be a label-abbreviation
+ * exercise. The marquee keeps running: it is the band's own texture. */
+
+@media (max-width: 1024px) {
+  .flinza-proof-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .flinza-proof-band {
+    padding: clamp(44px, 7vh, 72px) 0 clamp(56px, 8vh, 88px);
+  }
+
+  .flinza-proof-statement {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    margin: clamp(36px, 5vh, 56px) auto clamp(40px, 6vh, 64px);
+  }
+  .flinza-proof-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    padding-top: 0;
+  }
+  .flinza-proof-statement h2 {
+    font-size: clamp(19px, 5.4vw, 24px);
+    line-height: 1.4;
+  }
+
+  .flinza-proof-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .flinza-proof-head p {
+    text-align: left;
+  }
+
+  .flinza-proof-cards {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    padding-bottom: 6px;
+  }
+  .flinza-proof-cards::-webkit-scrollbar {
+    display: none;
+  }
+  .flinza-proof-card {
+    flex: 0 0 min(78vw, 300px);
+    scroll-snap-align: start;
+  }
+  /* Hover lift has no meaning behind a finger; keep taps still. */
+  .flinza-proof-card:hover {
+    transform: none;
+  }
+  .flinza-proof-card:active {
+    transform: scale(0.985);
+  }
+}
+
+@media (max-width: 480px) {
+  .flinza-proof-track li {
+    padding: 14px 20px;
+    font-size: 11px;
+  }
+  .flinza-proof-head h3 {
+    font-size: clamp(32px, 9vw, 40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-proof-track {
+    animation: none;
+    /* Without the animation the duplicated copy would sit exposed next to the
+     * first list — hide the second copy instead. */
+  }
+  .flinza-proof-track ul[aria-hidden='true'] {
+    display: none;
+  }
+  .flinza-proof-card,
+  .flinza-proof-card:hover {
+    transition: none;
+    transform: none;
   }
 }

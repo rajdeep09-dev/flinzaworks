@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
 import { faqItems } from '@/data/faqs';
@@ -10,6 +11,9 @@ import { faqItems } from '@/data/faqs';
 import { STATS, POSITIONING } from '@/data/stats';
 import { carouselProjects } from '@/data/projects';
 import { founderStories } from '@/data/stories';
+/* The proof band that replaced the founder-stories mosaic: capabilities, anonymised clients.
+   Same honesty rules as the case studies — no invented brands, no invented numbers. */
+import { PROOF_CAPABILITIES, PROOF_CARDS } from '@/data/proofband';
 import { row1Cards, row2Cards } from '@/data/serviceCards';
 import SectionLabel from '@/components/SectionLabel';
 import FaqList from '@/components/FaqList';
@@ -51,14 +55,6 @@ const TableOfContent = dynamic(
   }
 );
 
-
-const TheaterVideoPlayer = dynamic(
-  () => import('@/components/TheaterVideoPlayer'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
 
 const WhatsApAudioPlayer = dynamic(
   () => import('@/components/WhatsappAudioPlayer'),
@@ -149,7 +145,7 @@ export default function Page({ heroPhoto = null }) {
   const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
 
   // Lazy-mount anchors — the only refs this page still needs.
-  const [storiesMountRef, storiesInView] = useInView();
+  const [storiesMountRef] = useInView();
   const [servicesMountRef, servicesInView] = useInView();
   const [testimonialsMountRef, testimonialsInView] = useInView();
   const [faqMountRef, faqInView] = useInView();
@@ -485,7 +481,7 @@ export default function Page({ heroPhoto = null }) {
               Hidden while a case study is open, and it stays out of the ring's pointer area. */}
           <a
             href="#stories"
-            aria-label="Continue to founder stories"
+            aria-label="Continue — capabilities and clients"
             className="flinza-work-next"
             style={{
               opacity: focusedCaseStudy ? 0 : undefined,
@@ -541,221 +537,70 @@ export default function Page({ heroPhoto = null }) {
         />
       </nav>
 
-      {/* Founder Stories Section: Seamless Rectangular Puzzle Mosaic of Videos */}
+      {/* ════════════════════════════════════════════════════════════
+           THE PROOF BAND — replaces the founder-stories video mosaic
+      ════════════════════════════════════════════════════════════ */}
+      {/* Three stacked elements: a capabilities marquee, the studio's positioning statement with
+          its market column, and the client cards. Every number in the cards is the same figure
+          its case study states — no invented brands, no invented results. The marquee is
+          aria-hidden decoration; the services section below carries the same capabilities in
+          real markup for crawlers. The section keeps id="stories" — the onward arrow, the TOC
+          and the schema breadcrumbs all point at it. */}
       <section
         id="stories"
         ref={storiesMountRef}
-        style={{
-          width: '100%',
-          minHeight: '100vh',
-          padding: '120px 24px 140px',
-          boxSizing: 'border-box',
-          backgroundColor: 'transparent',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 1,
-        }}
+        className="flinza-proof-band"
+        aria-labelledby="proof-title"
       >
-        {/* Section Header */}
-        <div style={{
-          textAlign: 'center',
-          maxWidth: 860,
-          marginBottom: 88,
-        }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '6px 16px',
-            borderRadius: 999,
-            backgroundColor: 'rgba(255, 255, 255, 0.75)',
-            border: '1px solid rgba(23, 132, 155, 0.3)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.1)',
-            marginBottom: 18,
-          }}>
-            <span style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              backgroundColor: '#17849B',
-              boxShadow: '0 0 8px #17849B',
-            }} />
-            <span style={{
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: '#4b5563',
-            }}>
-              Case Studies • Theater Mode
-            </span>
+        {/* The capabilities marquee — pure CSS, one composited transform, paused on hover and
+            under prefers-reduced-motion. Duplicated track = seamless wrap. */}
+        <div className="flinza-proof-marquee" aria-hidden="true">
+          <div className="flinza-proof-track">
+            {[0, 1].map((copy) => (
+              <ul key={copy} aria-hidden={copy === 1 || undefined}>
+                {PROOF_CAPABILITIES.map((item) => (
+                  <li key={`${copy}-${item}`}>{item}</li>
+                ))}
+              </ul>
+            ))}
           </div>
-
-          <h2 style={{
-            fontSize: 'clamp(34px, 5.2vw, 56px)',
-            fontWeight: 700,
-            letterSpacing: '-0.035em',
-            lineHeight: 1.08,
-            color: '#09090b',
-            margin: '0 0 16px',
-            fontFamily: "'Nohemi', sans-serif",
-          }}>
-            <FluidText text="Verified Results, Not Promises" />
-          </h2>
-          <p style={{
-            fontSize: 'clamp(16px, 1.8vw, 19px)',
-            color: '#52525b',
-            lineHeight: 1.6,
-            margin: 0,
-            fontWeight: 400,
-            maxWidth: 680,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}>
-            Real campaigns across paid media, creative and content — see how we test, learn and scale ecommerce brands.
-          </p>
         </div>
 
-        {/* Flush Rectangular Puzzle Grid with Hand-Drawn Doodles */}
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: 1480,
-            margin: '0 auto',
-          }}
-        >
-{/* Enlarged Flush Rectangular Puzzle Grid */}
-          <div
-            className="flinza-story-grid"
-            style={{
-              width: '100%',
-              height: 740,
-              display: 'grid',
-              gridTemplateColumns: 'minmax(360px, 480px) 1fr 1fr',
-              gridTemplateRows: '1fr 1fr',
-              gap: 18,
-              boxSizing: 'border-box',
-            }}
-          >
-            {/* Tile 1: Tall Vertical Video (Spans Columns 1, Rows 1 & 2) */}
-            <div style={{ gridColumn: '1 / 2', gridRow: '1 / 3', width: '100%', height: '100%' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
-              {storiesInView ? <TheaterVideoPlayer
-                videoUrl="/videos/story1.mp4"
-                thumbnail={{ src: '/images/poster_1.webp', alt: 'Founder story' }}
-                aspectRatio="fill"
-                loop={true}
-                mutedByDefault={true}
-                autoplay={false}
-                autoHideControls={true}
-                borderRadius={20}
-                padding={0}
-                borderOpacity={0}
-                backgroundColor="transparent"
-                blurAmount={0}
-                style={{ width: '100%', height: '100%' }}
-              /> : null}</div>
-              <div className="flinza-story-cap">
-                <p className="flinza-story-quote flinza-display">“Structured, clear and refreshingly straightforward — our ideas actually became the work.”</p>
-                {/* Attributed by role and sector, with no face. The avatars these captions used
-                    to carry were the team's own photographs, reused as four different clients. */}
-                <div className="flinza-story-who">
-                  <span className="flinza-story-name">Founder</span>
-                  <span className="flinza-story-role">DTC home &amp; interiors brand</span>
-                </div>
-                <span className="flinza-story-stat">3.4× return in 90 days</span>
-              </div>
-            </div>
+        {/* The statement — POSITIONING is the sentence reused verbatim on /about and in the
+            schema, and the market list is the same MARKETS column the client reference runs. */}
+        <div className="flinza-proof-statement">
+          <ul className="flinza-proof-meta">
+            {['Since 2019', 'USA', 'Europe', 'UK', 'Middle East'].map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <h2 id="proof-title">
+            We don’t do generic. Every brand we touch gets a strategy built from scratch,{' '}
+            <em>obsessed with data</em>, and executed with precision,{' '}
+            <span>until the numbers actually move.</span>
+          </h2>
+        </div>
 
-            {/* Tile 2: Square Video (Row 1, Column 2) */}
-            <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', width: '100%', height: '100%' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
-              {storiesInView ? <TheaterVideoPlayer
-                videoUrl="/videos/story2.mp4"
-                thumbnail={{ src: '/images/poster_2.webp', alt: 'Campaign story' }}
-                aspectRatio="fill"
-                loop={true}
-                mutedByDefault={true}
-                autoplay={false}
-                autoHideControls={true}
-                borderRadius={20}
-                padding={0}
-                borderOpacity={0}
-                backgroundColor="transparent"
-                blurAmount={0}
-                style={{ width: '100%', height: '100%' }}
-              /> : null}</div>
-              <div className="flinza-story-cap">
-                <p className="flinza-story-quote flinza-display">“CAC dropped inside the first month and it held through two seasonal spikes.”</p>
-                <div className="flinza-story-who">
-                  <span className="flinza-story-name">Ecommerce Director</span>
-                  <span className="flinza-story-role">DTC supplements brand · 8-figure</span>
-                </div>
-                <span className="flinza-story-stat">−31% cost per acquisition</span>
-              </div>
-            </div>
-
-            {/* Tile 3: Square/Action Video (Row 1, Column 3) */}
-            <div style={{ gridColumn: '3 / 4', gridRow: '1 / 2', width: '100%', height: '100%' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
-              {storiesInView ? <TheaterVideoPlayer
-                videoUrl="/videos/story3.mp4"
-                thumbnail={{ src: '/images/poster_3.webp', alt: 'Production story' }}
-                aspectRatio="fill"
-                loop={true}
-                mutedByDefault={true}
-                autoplay={false}
-                autoHideControls={true}
-                borderRadius={20}
-                padding={0}
-                borderOpacity={0}
-                backgroundColor="transparent"
-                blurAmount={0}
-                style={{ width: '100%', height: '100%' }}
-              /> : null}</div>
-              <div className="flinza-story-cap">
-                <p className="flinza-story-quote flinza-display">“Six weeks of production became forty-eight hours. We test more in a week than we shipped in a quarter.”</p>
-                <div className="flinza-story-who">
-                  <span className="flinza-story-name">Brand Director</span>
-                  <span className="flinza-story-role">DTC fashion brand · $12M/yr</span>
-                </div>
-                <span className="flinza-story-stat">48-hour production cycles</span>
-              </div>
-            </div>
-
-            {/* Tile 4: Wide Panoramic Video (Row 2, Spans Columns 2 & 3) */}
-            <div style={{ gridColumn: '2 / 4', gridRow: '2 / 3', width: '100%', height: '100%' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
-              {storiesInView ? <TheaterVideoPlayer
-                videoUrl="/videos/story4.mp4"
-                thumbnail={{ src: '/images/poster_4.webp', alt: 'Scale story' }}
-                aspectRatio="fill"
-                loop={true}
-                mutedByDefault={true}
-                autoplay={false}
-                autoHideControls={true}
-                borderRadius={20}
-                padding={0}
-                borderOpacity={0}
-                backgroundColor="transparent"
-                blurAmount={0}
-                style={{ width: '100%', height: '100%' }}
-              /> : null}</div>
-              <div className="flinza-story-cap">
-                <p className="flinza-story-quote flinza-display">“We stopped paying per video and waiting on creators. The only bottleneck now is how fast we can test.”</p>
-                <div className="flinza-story-who">
-                  <span className="flinza-story-name">Head of Growth</span>
-                  <span className="flinza-story-role">Multi-brand ecommerce portfolio</span>
-                </div>
-                <span className="flinza-story-stat">10× more angles tested</span>
-              </div>
-            </div>
-          </div>
+        {/* The clients — “Our Clients”, but honest: no logos of brands that never signed off,
+            just the sectors we work in with the results those accounts produced. */}
+        <div className="flinza-proof-head">
+          <h3>Our Clients</h3>
+          <p>
+            Anonymised out of respect for the accounts — every result below is stated the same way
+            in its case study. <Link href="/work">Read the eight levers →</Link>
+          </p>
+        </div>
+        <div className="flinza-proof-cards">
+          {PROOF_CARDS.map((card) => (
+            <Link key={card.index} href="/work" className="flinza-proof-card">
+              <span className="flinza-proof-index" aria-hidden="true">
+                {card.index}
+              </span>
+              <span className="flinza-proof-sector">{card.sector}</span>
+              <span className="flinza-proof-role">{card.role}</span>
+              <span className="flinza-proof-result">{card.result}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
