@@ -46,12 +46,43 @@
   background-size: cover;
 }
 
-/* The real photograph (28 kB WebP), resolved at build time. Anchored at 32% so
+/* The real photograph (28 kB WebP), resolved at build time. Anchored at 40% so
  * the bloom and the head stay in frame on tall screens — bottom-anchoring would
- * crop the sky and leave the figure headless on a phone. */
+ * crop the sky and leave the figure headless on a phone.
+ *
+ * The mask is the first half of the hero-to-page dissolve: the photo fades out
+ * over its last quarter, so the figure never meets the section below on a hard
+ * edge — it thins into the paper. */
 .flinza-hero-photo {
   background-position: 50% 40%;
   background-size: cover;
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 99%);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 99%);
+}
+
+/* The second half of the dissolve: a fog band pinned to the hero's foot. Its
+ * backdrop-filter genuinely BLURS the figure and the bloom underneath it, and
+ * its gradient washes that blurred remnant into the paper colour the next
+ * section sits on. One static layer, no animation on it — the cost is one
+ * raster while it is on screen, which is what every frosted app header already
+ * spends. It sits above the photo and below the scrim. */
+.flinza-hero-fog {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: clamp(120px, 24vh, 220px);
+  z-index: 0;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.65) 45%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.65) 45%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(251, 252, 253, 0.92) 0%,
+    rgba(251, 252, 253, 0) 100%
+  );
 }
 
 /* The vector underneath is a fallback for builds without the photograph, and
@@ -92,19 +123,17 @@
   gap: clamp(32px, 8vh, 96px);
 }
 
-/* ── The top rule ── */
+/* ── The top rule ──
+ *
+ * The brand label and the call pill no longer live inside the hero — they are
+ * in the fixed chrome row, vertically centred on the metal mark, which is the
+ * alignment the client asked for ("flinza and our logo and the get contact
+ * button should be aligned with the metallic logo"). The head group carries
+ * only the positioning note. */
 
 .flinza-hero-head {
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2.6vh, 30px);
-}
-
-.flinza-hero-top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 24px;
 }
 
 .flinza-hero-brand {
@@ -147,28 +176,33 @@
   transform: translate3d(1px, -1px, 0);
 }
 
-/* The client's own line, right-aligned under the top rule. */
+/* The client's own line, right-aligned under the top rule — small on purpose.
+ * The reference runs three quiet texts and none of them is bigger than ~13px;
+ * this is the first of the three. */
 .flinza-hero-note {
   margin: 0;
-  max-width: 40ch;
+  max-width: 34ch;
   align-self: flex-end;
   text-align: right;
   font-family: var(--font-display);
-  font-size: clamp(13.5px, 1.05vw, 15.5px);
+  font-size: clamp(11px, 0.85vw, 13px);
   font-style: italic;
-  line-height: 1.62;
-  color: rgba(9, 9, 11, 0.5);
+  line-height: 1.7;
+  color: rgba(9, 9, 11, 0.46);
 }
 
 /* ── The claim, in the middle of the frame ── */
 
+/* The claim — deliberately not a shout. The client cut the 88px version:
+ * "minimal". This is a statement set at roughly half that ceiling, still the
+ * largest type on the screen but no longer the loudest thing in the room. */
 .flinza-hero-claim {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(36px, 5.9vw, 88px);
-  line-height: 0.99;
-  letter-spacing: -0.038em;
+  font-size: clamp(33px, 4.4vw, 62px);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
   color: var(--ink);
 }
 .flinza-hero-claim span,
@@ -191,30 +225,33 @@
 
 .flinza-hero-copy {
   min-width: 0;
-  max-width: 38ch;
+  max-width: 30ch;
 }
 
+/* The second small text — the narrow bottom-left column from the reference and
+ * from the client's own mockup, at its size. */
 .flinza-hero-interest {
   margin: 0;
   font-family: var(--font-ui);
-  font-size: clamp(14px, 1.1vw, 16px);
+  font-size: clamp(12.5px, 1vw, 14.5px);
   font-weight: 300;
-  line-height: 1.7;
-  color: rgba(9, 9, 11, 0.6);
+  line-height: 1.75;
+  color: rgba(9, 9, 11, 0.56);
 }
 
-/* "Scroll Down ↓" — the reference's cue: label first, arrow after. The arrow
- * nudges on the compositor; the label itself never moves. */
+/* The third small text — "SCROLL DOWN ↓", uppercase and tracked like the
+ * client's mockup. The arrow nudges on the compositor; the label never moves. */
 .flinza-hero-scroll {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin-top: clamp(16px, 2.4vh, 26px);
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  color: rgba(9, 9, 11, 0.52);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.5);
   text-decoration: none;
   transition: color 0.25s ease;
 }
@@ -258,18 +295,22 @@
 .flinza-hero-stats strong {
   font-family: var(--font-ui);
   font-weight: 600;
-  font-size: clamp(22px, 2.4vw, 32px);
+  font-size: clamp(22px, 2.2vw, 30px);
   line-height: 1;
   letter-spacing: -0.01em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
+/* The labels read uppercase and tracked in the client's mockup — smaller than
+ * the sentence-case version, quieter, and applied here so stats.js stays the
+ * single source of the wording. */
 .flinza-hero-stats span {
   font-family: var(--font-ui);
-  font-size: clamp(12.5px, 0.95vw, 14.5px);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  color: rgba(9, 9, 11, 0.55);
+  font-size: clamp(10px, 0.8vw, 11.5px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.5);
   white-space: nowrap;
 }
 
@@ -290,16 +331,11 @@
     align-items: flex-start;
     gap: 34px;
   }
-  .flinza-hero-top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-  }
   .flinza-hero-note {
     max-width: 100%;
     align-self: flex-start;
     text-align: left;
-    font-size: 13.5px;
+    font-size: 12px;
   }
 
   .flinza-hero-scrim {
@@ -354,15 +390,15 @@
     gap: 20px;
   }
   .flinza-hero-claim {
-    font-size: clamp(30px, 8.8vw, 40px);
+    font-size: clamp(28px, 8.2vw, 38px);
   }
   .flinza-hero-interest {
-    font-size: 13.5px;
-    line-height: 1.56;
+    font-size: 13px;
+    line-height: 1.62;
   }
   .flinza-hero-scroll {
-    margin-top: 12px;
-    font-size: 11px;
+    margin-top: 14px;
+    font-size: 10px;
   }
   .flinza-hero-stats {
     gap: 12px 16px;

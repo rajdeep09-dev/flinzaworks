@@ -245,24 +245,28 @@ export default function Page({ heroPhoto = null }) {
         />
       </div>
 
-      {/* Pinned Minimal Header Nav Bar with Liquid Metal Logo — hero only, so it never collides with section content or the focused overlay */}
+      {/* Pinned hero chrome. The reference's top rule is ONE line — label left, mark centre,
+          call pill right — so all three live in this fixed row and share its height. It belongs
+          to the hero only: it fades out with the hero and steps out of the way of the focused
+          case study below the fold. */}
       <header style={{
         position: 'fixed',
-        top: 24,
-        left: '50%',
-        transform: focusedCaseStudy ? 'translateX(-50%) scale(0.82)' : 'translateX(-50%) scale(1)',
+        top: 'calc(18px + env(safe-area-inset-top, 0px))',
+        left: 0,
+        right: 0,
         zIndex: 100,
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto 1fr',
         alignItems: 'center',
-        justifyContent: 'center',
-        /* The header belongs to the hero, so it also has to step out of the way of the focused case
-           study. It is `position: fixed` at z-index 100 while the stage is absolutely positioned
-           inside the hero's own stacking context, so the metal mark painted straight over the open
-           case study — the one piece of chrome on the screen that has no business being there. */
+        padding: '0 calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-right, 0px)) 0 calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-left, 0px))',
         pointerEvents: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 'auto' : 'none',
         opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
-        transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
+        <a href="#hero" className="flinza-hero-brand" style={{ textDecoration: 'none', justifySelf: 'start' }}>
+          Flinza
+        </a>
+
         <a
           href="#hero"
           aria-label="Home"
@@ -298,6 +302,20 @@ export default function Page({ heroPhoto = null }) {
             patternScale={2}
             imageSource="/images/flinza_logo_hd.png"
           />
+        </a>
+
+        <a className="flinza-hero-call" href="/contact" style={{ textDecoration: 'none', justifySelf: 'end' }}>
+          Get on a call
+          <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false">
+            <path
+              d="M3.4 8.6 8.6 3.4M4.5 3.4h4.1v4.1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </a>
       </header>
 
@@ -341,33 +359,16 @@ export default function Page({ heroPhoto = null }) {
             style={{ backgroundImage: `url("${heroPhoto}")` }}
           />
         ) : null}
+        {/* The dissolve: blurs the figure's foot and washes it into the paper colour the
+            "Selected work" band sits on, so the hero releases into the page instead of ending. */}
+        <div className="flinza-hero-fog" aria-hidden="true" />
         <div className="flinza-hero-scrim" aria-hidden="true" />
 
         <div className="flinza-hero-inner">
-          {/* The two ends of the top rule: who we are on the left, and the line the client wrote
-              himself on the right. */}
+          {/* The client's own line, top-right — the first of the hero's three small texts. The
+              brand label and the call pill live in the fixed chrome row above (aligned with the
+              metal mark), so the head group carries only this. */}
           <div className="flinza-hero-head">
-            <div className="flinza-hero-top">
-              <p className="flinza-hero-brand">Flinza</p>
-
-              <a className="flinza-hero-call" href="/contact">
-                Get on a call
-                <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false">
-                  <path
-                    d="M3.4 8.6 8.6 3.4M4.5 3.4h4.1v4.1"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
-            </div>
-
-            {/* The client's own line, set right under the top rule. Grouped with it rather than
-                left to the hero's `space-between`, or it would float in the middle of the frame
-                with nothing to anchor it. */}
             <p className="flinza-hero-note">{POSITIONING}</p>
           </div>
 
