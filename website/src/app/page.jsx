@@ -60,15 +60,17 @@ function findHeroPhoto() {
 }
 
 export const metadata = {
-  /* Primary keyword first, brand second. Two things are deliberate here:
+  /* Brand first, then the primary keyword. Two things are deliberate here:
 
-     1. The brand is NOT in this string. `layout.jsx` sets `title.template: '%s | Flinza Works'`,
-        so writing it here as well renders "… | Flinza Works | Flinza Works". The template appends
-        it, and openGraph.title (below) says it in full because og:title is never templated.
+     1. The template in `layout.jsx` (`'%s | Flinza Works'`) appends the brand to nested segments
+        only — App Router does not template a page that shares its segment with the layout, which
+        is precisely this file. So the homepage has to say "Flinza Works" itself; leaving it out
+        (and trusting the template) is how the one page a brand search lands on ended up with no
+        brand in its title at all. Brand first also serves the entity signal the brief asked for.
      2. The client's brief asked for a title ending in "…Meta Ads, Creative Testing & Creator-Led
         Content". That runs to 87 characters and is truncated in a result, so those keywords are
         carried in the description instead, where nothing is cut off. */
-  title: 'Ecommerce Growth Agency for DTC Brands',
+  title: 'Flinza Works — Ecommerce Growth Agency for DTC Brands',
   description:
     'Flinza Works is an ecommerce growth agency for DTC brands spending $50K+ a month: Meta ads, creative testing, creator and founder content. Book a call.',
   alternates: { canonical: '/' },

@@ -358,15 +358,19 @@ body {
     min-height: 100svh;
   }
 }
+/* One screen, not one and a third. At 133.333vh the claim sat BELOW the fold on every laptop — the
+ * composition had to be scrolled to before it could be read, which is the opposite of what a hero
+ * is for. This is a `min-height`, so a viewport too short for the type still lets the box grow and
+ * nothing is ever cut off. */
 @media (min-width: 1024px) and (pointer: fine) {
   .flinza-hero-stage {
-    min-height: 133.333vh;
+    min-height: 100vh;
   }
 }
 @supports (min-height: 100svh) {
   @media (min-width: 1024px) and (pointer: fine) {
     .flinza-hero-stage {
-      min-height: 133.333svh;
+      min-height: 100svh;
     }
   }
 }
@@ -431,36 +435,144 @@ body {
   gap: clamp(36px, 9vh, 108px);
 }
 
-/* The label lockup. Two letter-spaced words and a hairline between them: a signature, not a
- * headline. It is the only place the brand name appears in the hero. */
-.flinza-hero-kicker {
+/* ══ 22. The left rails get a lane, and no page content enters it ══════════
+ * Both rails are `position: fixed` at `left: clamp(18px, 2.4vw, 34px)`, and the section rail clips
+ * its own labels at `max-width: 208px` — so its right edge is exactly 34 + 208 = 242px at every
+ * desktop width. The pages, meanwhile, were designed on a 56px gutter, which left fourteen routes
+ * with a 208px rail resting on their content: on /services and /work the widest centred blocks were
+ * overlapped by more than 110px, and the same rail crossed footer copy on every route.
+ *
+ * The fix is not to shrink the rail — its labels are the page's own headings — but to give it a lane
+ * the content does not enter. Three things make that less obvious than it sounds:
+ *
+ *  1. A `max-width`-capped block is CENTRED, so page padding stops moving it as soon as the viewport
+ *     is wider than the cap. Padding alone would therefore have fixed nothing above roughly 1660px.
+ *     The reserve below is sized so the wrapper stays padding-bound at every width the rail exists:
+ *     at 1181px the content box is 681px, still under the 1180px cap, so its left edge lands exactly
+ *     on the reserve. Past 1660px centring takes over and the edge only moves further right.
+ *
+ *  2. It has to be symmetric. Reserving on the left alone would centre the column 97px right of the
+ *     viewport centre while the header's metal mark stays pinned at `left: 50%`, so the mark would
+ *     sit visibly off the axis of the content it belongs to. Equal insets keep the column centred on
+ *     the mark — which is why this reads as a margin rather than a bug.
+ *
+ *  3. The rails stand down below their own breakpoints (1180px here, 1100px for the home page's),
+ *     and every rule below is `min-width` on that same number — so the lane and the rail appear and
+ *     disappear together, and a phone never pays for either.
+ */
+@media (min-width: 1181px) {
+  .flinza-shell-main,
+  .flinza-contact-page,
+  .flinza-careers-main {
+    padding-inline: 250px; /* 242px of rail + 8px of air */
+  }
+}
+
+/* The home page's rail is the vendored table of contents: `left: 28px` and `width: min-content`
+ * around a 12px tick, an 8px gap and a 13px uppercase label — 110px of footprint at its widest
+ * label ("SERVICES"). 130px clears it with room, and costs the page far less than the inner routes
+ * pay. */
+@media (min-width: 1101px) {
+  .flinza-home-main {
+    /* `!important` because this element carries `padding: 0` as an inline style. */
+    padding-inline: 130px !important;
+  }
+
+  /* The hero is the one band that must stay edge to edge. Its art is an absolutely positioned
+     `inset: 0` child, so it paints the stage's own box — any inset crops the glow and re-fits its
+     `background-size: cover`. Pulling the stage back out with negative margins hands the art the
+     full viewport while every other band keeps the lane. `width: auto` is load-bearing: at `100%`
+     the stage resolves against the content box and lands 130px short on one side. */
+  .flinza-home-main > .flinza-hero-stage {
+    width: auto;
+    margin-inline: -130px;
+  }
+
+  /* ...so the hero's copy takes the inset instead. Applied to a centred block inside a padded
+     parent it resolves to a constant 160px left edge at every width — 64px of stage padding plus
+     half of the 320px cap — against a rail that ends at 110px. The claim can never be reached by
+     the rail, and the art is never cropped to achieve it. */
+  .flinza-home-main > .flinza-hero-stage .flinza-hero-inner {
+    max-width: min(1240px, calc(100vw - 320px));
+  }
+}
+
+/* The brand label. One word, upper case, widely letter-spaced — how the client's own reference
+ * sets the mark, and the only place the brand name appears in the hero. Lower case in the markup,
+ * so a screen reader says "Flinza" instead of spelling out five capitals. */
+.flinza-hero-brand {
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
   font-family: var(--font-ui);
-  font-size: clamp(10px, 0.95vw, 12px);
-  font-weight: 600;
-  letter-spacing: 0.26em;
+  font-size: clamp(11px, 0.86vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* The one action, in the corner the reference puts it: a hairline capsule, deliberately not a
+ * filled button. The camo shader stays reserved for the header, so the two never compete.
+ *
+ * Named `-call` rather than `-cta` on purpose: globals.css still carries a `.flinza-hero-cta`
+ * rule (`bottom: 4.2%`) from the original Framer export, whose element no longer exists.
+ * `bottom` is inert on a static box, so the collision would have been invisible — until someone
+ * gave this element a position and a dead rule from a previous design moved the CTA. */
+.flinza-hero-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border: 1px solid rgba(9, 9, 11, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.44);
+  font-family: var(--font-ui);
+  font-size: clamp(11.5px, 0.86vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+.flinza-hero-call svg {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-hero-call:hover,
+.flinza-hero-call:focus-visible {
+  border-color: rgba(10, 62, 76, 0.42);
+  background: rgba(255, 255, 255, 0.72);
   color: #0a3e4c;
 }
-.flinza-hero-kicker span {
-  padding-left: 12px;
-  border-left: 1px solid rgba(10, 62, 76, 0.22);
-  letter-spacing: 0.2em;
-  color: rgba(9, 9, 11, 0.44);
+.flinza-hero-call:hover svg,
+.flinza-hero-call:focus-visible svg {
+  transform: translate3d(1px, -1px, 0);
+}
+
+/* The head of the frame: the top rule and the client's line under it, grouped as ONE flex item so
+ * the hero's `space-between` sets head and foot at the two ends of the screen — otherwise the note
+ * would float halfway down the frame with nothing to anchor it. */
+.flinza-hero-head {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.6vh, 30px);
 }
 
 .flinza-hero-claim {
-  margin: 0 0 clamp(12px, 1.9vh, 20px);
-  max-width: 17ch;
+  margin: 0 0 clamp(14px, 2.1vh, 24px);
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(34px, 5.2vw, 76px);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  font-size: clamp(36px, 5.9vw, 88px);
+  line-height: 0.99;
+  letter-spacing: -0.038em;
   color: var(--ink);
+}
+/* Each line is its own block, so the break is the composition's and not the viewport's. At a
+   17ch cap the italic second line sat right on the wrap point: it held on some widths and split on
+   others, which is how a headline ends up looking like an accident. Each line still wraps on its
+   own if it cannot fit a 320px phone. */
+.flinza-hero-claim span,
+.flinza-hero-claim em {
+  display: block;
 }
 .flinza-hero-claim em {
   font-style: italic;
@@ -469,7 +581,7 @@ body {
 
 .flinza-hero-interest {
   margin: 0;
-  max-width: 54ch;
+  max-width: 46ch;
   font-family: var(--font-ui);
   font-size: clamp(14.5px, 1.15vw, 17px);
   font-weight: 300;
@@ -515,38 +627,19 @@ body {
   color: rgba(9, 9, 11, 0.46);
 }
 
-/* ACTION */
-.flinza-hero-actions {
-  margin-top: clamp(20px, 2.8vh, 32px);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 14px 26px;
-  flex-wrap: wrap;
-  filter: drop-shadow(0 16px 34px rgba(14, 124, 147, 0.26));
-}
-.flinza-hero-secondary {
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: #0a3e4c;
-  text-decoration: none;
-  padding: 12px 6px;
-  border-bottom: 1px solid rgba(10, 62, 76, 0.28);
-  transition: color 0.25s ease, border-color 0.25s ease;
-}
-.flinza-hero-secondary:hover,
-.flinza-hero-secondary:focus-visible {
-  color: var(--aqua-deep);
-  border-color: var(--aqua-deep);
-}
+/* ACTION moved to the corner of the frame — see `.flinza-hero-call`. The full-width shader pill
+ * and the "See the work" link that used to sit here are gone: the header carries the camo button on
+ * every route, and a hero with three competing actions has none. The single remaining affordance at
+ * the foot is the scroll cue, which is a gesture rather than a second offer. */
 
 /* The client's own positioning line, opposite the brand label on the top rule. Quiet italic serif:
  * it is a footnote to the hero, not a second headline. */
 .flinza-hero-note {
   margin: 0;
-  max-width: 46ch;
+  max-width: 40ch;
+  /* Stretch would lay a max-width-limited block at the start of the cross axis, so the note has to
+     opt into the right edge explicitly. */
+  align-self: flex-end;
   text-align: right;
   font-family: var(--font-display);
   font-size: clamp(13.5px, 1.05vw, 15.5px);
@@ -560,19 +653,13 @@ body {
     gap: 16px 18px;
     text-align: left;
   }
-  /* Stacked, because the two labels side by side only just fit a 390px screen and the lockup
-     should not be the thing that decides whether the hero looks right on a small phone. */
-  .flinza-hero-kicker {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 7px;
-  }
-  .flinza-hero-kicker span {
-    padding-left: 0;
-    border-left: 0;
+  .flinza-hero-top {
+    align-items: center;
+    gap: 12px 18px;
   }
   .flinza-hero-note {
     max-width: 100%;
+    align-self: flex-start;
     text-align: left;
     font-size: 13.5px;
   }

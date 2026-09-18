@@ -383,6 +383,7 @@ export default function CareersPage() {
 
   return (
     <main
+      className="flinza-careers-main"
       style={{
         width: '100%',
         minHeight: '100vh',

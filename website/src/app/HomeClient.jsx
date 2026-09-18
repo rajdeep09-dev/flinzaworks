@@ -13,7 +13,6 @@ import { founderStories } from '@/data/stories';
 import { row1Cards, row2Cards } from '@/data/serviceCards';
 import SectionLabel from '@/components/SectionLabel';
 import FaqList from '@/components/FaqList';
-import CamoCtaButton from '@/components/CamoCtaButton';
 /* The one footer. /about, /services, /work, /insights, /careers, /contact and the legal pages all
    already end with this; the home page carries it too, so the last thing anyone sees is the same
    on every route. */
@@ -347,11 +346,28 @@ export default function Page({ heroPhoto = null }) {
         <div className="flinza-hero-inner">
           {/* The two ends of the top rule: who we are on the left, and the line the client wrote
               himself on the right. */}
-          <div className="flinza-hero-top">
-            <p className="flinza-hero-kicker">
-              Flinza Works
-              <span>Ecommerce growth agency</span>
-            </p>
+          <div className="flinza-hero-head">
+            <div className="flinza-hero-top">
+              <p className="flinza-hero-brand">Flinza</p>
+
+              <a className="flinza-hero-call" href="/contact">
+                Get on a call
+                <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false">
+                  <path
+                    d="M3.4 8.6 8.6 3.4M4.5 3.4h4.1v4.1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
+            </div>
+
+            {/* The client's own line, set right under the top rule. Grouped with it rather than
+                left to the hero's `space-between`, or it would float in the middle of the frame
+                with nothing to anchor it. */}
             <p className="flinza-hero-note">{POSITIONING}</p>
           </div>
 
@@ -359,25 +375,21 @@ export default function Page({ heroPhoto = null }) {
             <div className="flinza-hero-copy">
               {/* No giant wordmark on the first screen, on the client's instruction — and he was
                   right. The loudest element of a hero should be the claim, not the company's own
-                  name, so the h1 is the claim and the brand is the quiet label above it. */}
+                  name, so the h1 is the claim and the brand is the quiet label above it. The two
+                  lines are separate blocks so the break belongs to the composition rather than to
+                  whatever width the viewport happens to be. */}
               <h1 className="flinza-hero-claim">
-                Ecommerce growth, <em>engineered for profit</em>.
+                <span>Ecommerce growth,</span>
+                <em>engineered for profit.</em>
               </h1>
 
+              {/* One understated line. The long version of this paragraph lives on /services and
+                  /about, where there is room for it; a hero that explains everything explains
+                  nothing. The CTA is no longer here either — it is in the corner of the frame, and
+                  the header carries the camo button on every route. */}
               <p className="flinza-hero-interest">
-                A data-driven growth agency for DTC brands spending $50K+ a month: Meta ads,
-                creator-led and founder-led content, and launch clipping — tested on 48-hour cycles
-                and measured on profit contribution, never on vanity metrics.
+                Meta ads, creator-led and founder-led content for DTC brands spending $50K+ a month.
               </p>
-
-              <div className="flinza-hero-actions">
-                <CamoCtaButton href="/contact" size="lg">
-                  Book a discovery call
-                </CamoCtaButton>
-                <a className="flinza-hero-secondary" href="#work">
-                  See the work
-                </a>
-              </div>
 
               <a className="flinza-hero-scroll" href="#work">
                 <span aria-hidden="true">↓</span> Scroll

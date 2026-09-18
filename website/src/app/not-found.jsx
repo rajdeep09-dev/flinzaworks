@@ -12,6 +12,7 @@
 import dynamic from "next/dynamic";
 import SiteGround from "@/components/SiteGround";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import CamoCtaButton from "@/components/CamoCtaButton";
 
 const Ninja404 = dynamic(() => import("@/components/Ninja404"), {
@@ -72,6 +73,12 @@ export default function NotFound() {
         </figure>
         </div>
       </main>
+
+      {/* A 404 is the one page nobody arrives at on purpose, so it is the worst place to strand
+          someone. Every other route ends in the shared footer — the page routes, the legal links
+          and the credit — and without it this was the only page on the site with nowhere to go
+          other than the three shortcuts above. */}
+      <SiteFooter />
     </>
   );
 }
