@@ -446,7 +446,7 @@ export default function Page({ heroPhoto = null }) {
           lensRotation={65}
           lensWidth={0.565}
           lensHeight={1}
-          lensX={0.5}
+          lensX={0.6}
           lensY={0.5}
           dispersion={11}
           zoom={0}
@@ -479,6 +479,30 @@ export default function Page({ heroPhoto = null }) {
           }}
           />
           ) : null}
+
+          {/* The onward arrow. The band traps the wheel on purpose — the ring owns it — so the
+              way out is an explicit affordance, bottom-right, that scrolls to the next section.
+              Hidden while a case study is open, and it stays out of the ring's pointer area. */}
+          <a
+            href="#stories"
+            aria-label="Continue to founder stories"
+            className="flinza-work-next"
+            style={{
+              opacity: focusedCaseStudy ? 0 : undefined,
+              pointerEvents: focusedCaseStudy ? 'none' : undefined,
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M8 2.5v9.2M4.2 8.4 8 12.2l3.8-3.8"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path d="M2.8 13.8h10.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+          </a>
         </div>
       </section>
 

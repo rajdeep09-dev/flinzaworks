@@ -146,8 +146,15 @@
   color: var(--ink);
 }
 
-/* The call pill, top-right — the reference's "Contact Us ↗", kept compact. */
+/* The call pill, top-right — the reference's "Contact Us ↗", kept compact. On hover it takes
+ * the camo treatment: the same pre-mixed surface the CamoCtaButton paints, cross-faded in by a
+ * pseudo-element (background-image cannot transition, opacity can). A hover-time WebGL shader
+ * would cost a context per pointer-enter; this is one composited fade and it reads as the same
+ * brand surface. */
 .flinza-hero-call {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -161,12 +168,34 @@
   letter-spacing: 0.01em;
   color: var(--ink);
   text-decoration: none;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-hero-call::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image:
+    radial-gradient(38% 70% at 18% 26%, #0a3e4c 0%, rgba(10, 62, 76, 0) 62%),
+    radial-gradient(42% 64% at 74% 30%, #17849b 0%, rgba(23, 132, 155, 0) 66%),
+    radial-gradient(46% 70% at 42% 82%, #4ab2c7 0%, rgba(74, 178, 199, 0) 68%),
+    linear-gradient(126deg, #0a3e4c 0%, #17849b 52%, #4ab2c7 100%);
+  background-size: 62% 62%, 58% 58%, 64% 64%, 100% 100%;
+  background-position: 0% 0%, 100% 0%, 40% 100%, 0 0;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 .flinza-hero-call:hover,
 .flinza-hero-call:focus-visible {
-  border-color: rgba(9, 9, 11, 0.5);
-  background: rgba(247, 251, 252, 0.72);
+  border-color: rgba(246, 251, 253, 0.55);
+  color: #f6fbfd;
+  transform: translateY(-2px);
+}
+.flinza-hero-call:hover::before,
+.flinza-hero-call:focus-visible::before {
+  opacity: 1;
 }
 .flinza-hero-call svg {
   transition: transform 0.25s ease;

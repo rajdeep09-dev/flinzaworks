@@ -250,10 +250,17 @@ body {
  * The body inside the stage keeps its own scrolling (see FocusedStage), and `pan-y` plus
  * `overscroll-behavior: contain` keep that scroll from chaining out to the locked page.
  */
+/* An open case study locks the page at EVERY width now, not only under 900px. On desktop the
+ * lock box is already fullscreen (`.is-focused` releases it), but nothing stopped the wheel from
+ * scrolling the page underneath — a user could park an open case study halfway down the page.
+ *
+ * `:has()` needs Safari 15.4+ / Chrome 105+; older browsers keep the previous behaviour, which
+ * degrades gracefully rather than breaking. */
+body:has(.flinza-carousel-lock.is-focused) {
+  overflow: hidden;
+}
+
 @media (max-width: 900px) {
-  body:has(.flinza-carousel-lock.is-focused) {
-    overflow: hidden;
-  }
   .flinza-carousel-lock.is-focused .flinza-stage-body {
     pointer-events: auto;
     touch-action: pan-y;
@@ -736,15 +743,87 @@ body {
   }
 }
 @media (max-width: 900px) {
-  .flinza-work-stage .flinza-carousel-lock {
+  /* `:not(.is-focused)` is load-bearing. Without it this rule ties the fullscreen case-study
+   * release (`.flinza-carousel-lock.is-focused`, also `!important`) and wins on file order — so an
+   * open case study sat as a mid-band card with the page scrolling behind it. */
+  .flinza-work-stage .flinza-carousel-lock:not(.is-focused) {
     position: relative !important;
     top: 0 !important;
     height: 100% !important;
   }
 }
 
+/* ══ The work band's onward arrow ══
+ * The carousel band owns the mouse wheel, so the way onward is an explicit control: a hairline
+ * circular arrow, bottom-right of the stage, that scrolls to the next section. Desktop-only —
+ * on a phone the page scrolls past the band naturally, and a floating control would sit over
+ * the cards. */
+.flinza-work-next {
+  position: absolute;
+  right: clamp(16px, 2.4vw, 34px);
+  bottom: clamp(16px, 2.4vw, 30px);
+  z-index: 5;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(9, 9, 11, 0.22);
+  background: rgba(247, 251, 252, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: rgba(9, 9, 11, 0.62);
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+.flinza-work-next:hover,
+.flinza-work-next:focus-visible {
+  color: var(--ink);
+  border-color: rgba(9, 9, 11, 0.5);
+  background: rgba(247, 251, 252, 0.85);
+}
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  .flinza-work-next {
+    display: inline-flex;
+  }
+}
+.flinza-work-next svg {
+  animation: flinza-next-nudge 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes flinza-next-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-work-next svg {
+    animation: none;
+  }
+}
+
 /* The voice-note cards opened on a portrait photograph and a name. A monogram opens them now: a
  * face beside a testimonial is a claim, and the only faces this site owns belong to the team. */
+
+/* The phone ground is FocusedStage's own inline near-opaque sheet. An `!important` ramp in
+ * globals.css used to BEAT that inline style — important declarations win over inline ones —
+ * silently restoring the transparent scrim and letting the band bleed through an open case
+ * study. Same selector, later file, same importance: this one wins the cascade and the sheet
+ * stands. */
+@media (max-width: 860px) {
+  .flinza-stage .flinza-stage-ground {
+    background: linear-gradient(
+      180deg,
+      rgba(243, 250, 252, 0.97) 0%,
+      rgba(238, 247, 250, 0.985) 42%,
+      rgba(235, 246, 249, 0.995) 100%
+    ) !important;
+  }
+}
+
 .flinza-voice-monogram {
   width: 44px;
   height: 44px;

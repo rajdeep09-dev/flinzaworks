@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 /*
  * Focused case-study stage.
  *
@@ -49,6 +51,18 @@ const HAIRLINE = "rgba(9,9,11,0.14)";
 const HAIRLINE_SOFT = "rgba(9,9,11,0.08)";
 
 export default function FocusedStage({ caseStudy, image, focused, compact, onClose }) {
+  /* Escape closes the case study, exactly like the Close control. The hook sits above the
+   * early return so the hook order is unconditional — a case study that is not open must not
+   * change how many hooks this component runs. */
+  useEffect(() => {
+    if (!focused) return undefined;
+    const onKey = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [focused, onClose]);
+
   if (!caseStudy) return null;
 
   const results = caseStudy.results || {};
@@ -185,13 +199,19 @@ export default function FocusedStage({ caseStudy, image, focused, compact, onClo
         }}
       >
         {results.primary ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
-            <span
-              className="flinza-display"
-              style={{
-                fontSize: compact ? 40 : 58,
-                fontVariantNumeric: "tabular-nums",
-                background: "linear-gradient(112deg, #0A3E4C 0%, #17849B 48%, #3FB9CE 100%)",
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>              <span
+                className="flinza-display"
+                style={{
+                  fontSize: compact ? 40 : 58,
+                  /* The clipped figures in the client's screenshot: the display face's tight
+                   * default leading cut the gradient fill top and bottom. An explicit line and
+                   * a hair of padding give the glyphs their full box, and `nowrap` keeps
+                   * "+$412K" on one line at every width down to the metric grid's floor. */
+                  lineHeight: 1.1,
+                  whiteSpace: "nowrap",
+                  paddingBottom: 2,
+                  fontVariantNumeric: "tabular-nums",
+                  background: "linear-gradient(112deg, #0A3E4C 0%, #17849B 48%, #3FB9CE 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -275,6 +295,16 @@ export default function FocusedStage({ caseStudy, image, focused, compact, onClo
         display: "flex",
         flexDirection: "column",
         gap: compact ? 18 : 22,
+        /* Desktop: the quote sits at the right edge, over the artwork's rim — raw serif on the
+         * panel edge was the second unreadable thing in the client's screenshot. A soft glass
+         * wash (no hard border, just paper + blur) gives the words their own ground while the
+         * artwork still glows around it. The phone keeps its flat column. */
+        background: compact ? undefined : "linear-gradient(180deg, rgba(245,251,253,0.9) 0%, rgba(243,250,252,0.8) 100%)",
+        WebkitBackdropFilter: compact ? undefined : "blur(12px)",
+        backdropFilter: compact ? undefined : "blur(12px)",
+        borderRadius: compact ? undefined : 18,
+        padding: compact ? undefined : "24px 26px",
+        boxShadow: compact ? undefined : "0 24px 48px -32px rgba(9, 58, 72, 0.4)",
         paddingLeft: compact ? 0 : undefined,
         paddingTop: compact ? 20 : undefined,
         marginBlock: compact ? undefined : "auto",
@@ -370,9 +400,13 @@ export default function FocusedStage({ caseStudy, image, focused, compact, onClo
         style={{
           position: "absolute",
           inset: 0,
+          /* Desktop: the copy zone is genuinely readable now. The old ramp gave out at 40% of
+           * the width, which put the title, the lede AND the metrics on the raw artwork — dark
+           * serif on a dark panel. The ramp holds past the copy column and only releases the
+           * right third, where the focused panel itself sits (lensX 0.6). */
           background: compact
             ? "linear-gradient(180deg, rgba(243,250,252,0.97) 0%, rgba(238,247,250,0.985) 42%, rgba(235,246,249,0.995) 100%)"
-            : "linear-gradient(96deg, rgba(245,251,253,0.86) 0%, rgba(244,251,253,0.6) 22%, rgba(244,251,253,0) 40%)",
+            : "linear-gradient(96deg, rgba(245,251,253,0.96) 0%, rgba(244,251,253,0.9) 32%, rgba(244,251,253,0.6) 48%, rgba(244,251,253,0.14) 64%, rgba(244,251,253,0) 78%)",
         }}
       />
 
