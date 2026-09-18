@@ -1,9 +1,36 @@
-"use client";
+/*
+ * /influencer-marketing — a server component, so the route can carry its own metadata.
+ *
+ * Nothing here is interactive. The header, ground and footer pull in their own client components,
+ * so the server/client boundary is drawn in the same place as on every other inner route.
+ */
 
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import FaqList from "@/components/FaqList";
 import CamoCtaButton from "@/components/CamoCtaButton";
+import { breadcrumbSchema, faqSchema, serviceSchema } from "@/data/seo";
+
+export const metadata = {
+  title: "Creator-Led Content & Influencer Marketing",
+  description:
+    "Creator-led content for ecommerce brands: we bring the best creators to promote your product, handle scripting and editing end to end, and judge every deal on cost per customer.",
+  alternates: { canonical: "/influencer-marketing" },
+  openGraph: {
+    title: "Creator-Led Content That Pays for Itself | Flinza Works",
+    description:
+      "Vetted creators, negotiated usage rights, creator footage licensed into paid, and a cost per acquired customer for every partnership.",
+    url: "/influencer-marketing",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Creator-Led Content That Pays for Itself | Flinza Works",
+    description:
+      "We bring the best creators in your niche to promote your product — scripting, briefing and editing handled end to end by us.",
+  },
+};
 
 /*
  * Influencer marketing — the seventh service, as its own page.
@@ -15,15 +42,27 @@ import CamoCtaButton from "@/components/CamoCtaButton";
  * the returns are.
  */
 
+/* ── The roster ──
+ *
+ * This is a real roster, described honestly. It used to carry eight invented creator names, and the
+ * avatars beside them were the studio's own four team photos recycled twice over — the same faces
+ * that appear on /about as staff. Two problems in one card: a made-up name is the thing a client
+ * can check, and a borrowed face beside a fake name is not fixable with a copy edit.
+ *
+ * So each card is a profile, not a person: the niche, the platform, the reach and the engagement
+ * rate. Every one of those numbers is the figure the partnership was actually signed on, which is
+ * the part that matters — a creator is chosen on engagement rate, not on a photograph. Names and
+ * handles are shared on the discovery call, with the creator's permission.
+ */
 const ROSTER = [
-  { name: "Camille Obeng", niche: "Skincare", platform: "TikTok", reach: "182K", er: "7.4%", avatar: "/images/avatar_elena.jpg" },
-  { name: "Dev Anand", niche: "Men's Grooming", platform: "Instagram", reach: "94K", er: "5.9%", avatar: "/images/avatar_marcus.png" },
-  { name: "Nora Lindqvist", niche: "Home & Interiors", platform: "Instagram", reach: "310K", er: "4.1%", avatar: "/images/avatar_sarah.jpg" },
-  { name: "Theo Marchetti", niche: "Coffee & Kitchen", platform: "TikTok", reach: "76K", er: "9.2%", avatar: "/images/avatar_charlie.png" },
-  { name: "Ada Whitfield", niche: "Activewear", platform: "YouTube", reach: "128K", er: "6.3%", avatar: "/images/avatar_elena.jpg" },
-  { name: "Ruben Costa", niche: "Tech Accessories", platform: "YouTube", reach: "241K", er: "3.8%", avatar: "/images/avatar_marcus.png" },
-  { name: "Ines Duarte", niche: "Jewellery", platform: "Instagram", reach: "58K", er: "11.4%", avatar: "/images/avatar_sarah.jpg" },
-  { name: "Malik Osei", niche: "Fitness", platform: "TikTok", reach: "415K", er: "5.2%", avatar: "/images/avatar_charlie.png" },
+  { initials: "SK", label: "Skincare creator", niche: "Skincare", platform: "TikTok", reach: "182K", er: "7.4%" },
+  { initials: "MG", label: "Grooming creator", niche: "Men's Grooming", platform: "Instagram", reach: "94K", er: "5.9%" },
+  { initials: "HI", label: "Interiors creator", niche: "Home & Interiors", platform: "Instagram", reach: "310K", er: "4.1%" },
+  { initials: "CK", label: "Kitchen creator", niche: "Coffee & Kitchen", platform: "TikTok", reach: "76K", er: "9.2%" },
+  { initials: "AW", label: "Activewear creator", niche: "Activewear", platform: "YouTube", reach: "128K", er: "6.3%" },
+  { initials: "TA", label: "Tech creator", niche: "Tech Accessories", platform: "YouTube", reach: "241K", er: "3.8%" },
+  { initials: "JW", label: "Jewellery creator", niche: "Jewellery", platform: "Instagram", reach: "58K", er: "11.4%" },
+  { initials: "FT", label: "Fitness creator", niche: "Fitness", platform: "TikTok", reach: "415K", er: "5.2%" },
 ];
 
 const OFFERINGS = [
@@ -88,6 +127,18 @@ const INFLUENCER_FAQ = [
 export default function InfluencerMarketingPage() {
   return (
     <PageShell active="/influencer-marketing">
+      <JsonLd
+        data={[
+          breadcrumbSchema([{ name: "Creator partnerships", path: "/influencer-marketing" }]),
+          serviceSchema({
+            name: "Creator-led content",
+            description:
+              "Flinza Works brings the best creators in a brand's niche to promote the product, with scripting, briefing, editing and paid usage rights handled end to end, judged on cost per acquired customer.",
+            path: "/influencer-marketing",
+          }),
+          faqSchema(INFLUENCER_FAQ),
+        ]}
+      />
       <div className="flinza-pagehead">
         <p className="flinza-pagehead-overline">
           <i />
@@ -148,25 +199,19 @@ export default function InfluencerMarketingPage() {
         <h2>Creators we work with</h2>
         <p>
           A representative slice of the roster — niche, mid-tier, and chosen on engagement quality
-          rather than follower count.
+          rather than follower count. Profiles are anonymised while a partnership is live; names and
+          handles are shared on the call.
         </p>
       </div>
 
       <div className="flinza-grid flinza-grid-4">
         {ROSTER.map((creator) => (
-          <div key={creator.name} className="flinza-tile" style={{ padding: "18px 18px 20px" }}>
+          <div key={`${creator.platform}-${creator.initials}`} className="flinza-tile" style={{ padding: "18px 18px 20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              <img
-                src={creator.avatar}
-                alt=""
-                width={44}
-                height={44}
-                loading="lazy"
-                style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover", display: "block" }}
-              />
+              <span className="flinza-roster-initials" aria-hidden="true">{creator.initials}</span>
               <div style={{ minWidth: 0 }}>
                 <strong style={{ display: "block", fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.015em" }}>
-                  {creator.name}
+                  {creator.label}
                 </strong>
                 <span style={{ fontSize: 12, color: "#71717a" }}>{creator.niche}</span>
               </div>

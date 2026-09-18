@@ -1,95 +1,141 @@
-"use client";
-
-import Link from "next/link";
-import PageShell from "@/components/PageShell";
-import CamoCtaButton from "@/components/CamoCtaButton";
-
 /*
- * Insights index. These are written as notes with a reading time rather than links, because
- * there are no article routes behind them yet and a card that leads nowhere damages trust more
- * than a card that is honestly an excerpt. Full essays publish as they are finished.
+ * /insights — the blog index. A server component.
+ *
+ * ── What this was, and what it is ──
+ *
+ * It listed six "notes" as cards that led nowhere, and said so in a comment: "there are no article
+ * routes behind them yet and a card that leads nowhere damages trust more than a card that is
+ * honestly an excerpt". That was the right call at the time and it is still a page with no blog in
+ * it — so the client asked for the section to be built ("blog ar section ta banaitam ni amra?").
+ *
+ * Every card now links to a real article at /insights/[slug], written from `@/data/insights`, and
+ * the cards are grouped by category. Each article page carries an answer-first block, Article
+ * structured data and a link back into the service it relates to, which is the internal-linking
+ * loop the search plan asks for: article → service page → contact.
  */
 
-const NOTES = [
-  {
-    kind: "Attribution",
-    minutes: 6,
-    title: "Your ROAS is lying to you, and it is costing you margin",
-    excerpt:
-      "Platform-reported ROAS counts revenue that returns, ignores discount dependency and cannot see the customers who would have bought anyway. How to rebuild the number around contribution margin, and what changes in the account once you do.",
+import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import PageShell from "@/components/PageShell";
+import CamoCtaButton from "@/components/CamoCtaButton";
+import { insights, insightCategories } from "@/data/insights";
+import { breadcrumbSchema, absolute, SITE_URL } from "@/data/seo";
+
+export const metadata = {
+  title: "Insights — Meta Ads, Creative & Creator Growth",
+  description:
+    "Notes from inside live ecommerce accounts: profit-first Meta ads, 48-hour creative testing, briefing creators so content converts, and clipping strategy for launches.",
+  alternates: { canonical: "/insights" },
+  openGraph: {
+    title: "Insights — notes from inside live ecommerce accounts | Flinza Works",
+    description:
+      "Profit-first Meta ads, creative testing cycles, creator-led growth and clipping. Written for operators rather than for search engines.",
+    url: "/insights",
+    type: "website",
   },
-  {
-    kind: "Creative",
-    minutes: 5,
-    title: "The 48-hour testing cycle, written out end to end",
-    excerpt:
-      "Forty angles in six weeks is not a volume trick — it is a decision-rule trick. The brief template, the threshold for scaling, and the reason most brands cannot run this cycle yet.",
+  twitter: {
+    card: "summary_large_image",
+    title: "Insights — notes from inside live ecommerce accounts | Flinza Works",
+    description:
+      "Meta ads, creative testing, creator-led growth and clipping, written by the team running the accounts.",
   },
-  {
-    kind: "Creators",
-    minutes: 7,
-    title: "Why a 60K creator outperforms a 400K one",
-    excerpt:
-      "Mid-tier creators carry better engagement quality and lower cost per acquisition. What to check before paying anyone, and how to license their content into paid without renegotiating later.",
-  },
-  {
-    kind: "Paid media",
-    minutes: 6,
-    title: "The audits that find six figures in wasted spend",
-    excerpt:
-      "The five patterns that show up in almost every underperforming account — duplicated retargeting, permanent discounts, attribution windows tuned to flatter the platform, and two others.",
-  },
-  {
-    kind: "AI UGC",
-    minutes: 4,
-    title: "AI UGC is a testing tool, not a brand strategy",
-    excerpt:
-      "Where synthetic creators genuinely win (angle discovery, cost per test) and where they fall down (brand affinity, loyalty). A realistic split of the creative mix by funnel stage.",
-  },
-  {
-    kind: "Operations",
-    minutes: 5,
-    title: "What an embedded growth pod actually does all week",
-    excerpt:
-      "A week in the Slack channel: what gets read on Monday, what gets killed on Wednesday, and why the strategist who owns your numbers should not be an account manager.",
-  },
-];
+};
+
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 export default function InsightsPage() {
+  /* Newest first. The array is authored in order, but sorting here means the index stays correct
+     when a post is inserted in the middle of the file rather than appended to it. */
+  const posts = [...insights].sort((a, b) => (a.date < b.date ? 1 : -1));
+
   return (
     <PageShell active="/insights">
+      <JsonLd
+        data={[
+          breadcrumbSchema([{ name: "Insights", path: "/insights" }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Blog',
+            name: 'Flinza Works Insights',
+            url: absolute('/insights'),
+            description:
+              'Writing on profit-first Meta ads, creative testing, creator-led growth and clipping for ecommerce brands.',
+            /* Same @id string as the root Organization block in src/data/seo.js, so this Blog and
+               the company are one entity to a crawler rather than two. */
+            publisher: { '@id': `${SITE_URL}/#organization` },
+            blogPost: posts.map((post) => ({
+              '@type': 'BlogPosting',
+              headline: post.title,
+              url: absolute(`/insights/${post.slug}`),
+              datePublished: post.date,
+              articleSection: post.category,
+            })),
+          },
+        ]}
+      />
+
       <div className="flinza-pagehead">
         <p className="flinza-pagehead-overline">
           <i />
-          Insights
+          Blog · Insights
         </p>
         <h1>
           Notes from inside <em>live accounts</em>
         </h1>
         <p>
-          What we learn running paid media, creative and creator programmes for ecommerce brands —
-          written for operators rather than search engines.
+          What we learn running Meta ads, creative and creator programmes for ecommerce brands —
+          written for operators rather than for search engines. Every post answers the question in
+          its title in the first paragraph, because that is the only useful way to write one.
         </p>
+        <div className="flinza-pagehead-actions">
+          <CamoCtaButton href="/contact">Ask us about your account</CamoCtaButton>
+          <Link href="/services" className="flinza-btn flinza-btn-ghost">How we work</Link>
+        </div>
+      </div>
+
+      <div className="flinza-post-meta-row">
+        <span>Categories</span>
+        <div className="flinza-post-cats">
+          {insightCategories.map((category) => (
+            <span key={category} className="flinza-post-cat">
+              {category}
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="flinza-grid flinza-grid-2">
-        {NOTES.map((note) => (
-          <article key={note.title} className="flinza-tile">
-            <span className="flinza-tile-num">
-              {note.kind} · {note.minutes} min read
-            </span>
-            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 400, fontSize: "clamp(20px, 2.2vw, 26px)", letterSpacing: "-0.02em", lineHeight: 1.18 }}>
-              {note.title}
-            </h3>
-            <p>{note.excerpt}</p>
+        {posts.map((post) => (
+          <article key={post.slug} className="flinza-tile flinza-post-card">
+            <div className="flinza-post-card-top">
+              <span className="flinza-post-cat">{post.category}</span>
+              <span className="flinza-post-time">{post.minutes} min read</span>
+            </div>
+            <h2 className="flinza-post-card-title">
+              <Link href={`/insights/${post.slug}`}>{post.title}</Link>
+            </h2>
+            <p>{post.excerpt}</p>
+            <div className="flinza-post-card-foot">
+              <time dateTime={post.date}>{dateFormatter.format(new Date(post.date))}</time>
+              <Link href={`/insights/${post.slug}`} className="flinza-post-card-cta">
+                Read the note
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M3 11L11 3M11 3H5M11 3V9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
           </article>
         ))}
       </div>
 
       <div style={{ textAlign: "center", marginTop: "clamp(46px, 7vw, 90px)" }}>
         <p style={{ margin: "0 auto 24px", maxWidth: "54ch", fontSize: 15.5, fontWeight: 300, lineHeight: 1.65, color: "#52525b" }}>
-          Full essays publish as they are finished. If you want the next one, or the reasoning behind
-          any of these in your own account, that is a conversation rather than a subscription.
+          New posts publish as they are written. If you want the reasoning behind any of this applied
+          to your own account, that is a conversation rather than a subscription.
         </p>
         <CamoCtaButton href="/contact">Ask us about your account</CamoCtaButton>
       </div>

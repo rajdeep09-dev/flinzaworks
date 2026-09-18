@@ -1,8 +1,40 @@
-"use client";
+/*
+ * /about — a server component.
+ *
+ * Nothing on this page is interactive, so it does not need to be a client component at all: it was
+ * one only because every route in the app was, and that is the single reason none of them could
+ * declare their own metadata. Removing the directive is the whole change — the App Router treats a
+ * module without `'use client'` as a server component, and `export const metadata` becomes legal.
+ * The interactive pieces it renders (the header's metal mark, the ground, the footer's social row)
+ * are client components in their own right, so the boundary is exactly where it should be.
+ */
 
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
+import { ABOUT_NUMBERS, POSITIONING, TAGLINE, MARKETS } from "@/data/stats";
+import { breadcrumbSchema, SITE_URL } from "@/data/seo";
+
+export const metadata = {
+  title: "About — A Growth Team, Not an Order-Taker",
+  description:
+    "Flinza Works is a senior performance team for ecommerce brands: profit-first media buying, 48-hour creative testing and creator partnerships. Meet the team behind your account.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Flinza Works — a growth team, not an order-taker",
+    description:
+      "Four operating principles, the people who touch your account, and the numbers we are willing to be held to.",
+    url: "/about",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Flinza Works — a growth team, not an order-taker",
+    description:
+      "Profit is the metric, testing runs on 48-hour cycles, the brief gets challenged, and you own everything.",
+  },
+};
 
 /*
  * About — who runs this and how they work.
@@ -40,16 +72,34 @@ const TEAM = [
   { name: "Charlie Nguyen", role: "Creator Partnerships", bio: "Runs the influencer programme — sourcing, negotiation and creator ad licensing.", avatar: "/images/avatar_charlie.png" },
 ];
 
-const NUMBERS = [
-  ["$500K+", "Monthly ad spend managed"],
-  ["34%", "Average ROAS lift"],
-  ["48hr", "Creative testing cycle"],
-  ["640+", "Creator partnerships"],
-];
+/* The four figures in the stat band, from `@/data/stats` — the same file the hero, the social card
+ * and the Organization schema read. Two of them were previously only on this page, which is how a
+ * site ends up quoting a number in one place and contradicting it in another. */
+const NUMBERS = ABOUT_NUMBERS;
 
 export default function AboutPage() {
   return (
     <PageShell active="/about">
+      <JsonLd
+        data={[
+          breadcrumbSchema([{ name: "About", path: "/about" }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            name: 'About Flinza Works',
+            url: `${SITE_URL}/about`,
+            description: POSITIONING,
+            mainEntity: { '@id': `${SITE_URL}/#organization` },
+            about: {
+              '@type': 'Organization',
+              name: 'Flinza Works',
+              foundingDate: '2019',
+              slogan: TAGLINE,
+              areaServed: MARKETS.map((name) => ({ '@type': 'Place', name })),
+            },
+          },
+        ]}
+      />
       <div className="flinza-pagehead">
         <p className="flinza-pagehead-overline">
           <i />
@@ -124,6 +174,25 @@ export default function AboutPage() {
             <p>{person.bio}</p>
           </div>
         ))}
+      </div>
+
+      {/* ── The scale behind the account ──
+          An agency site that lists four people reads as a four-person agency, and a brand spending
+          $80K a month wants to know who is actually behind the work. This band sits directly under
+          the four faces and answers that: the four are the people who touch your account, and they
+          are the front of a much larger team. */}
+      <div className="flinza-scaleband">
+        <div>
+          <strong>27+</strong>
+          <span>More specialists behind your account</span>
+        </div>
+        <p>
+          The four people above are the ones who touch your account — the strategist who owns your
+          numbers, creative, analytics and creator partnerships. Behind them sit 27 more
+          specialists, and a network of 75+ clippers, editors and creators producing content at
+          volume: media buyers, editors, designers and analysts whose work reaches your account every
+          week.
+        </p>
       </div>
 
       <div className="flinza-section-title">

@@ -33,19 +33,29 @@ export default function FaqList({ items = [], defaultOpen = null }) {
             key={item.number ?? index}
             className={`flinza-faqrow${isOpen ? " is-open" : ""}`}
           >
-            <button
-              type="button"
-              className="flinza-faqrow-head"
-              aria-expanded={isOpen}
-              aria-controls={`faq-answer-${index}`}
-              onClick={() => setOpen((prev) => (prev === index ? null : index))}
-            >
-              <span className="flinza-faqrow-num" aria-hidden="true">
-                {item.number ?? String(index + 1).padStart(2, "0")}
-              </span>
-              <span className="flinza-faqrow-q">{item.question}</span>
-              <span className="flinza-faqrow-sign" aria-hidden="true" />
-            </button>
+            {/* The question is a real <h3> that wraps the button, not a span inside it.
+             *
+             * Two reasons, and only one of them is SEO. A heading a screen reader can jump
+             * between is how a screen-reader user skims a FAQ at all — the span version gave them
+             * twelve unlabelled buttons. And answer engines match a question to a page by its
+             * heading, so the question has to BE a heading. Putting the heading *inside* the button
+             * would be invalid HTML (a button may not contain a heading), which is why the wrapper
+             * goes on the outside. */}
+            <h3 className="flinza-faqrow-heading">
+              <button
+                type="button"
+                className="flinza-faqrow-head"
+                aria-expanded={isOpen}
+                aria-controls={`faq-answer-${index}`}
+                onClick={() => setOpen((prev) => (prev === index ? null : index))}
+              >
+                <span className="flinza-faqrow-num" aria-hidden="true">
+                  {item.number ?? String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="flinza-faqrow-q">{item.question}</span>
+                <span className="flinza-faqrow-sign" aria-hidden="true" />
+              </button>
+            </h3>
 
             <div className="flinza-faqrow-body" id={`faq-answer-${index}`}>
               <div className="flinza-faqrow-body-inner">

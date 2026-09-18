@@ -21,7 +21,7 @@ export async function POST(request) {
   try {
     const contentType = request.headers.get('content-type') || '';
 
-    let name, email, link, roleId, cvFile;
+    let name, email, link, roleId, note, cvFile;
 
     if (contentType.includes('multipart/form-data')) {
       const form = await request.formData();
@@ -29,6 +29,7 @@ export async function POST(request) {
       email = (form.get('email') || '').toString().trim().slice(0, 320);
       link = (form.get('link') || '').toString().trim().slice(0, 500);
       roleId = (form.get('roleId') || '').toString().trim().slice(0, 100);
+      note = (form.get('note') || '').toString().trim().slice(0, 2000);
       const picked = form.get('cv');
       if (picked && typeof picked === 'object' && 'arrayBuffer' in picked && picked.size > 0) {
         if (picked.size > MAX_CV_BYTES) {
@@ -47,6 +48,7 @@ export async function POST(request) {
       email = (body.email || '').trim().slice(0, 320);
       link = (body.link || '').trim().slice(0, 500);
       roleId = (body.roleId || '').trim().slice(0, 100);
+      note = (body.note || '').trim().slice(0, 2000);
     }
 
     if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -80,10 +82,30 @@ export async function POST(request) {
       }
     }
 
-    await db.sql`
-      INSERT INTO job_applications (role_id, name, email, portfolio_link, cv_url, cv_filename)
-      VALUES (${roleId || 'general'}, ${name}, ${email}, ${link || null}, ${cvUrl}, ${cvName})
-    `;
+    /* The applicant's note is stored in its own column. `ADD COLUMN IF NOT EXISTS` is idempotent,
+     * so this runs on the first request after a cold start and is a no-op on every one after that,
+     * which means a deploy against a database created before the column existed heals itself
+     * instead of failing. If the upgrade is refused — a read-only role, say — the insert falls back
+     * to the original column set, because losing a note is survivable and losing the application is
+     * not. */
+    let hasNoteColumn = true;
+    try {
+      await db.sql`ALTER TABLE job_applications ADD COLUMN IF NOT EXISTS note text`;
+    } catch {
+      hasNoteColumn = false;
+    }
+
+    if (hasNoteColumn) {
+      await db.sql`
+        INSERT INTO job_applications (role_id, name, email, portfolio_link, cv_url, cv_filename, note)
+        VALUES (${roleId || 'general'}, ${name}, ${email}, ${link || null}, ${cvUrl}, ${cvName}, ${note || null})
+      `;
+    } else {
+      await db.sql`
+        INSERT INTO job_applications (role_id, name, email, portfolio_link, cv_url, cv_filename)
+        VALUES (${roleId || 'general'}, ${name}, ${email}, ${link || null}, ${cvUrl}, ${cvName})
+      `;
+    }
 
     return Response.json({ ok: true, cvSkipped });
   } catch (error) {

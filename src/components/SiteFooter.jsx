@@ -25,6 +25,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import CamoCtaButton from "./CamoCtaButton";
 import { MAILTO } from "@/lib/site";
+import { DEVELOPER } from "@/data/seo";
 
 /* The socials are lazy, and that is a performance decision rather than a nicety.
  *
@@ -49,24 +50,44 @@ const SocialGlassRow = dynamic(() => import("./SocialGlassRow"), {
   loading: SocialFallback,
 });
 
+/* ── The footer's link columns ──
+ *
+ * Three columns, and every one of them is a page that exists. Three things were wrong with the
+ * previous set and all three are the same kind of wrong — a link that does not take you where it
+ * says it does:
+ *
+ *   · "AI UGC" pointed at /services and advertised a service the studio has stopped selling.
+ *   · Five column links pointed at the same /services page with different labels.
+ *   · There was no legal column at all, so /privacy and /terms were reachable only from the small
+ *     print at the very bottom, which is exactly where a reader stops looking for them.
+ *
+ * Now each service links to its own page where one exists, and the Company and Legal columns are
+ * the four and two links the client asked for. */
 const COLUMNS = [
   {
     heading: "Services",
     links: [
-      { label: "Revenue audit", href: "/services" },
-      { label: "Creative production", href: "/services" },
-      { label: "AI UGC", href: "/services" },
-      { label: "Influencer marketing", href: "/influencer-marketing" },
-      { label: "Paid media", href: "/services" },
+      { label: "Meta ads", href: "/services/meta-ads" },
+      { label: "Creative testing", href: "/services/creative-testing" },
+      { label: "Creator partnerships", href: "/services/creator-partnerships" },
+      { label: "Founder-led content", href: "/services/founder-led-content" },
+      { label: "Launch clipping", href: "/services/launch-clipping" },
     ],
   },
   {
     heading: "Company",
     links: [
-      { label: "About", href: "/about" },
-      { label: "Case studies", href: "/work" },
-      { label: "Insights", href: "/insights" },
+      { label: "Case Studies", href: "/work" },
+      { label: "Contact", href: "/contact" },
+      { label: "Blog", href: "/insights" },
       { label: "Careers", href: "/careers" },
+    ],
+  },
+  {
+    heading: "Legal",
+    links: [
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
     ],
   },
 ];
@@ -144,13 +165,6 @@ export default function SiteFooter() {
               ))}
             </div>
           ))}
-          <div>
-            <h4>Start</h4>
-            <Link href="/contact">Book a call</Link>
-            <a href={MAILTO}>hello@flinzaworks.com</a>
-            <Link href="/work">See the work</Link>
-            <Link href="/careers">We&apos;re hiring</Link>
-          </div>
         </nav>
       </div>
 
@@ -159,6 +173,20 @@ export default function SiteFooter() {
       <span className="flinza-foot-mark" aria-hidden="true">
         FLINZA WORKS
       </span>
+
+      {/* Who built this. One line, on every route, in the HTML rather than injected afterwards —
+          which is what makes "who made the flinzaworks website" answerable at all. The profile
+          link carries `rel="me"`, the microformat that links a page to the profile it belongs to,
+          and it points at the same Instagram URL as the Person node in the JSON-LD and the
+          /colophon page, so the three statements agree rather than compete. */}
+      <p className="flinza-foot-credit">
+        <span>Site design &amp; development by</span>
+        <Link href={DEVELOPER.path}>{DEVELOPER.name}</Link>
+        <span aria-hidden="true">·</span>
+        <a href={DEVELOPER.instagram} rel="me noopener noreferrer" target="_blank">
+          {DEVELOPER.instagramHandle}
+        </a>
+      </p>
 
       <div className="flinza-foot-base">
         <span>

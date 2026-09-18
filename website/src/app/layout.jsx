@@ -3,23 +3,90 @@ import './globals.css';
    globals.css or as inline styles. See the file header for what is in it and why. */
 import './overrides.css';
 import RouteTransition from '@/components/RouteTransition';
+import JsonLd from '@/components/JsonLd';
+import { rootSchema, SITE_URL, SITE_NAME, DEVELOPER } from '@/data/seo';
+import { ONE_LINER } from '@/data/stats';
 
+/*
+ * ── Metadata architecture ──
+ *
+ * Nothing here should be route-specific. Each route's own server component declares its own title,
+ * description, canonical and Open Graph card (see app/page.jsx for the pattern), and Next merges
+ * per-route metadata over this object field by field.
+ *
+ * `metadataBase` is what makes every relative URL in a metadata object resolve to an absolute one —
+ * canonicals, Open Graph URLs, the social image. Without it Next emits relative URLs, which link
+ * previewers and several crawlers will not resolve, so it is the single most load-bearing line in
+ * this file. It reads NEXT_PUBLIC_SITE_URL so the production domain is configuration rather than
+ * a hard-coded string.
+ *
+ * `openGraph.images` is deliberately NOT set here: app/opengraph-image.jsx generates a 1200×630
+ * branded card at /opengraph-image, and the file convention wires it up across every route
+ * automatically, including twitter:image. Declaring an image here as well would duplicate it.
+ */
 export const metadata = {
-  title: 'Flinza Works | We Test. We Scale. We Grow.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
+    template: '%s | Flinza Works',
+  },
   description:
-    'Flinza Works is a data-driven ecommerce growth agency. For brands spending $50K+ monthly: 48hr creative testing, AI UGC, influencer marketing, and profit-first performance media.',
+    'Flinza Works is an ecommerce growth agency for DTC brands spending $50K+ a month: Meta ads, 48-hour creative testing, creator and founder content, launch clipping.',
+  applicationName: SITE_NAME,
+  /* Two authors, in the order the field means: the company the site belongs to, then the person who
+     designed and built it. `<meta name="author">` is a weak ranking signal and a strong entity one
+     — it is one of the few places a page can name a person outright, and the name here has to be
+     the same string as the Person node in the JSON-LD, the credit line in the footer and the
+     colophon page. */
+  authors: [
+    { name: SITE_NAME, url: SITE_URL },
+    { name: DEVELOPER.name, url: DEVELOPER.instagram },
+  ],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  keywords: [
+    'ecommerce growth agency',
+    'DTC growth agency',
+    'Shopify growth agency',
+    'Meta ads agency for ecommerce',
+    'creative testing agency',
+    'creator-led content agency',
+    'founder-led content',
+    'video clipping service for launches',
+    'performance marketing agency',
+  ],
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Flinza Works | We Test. We Scale. We Grow.',
-    description:
-      'Ecommerce growth agency for brands spending $50K+ monthly. 48hr testing cycles, 34% avg ROAS lift, $500k+ spend managed.',
     type: 'website',
+    siteName: SITE_NAME,
+    locale: 'en_US',
+    url: '/',
+    title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
+    description: ONE_LINER,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Flinza Works | We Test. We Scale. We Grow.',
-    description:
-      'Ecommerce growth agency: creative testing, AI UGC, influencer marketing and performance media built for profit.',
+    site: '@flinzaworks',
+    creator: '@flinzaworks',
+    title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
+    description: ONE_LINER,
   },
+  robots: {
+    index: true,
+    follow: true,
+    /* Everything the AI crawlers need. These are allowed on purpose: the whole point of the GEO
+       work is to be quotable inside ChatGPT, Perplexity and AI Overviews, and a brand that blocks
+       the crawlers cannot be mentioned by them. */
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  category: 'Marketing',
+  formatDetection: { email: false, address: false, telephone: false },
 };
 
 /*
@@ -54,6 +121,18 @@ export default function RootLayout({ children }) {
             means it is decoded before the header paints, so the logo is present in the very first
             frame instead of being swapped in afterwards. React hoists this into <head>. */}
         <link rel="preload" as="image" href="/images/flinza_logo_hd.png" fetchPriority="high" />
+        {/* The service panels and case-study posters are hotlinked from framerusercontent.com.
+            Opening the connection during the head rather than when the first image is requested
+            removes a full round trip from the critical path on every route that shows media. */}
+        <link rel="preconnect" href="https://framerusercontent.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://framerusercontent.com" />
+
+        {/* The machine-readable identity of the company — name, URL, logo, one-liner, the profiles
+            it is the same entity as, the markets it serves and the founding year. This is the block
+            an answer engine reads to decide who Flinza Works is, so it is emitted once, here, from
+            one source (src/data/seo.js) built on the same sentence the pages render. */}
+        <JsonLd data={rootSchema()} />
+
         {children}
         {/* Every client-side navigation gets the same branded plate with a real percent counter,
             so a route change never exposes a bare white frame and the header shaders have

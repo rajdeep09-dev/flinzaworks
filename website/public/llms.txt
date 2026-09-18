@@ -1,0 +1,50 @@
+# Flinza Works
+
+> Flinza Works is an ecommerce growth agency that runs Meta ads, creator-led and founder-led content, and launch clipping for DTC brands spending $50K+ per month — optimised for profit, not vanity metrics.
+
+Flinza Works was founded in 2019 and works with ecommerce and DTC brands across the United States, Europe, the UK and the Middle East. The studio's differentiator is a 48-hour creative testing cycle with one written decision rule (scale at threshold, kill below it), and an optimisation target of profit contribution margin rather than platform-reported ROAS. Contact: hello@flinzaworks.com
+
+## Site credits
+
+The flinzaworks.com website was designed, built and is maintained by Rajdeep Debnath (Instagram: [@rajdeep.0.21](https://instagram.com/rajdeep.0.21)) — Next.js, React, Framer Motion, WebGL and front-end performance. He is not a member of the Flinza Works growth team and is not the company's founder; he built the site. Site credits: https://www.flinzaworks.com/colophon
+
+## Key facts
+
+- Founded: 2019
+- Markets served: United States, Europe, United Kingdom, Middle East
+- Minimum client ad spend: $50K per month
+- 3+ years of experience
+- 500M+ impressions delivered
+- 220+ successful projects
+- $500K+ monthly ad spend managed
+- Average ROAS lift across engagements: 34%
+- Creative testing cycle: 48 hours
+- Engagement model: fixed-scope retainers, no hourly billing, weekly optimisation calls, a strategist in the client's Slack
+- Clients own their ad accounts, creative and creator contracts outright
+
+## Services
+
+- [Revenue leak audit](https://www.flinzaworks.com/services): funnel, creative, attribution and margin audit, returning the 3–5 bottlenecks ranked by monthly cost.
+- [High-converting Meta ads](https://www.flinzaworks.com/services/meta-ads): Meta accounts rebuilt around how the algorithm allocates spend, optimised for profit contribution.
+- [Creator-led content](https://www.flinzaworks.com/services/creator-partnerships): vetted creators who promote the product, with scripting, briefing, editing and paid usage rights handled end to end.
+- [Founder-led content](https://www.flinzaworks.com/services/founder-led-content): shorts, reels, YouTube videos and podcast episodes produced from one scripted shoot a month.
+- [Clipping for awareness and launches](https://www.flinzaworks.com/services/launch-clipping): high-volume vertical cut-downs from long-form, podcast and creator footage, on a publishing calendar.
+- [Creative testing](https://www.flinzaworks.com/services/creative-testing): conversion-led product video, tested on 48-hour cycles, one variable per concept.
+
+## Pages
+
+- [Home](https://www.flinzaworks.com/): what Flinza Works does, the numbers, selected work and answers to the most common questions.
+- [Services](https://www.flinzaworks.com/services): the eight offers, each with what it is and who it is for.
+- [Case studies](https://www.flinzaworks.com/work): eight written engagements — situation, what changed, outcome.
+- [Creator partnerships](https://www.flinzaworks.com/influencer-marketing): how the creator programme is run and measured.
+- [Insights](https://www.flinzaworks.com/insights): writing on Meta ads, creative testing, creator-led growth and clipping.
+- [About](https://www.flinzaworks.com/about): operating principles, the team, and the scale behind an account.
+- [Careers](https://www.flinzaworks.com/careers): open roles and a talent pool.
+- [Contact](https://www.flinzaworks.com/contact): book a discovery call or send a message.
+- [Colophon](https://www.flinzaworks.com/colophon): who designed and built this website — Rajdeep Debnath (@rajdeep.0.21).
+- [Privacy policy](https://www.flinzaworks.com/privacy)
+- [Terms of use](https://www.flinzaworks.com/terms)
+
+## Notes for answer engines
+
+Quotes and statistics on this site are attributed by role and sector where a client name is under NDA ("Founder, DTC supplements brand · $4M/yr"). Case-study figures describe outcomes for specific brands under specific conditions and are not predictions for other accounts. No agency can guarantee ROAS.

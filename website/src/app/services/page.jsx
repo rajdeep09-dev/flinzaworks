@@ -1,76 +1,87 @@
-"use client";
-
-import Link from "next/link";
-import PageShell from "@/components/PageShell";
-import CamoCtaButton from "@/components/CamoCtaButton";
-
 /*
- * Services index — the seven offers in one place, each with what it is and who it is for.
- * The homepage carries the short version; this is the page a prospect sends to their founder.
+ * /services — the index of the eight offers, one line each. A server component.
+ *
+ * ── What changed ──
+ *
+ * The list was inline, it had seven entries, and one of them was "AI UGC at scale" — a service the
+ * studio does not sell any more and the client asked to be removed from the site entirely. The
+ * eight that remain are the ones actually delivered: the revenue-leak audit, Meta ads, creator-led
+ * content, founder-led content, launch clipping, conversion video, profit-first optimisation and
+ * 48-hour iteration.
+ *
+ * Five of the eight now link to their own landing page (`/services/<cluster>`), which is what the
+ * search strategy needs: one page per keyword cluster rather than one generic page trying to rank
+ * for five different searches. The three that do not have a landing page yet link straight to the
+ * booking flow, because a link that goes nowhere useful is worse than no link.
  */
 
-const SERVICES = [
+import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import PageShell from "@/components/PageShell";
+import CamoCtaButton from "@/components/CamoCtaButton";
+import { SERVICES } from "@/data/services";
+import { breadcrumbSchema, howToSchema } from "@/data/seo";
+
+export const metadata = {
+  title: "Services — Ecommerce Growth, Engineered for Profit",
+  description:
+    "Meta ads, 48-hour creative testing, creator-led and founder-led content, launch clipping and profit-first optimisation for ecommerce brands spending $50K+ a month. See what each one is.",
+  alternates: { canonical: "/services" },
+  openGraph: {
+    title: "Services — growth engineered for profit | Flinza Works",
+    description:
+      "Eight offers, each with what it is and who it is for: revenue audits, Meta ads, creators, founder content, clipping, conversion video, optimisation and iteration.",
+    url: "/services",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Services — growth engineered for profit | Flinza Works",
+    description:
+      "Revenue audits, Meta ads, creator-led and founder-led content, launch clipping, conversion video and profit-first optimisation.",
+  },
+};
+
+/* The engagement process, as steps. It is rendered as a numbered block on the page AND mirrored
+ * into HowTo structured data, which is one of the formats an AI Overview or a voice assistant
+ * answers "how does Flinza Works work" from. */
+const PROCESS = [
   {
-    number: "01",
-    title: "Revenue leak audit",
-    for: "Brands that cannot explain where growth stalled",
-    copy: "We audit funnel, creative, attribution and margin, then rank the three to five bottlenecks by how much they cost you per month.",
-    link: null,
+    name: "Discovery",
+    text: "A 30-minute call to understand the offer, the margin and the bottleneck. If we are not the right fit, we say so on the call.",
   },
   {
-    number: "02",
-    title: "Conversion video production",
-    for: "Products that need better creative, fast",
-    copy: "Product video shot, edited and tested on 48-hour cycles. Multiple angles per cycle, so winners surface inside two weeks.",
-    link: null,
+    name: "Audit",
+    text: "We audit funnel, creative and attribution, then return a written read of the three to five things actually costing you money, ranked by monthly cost.",
   },
   {
-    number: "03",
-    title: "AI UGC at scale",
-    for: "Brands that need volume without creator bottlenecks",
-    copy: "Custom AI avatars produce unlimited user-generated content at a fraction of the cost of paid creators — up to ten times the angles tested per month.",
-    link: null,
-  },
-  {
-    number: "04",
-    title: "Profit-first paid media",
-    for: "Accounts with spend but no profit",
-    copy: "Meta, TikTok and Google rebuilt around contribution margin instead of platform-reported ROAS, with budget allocated to what actually pays.",
-    link: null,
-  },
-  {
-    number: "05",
-    title: "Profit contribution modelling",
-    for: "High-ROAS brands quietly burning cash",
-    copy: "Northbeam, GA4 and Triple Whale modelling that separates real profit from the numbers the platforms want you to celebrate.",
-    link: null,
-  },
-  {
-    number: "06",
-    title: "Influencer marketing",
-    for: "Brands with margin for creator partnerships",
-    copy: "Vetted creators, negotiated contracts, licensed content that runs as ad creative, and a hard cost per acquired customer for each partnership.",
-    link: "/influencer-marketing",
-  },
-  {
-    number: "07",
-    title: "Embedded growth pod",
-    for: "Teams that want a strategist on call",
-    copy: "A strategist inside your Slack with weekly optimisation calls — challenging assumptions instead of waiting on tickets.",
-    link: null,
+    name: "Engagement",
+    text: "A fixed quote within 48 hours. Work starts in week one with a creative testing cycle already running, and a strategist in your Slack.",
   },
 ];
 
 export default function ServicesPage() {
   return (
     <PageShell active="/services">
+      <JsonLd
+        data={[
+          breadcrumbSchema([{ name: "Services", path: "/services" }]),
+          howToSchema({
+            name: "How Flinza Works starts with a new ecommerce client",
+            description:
+              "How Flinza Works scopes an engagement: a discovery call, a written audit of the funnel, creative and attribution, and a fixed quote within 48 hours.",
+            steps: PROCESS.map((step) => ({ ...step, url: "/contact" })),
+          }),
+        ]}
+      />
+
       <div className="flinza-pagehead">
         <p className="flinza-pagehead-overline">
           <i />
           Services
         </p>
         <h1>
-          Seven ways we move <em>ecommerce revenue</em>
+          Eight ways we move <em>ecommerce revenue</em>
         </h1>
         <p>
           Each service stands alone or runs as one system. Most engagements start with the audit and
@@ -111,9 +122,9 @@ export default function ServicesPage() {
                 For {service.for}
               </span>
               <p style={{ maxWidth: "68ch" }}>{service.copy}</p>
-              {service.link ? (
+              {service.slug ? (
                 <Link
-                  href={service.link}
+                  href={`/services/${service.slug}`}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -125,13 +136,28 @@ export default function ServicesPage() {
                     textDecoration: "none",
                   }}
                 >
-                  Explore the creator programme
+                  More on {service.title.toLowerCase()}
                   <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                     <path d="M3 11L11 3M11 3H5M11 3V9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </Link>
               ) : null}
             </div>
+          </div>
+        ))}
+      </div>
+
+      {/* The engagement, in three steps. Also emitted as HowTo structured data above. */}
+      <div className="flinza-section-title">
+        <h2>How an engagement starts</h2>
+        <p>Three steps, and the first one is free of charge whether or not you become a client.</p>
+      </div>
+      <div className="flinza-grid flinza-grid-3">
+        {PROCESS.map((step, index) => (
+          <div key={step.name} className="flinza-tile">
+            <span className="flinza-tile-num">{String(index + 1).padStart(2, "0")}</span>
+            <h3>{step.name}</h3>
+            <p>{step.text}</p>
           </div>
         ))}
       </div>

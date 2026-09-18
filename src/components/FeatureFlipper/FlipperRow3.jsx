@@ -41,9 +41,14 @@ const defaultCards = [
     image: { src: 'https://framerusercontent.com/images/xWq5qlnMo4nwNQlhbzFUKWqikwQ.jpg' },
   },
   {
-    tag: '03 • AI UGC',
-    title: 'AI UGC Without Creators',
-    description: 'Custom AI avatars produce unlimited user-generated content, so you can test 10x more angles.',
+    /* This row's third card still sold "AI UGC without creators". This component is not rendered by
+       the website — it is a vendored variant kept in the component library — but a default prop is
+       one `import` away from being live, and a stale offer sitting in a default is exactly how an
+       "AI UGC" card reappears on a site that has removed it. Aligned with the third service in
+       website/src/data/serviceCards.js instead. */
+    tag: '03 • CREATORS',
+    title: 'Creators Who Actually Convert',
+    description: 'We bring the best creators in your niche to promote your product \u2014 scripting, briefing, editing and paid usage rights handled end to end by us.',
     image: { src: 'https://framerusercontent.com/images/N6nWcGmKkdYDhvYS1RN1VoX05k.jpg' },
   },
 ];

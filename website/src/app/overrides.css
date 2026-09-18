@@ -2,9 +2,11 @@
  * Last-in-the-cascade fixes.
  *
  * Imported after ./globals.css in app/layout.jsx, so anything here wins at equal specificity.
- * These three rules all have to beat declarations that inline JSX styles or earlier blocks in
- * globals.css already set, and keeping them in one small file makes that ordering obvious instead
- * of hiding it 5,000 lines deep in the main stylesheet.
+ * Sections 1–11 are overrides: rules that have to beat declarations which inline JSX styles or
+ * earlier blocks in globals.css already set. Sections 12–14 are the new composition work from the
+ * client's review — the AIDA hero, the relocated carousel band, and the contact wordmark — and they
+ * live here for the same reason: they are read together with the code that renders them, instead of
+ * being scattered 5,000 lines deep in the main stylesheet.
  */
 
 /* ══ 1. The loader plate actually covers the screen ══════════════════════════
@@ -264,4 +266,1221 @@ body {
  * riding on the old value. */
 .flinza-hero {
   overflow: clip;
+}
+
+/* ══ 12. The hero: a message, and nothing in it waits on a script ═══════════
+ * The old hero was the fluid carousel. It is a beautiful object and it was doing the wrong job:
+ * the first screen had no statement of what the company sells, which is the one thing a first
+ * screen is for. The carousel has moved below the fold (section 13) and this replaces it, in the
+ * AIDA order the client asked for — attention, interest, desire, action.
+ *
+ * Two things this block has to get right on this site specifically:
+ *
+ *   · HEIGHT. The desktop layout runs under `html { zoom: 0.75 }` (globals.css, desktop and fine
+ *     pointers only), so a viewport unit and a real screen stop agreeing — which is why the old
+ *     hero was 133.333vh: 133.333 × 0.75 = 100. The same convention is mirrored here, and only
+ *     under the same media query that sets the zoom, so a phone gets a plain 100svh.
+ *
+ *   · TYPE. There is deliberately NO giant wordmark on the first screen any more. That was the
+ *     client's instruction, and he was right: a first screen whose loudest element is the company's
+ *     own name tells a stranger nothing. The h1 is now the claim, set in the site's display serif,
+ *     and the brand is a quiet letter-spaced label at the top of the frame instead.
+ *
+ *   · THE VISUAL. The reference hero the client sent was a blurred figure standing in a white
+ *     bloom. That is reproduced by `public/images/hero-glow.svg` — vector, ~2 kB, sharp at every
+ *     DPR, with the blur baked in by feGaussianBlur so the compositor rasterises it once instead of
+ *     re-evaluating a CSS `filter: blur()` on a full-viewport layer every frame. The palette is the
+ *     site's own aqua and the brand's blue, not the purple of the reference: the client asked for
+ *     that hero's shape and was explicit that the colour had to stay Flinza.
+ *
+ * Nothing in here is a shader or a canvas: it is text, one SVG and two painted gradients, so it is
+ * on screen in the first frame and the h1 is the page's LCP.
+ */
+.flinza-hero-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(104px, 14vh, 168px) clamp(20px, 5vw, 64px) clamp(40px, 6vh, 78px);
+  box-sizing: border-box;
+  overflow: clip;
+  background: transparent;
+}
+@supports (min-height: 100svh) {
+  .flinza-hero-stage {
+    min-height: 100svh;
+  }
+}
+@media (min-width: 1024px) and (pointer: fine) {
+  .flinza-hero-stage {
+    min-height: 133.333vh;
+  }
+}
+@supports (min-height: 100svh) {
+  @media (min-width: 1024px) and (pointer: fine) {
+    .flinza-hero-stage {
+      min-height: 133.333svh;
+    }
+  }
+}
+
+/* The visual and its scrim. `inset: 0` against the stage covers it exactly at any zoom factor —
+ * the same distinction that mattered for the loader plate. `50% 100%` keeps the figure anchored to
+ * the bottom edge however the frame is cropped, which is what makes it read as someone standing in
+ * the light rather than a pasted-in shape. */
+.flinza-hero-visual {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("/images/hero-glow.svg");
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: cover;
+}
+
+/* Two painted gradients, no filter: a wash at the top so the header's dark type never sits on the
+ * figure's head, and a light floor at the bottom so the copy block has something to stand on. */
+.flinza-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(247, 251, 252, 0.94) 0%,
+      rgba(247, 251, 252, 0.44) 20%,
+      rgba(247, 251, 252, 0) 40%
+    ),
+    linear-gradient(to top, rgba(247, 251, 252, 0.5) 0%, rgba(247, 251, 252, 0) 38%);
+}
+
+.flinza-hero-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(36px, 9vh, 108px);
+}
+
+/* The label lockup. Two letter-spaced words and a hairline between them: a signature, not a
+ * headline. It is the only place the brand name appears in the hero. */
+.flinza-hero-kicker {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-ui);
+  font-size: clamp(10px, 0.95vw, 12px);
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #0a3e4c;
+}
+.flinza-hero-kicker span {
+  padding-left: 12px;
+  border-left: 1px solid rgba(10, 62, 76, 0.22);
+  letter-spacing: 0.2em;
+  color: rgba(9, 9, 11, 0.44);
+}
+
+.flinza-hero-claim {
+  margin: 0 0 clamp(12px, 1.9vh, 20px);
+  max-width: 17ch;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 5.2vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.flinza-hero-claim em {
+  font-style: italic;
+  color: var(--aqua-deep);
+}
+
+.flinza-hero-interest {
+  margin: 0;
+  max-width: 54ch;
+  font-family: var(--font-ui);
+  font-size: clamp(14.5px, 1.15vw, 17px);
+  font-weight: 300;
+  line-height: 1.66;
+  color: #52525b;
+}
+
+/* DESIRE — the four figures, worded exactly as they are on /about and in the Organization
+ * schema. Same source (src/data/stats.js), so the hero cannot say 220+ while the schema says 200+.
+ *
+ * Two by two rather than four across: at four columns each figure gets about a fifth of the frame
+ * and the labels wrap to three lines, which is not a stat row. As a 2×2 block on the right of the
+ * bottom rule it reads as one object and holds its shape from 360px to 2560px. */
+.flinza-hero-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2.2vw, 26px) clamp(20px, 3vw, 40px);
+}
+.flinza-hero-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.flinza-hero-stats strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(23px, 2.9vw, 38px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.flinza-hero-stats span {
+  font-family: var(--font-ui);
+  font-size: clamp(9.5px, 0.8vw, 11.5px);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.46);
+}
+
+/* ACTION */
+.flinza-hero-actions {
+  margin-top: clamp(20px, 2.8vh, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px 26px;
+  flex-wrap: wrap;
+  filter: drop-shadow(0 16px 34px rgba(14, 124, 147, 0.26));
+}
+.flinza-hero-secondary {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #0a3e4c;
+  text-decoration: none;
+  padding: 12px 6px;
+  border-bottom: 1px solid rgba(10, 62, 76, 0.28);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.flinza-hero-secondary:hover,
+.flinza-hero-secondary:focus-visible {
+  color: var(--aqua-deep);
+  border-color: var(--aqua-deep);
+}
+
+/* The client's own positioning line, opposite the brand label on the top rule. Quiet italic serif:
+ * it is a footnote to the hero, not a second headline. */
+.flinza-hero-note {
+  margin: 0;
+  max-width: 46ch;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: clamp(13.5px, 1.05vw, 15.5px);
+  font-style: italic;
+  line-height: 1.62;
+  color: rgba(9, 9, 11, 0.5);
+}
+
+@media (max-width: 760px) {
+  .flinza-hero-stats {
+    gap: 16px 18px;
+    text-align: left;
+  }
+  /* Stacked, because the two labels side by side only just fit a 390px screen and the lockup
+     should not be the thing that decides whether the hero looks right on a small phone. */
+  .flinza-hero-kicker {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .flinza-hero-kicker span {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .flinza-hero-note {
+    max-width: 100%;
+    text-align: left;
+    font-size: 13.5px;
+  }
+  .flinza-hero-claim {
+    max-width: 100%;
+  }
+}
+
+/* ══ 13. Selected Work — the carousel, below the fold, under a heading ══
+ * The carousel was never the problem; being the hero was. Under a heading that says what it is, it
+ * does what it was built to do. Its own mobile geometry was written for the old hero — absolutely
+ * positioned against a 133vh box at `top: 19vh` — so inside this band those numbers point at
+ * nothing and the box takes its own height back. `!important` because the rules being overridden
+ * are themselves `!important` in globals.css.
+ */
+.flinza-work-band {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(56px, 8vh, 100px) 0 clamp(46px, 7vh, 90px);
+  box-sizing: border-box;
+  overflow: clip;
+}
+.flinza-work-head {
+  width: 100%;
+  max-width: 780px;
+  padding: 0 24px;
+  text-align: center;
+  box-sizing: border-box;
+  margin-bottom: clamp(22px, 3.6vh, 40px);
+}
+/* The section label is a flex row with a rule to its left, which is right for the edge-to-edge
+ * labels elsewhere on the site and wrong above a centred heading. Centred here, and the wrapper's
+ * padding is dropped because `.flinza-work-head` already has it. */
+.flinza-work-head .flinza-overline {
+  justify-content: center;
+  max-width: 100%;
+  padding: 0;
+  margin-bottom: clamp(10px, 1.6vh, 16px);
+}
+.flinza-work-title {
+  margin: 10px 0 12px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 4.5vw, 52px);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.flinza-work-title em {
+  font-style: italic;
+  color: var(--aqua-deep);
+}
+.flinza-work-sub {
+  margin: 0 auto;
+  max-width: 60ch;
+  font-family: var(--font-ui);
+  font-size: clamp(14px, 1.12vw, 16.5px);
+  font-weight: 300;
+  line-height: 1.62;
+  color: #52525b;
+}
+.flinza-work-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(430px, 62vh, 600px);
+}
+@supports (height: 100svh) {
+  .flinza-work-stage {
+    height: clamp(430px, 62svh, 600px);
+  }
+}
+@media (max-width: 900px) {
+  .flinza-work-stage .flinza-carousel-lock {
+    position: relative !important;
+    top: 0 !important;
+    height: 100% !important;
+  }
+}
+
+/* The voice-note cards opened on a portrait photograph and a name. A monogram opens them now: a
+ * face beside a testimonial is a claim, and the only faces this site owns belong to the team. */
+.flinza-voice-monogram {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #0a3e4c;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.9), rgba(127, 209, 222, 0.55));
+  box-shadow: inset 0 0 0 1px rgba(10, 62, 76, 0.12), 0 10px 22px -14px rgba(10, 62, 76, 0.6);
+}
+
+/* The story captions no longer carry an avatar, so the block is two lines of type rather than a
+ * portrait and two lines beside it. */
+.flinza-story-who {
+  row-gap: 2px;
+}
+
+/* ══ 14. The contact CTA: the wordmark at exactly 22% ════════════════════
+ * The rotating headshot ring is gone, on the client's instruction. In its place the wordmark, huge,
+ * with the headline, the lede and the existing Get In Touch pill sitting on top of it.
+ *
+ * The stage was capped at 780px to frame the ring; the wordmark wants the page width, so the cap
+ * comes off here and the inner column does the centring instead.
+ */
+.flinza-contact-stage {
+  max-width: 100%;
+  width: 100%;
+  padding: clamp(30px, 5vw, 64px) 0 clamp(34px, 6vw, 72px);
+  gap: 0;
+  overflow: clip;
+}
+.flinza-cta-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 12.2vw, 178px);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  color: #0a3e4c;
+  /* Exactly 22%, as specified. Not a token, not a variable — one number, in one place, so nobody
+     has to guess which of the two values in a theme is the real one. */
+  opacity: 0.22;
+  pointer-events: none;
+  user-select: none;
+}
+.flinza-cta-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(13px, 2vh, 20px);
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+.flinza-cta-title {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(29px, 4.3vw, 54px);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.flinza-cta-title em {
+  font-style: italic;
+  color: var(--aqua-deep);
+}
+.flinza-cta-inner .flinza-contact-sub {
+  max-width: 46ch;
+}
+.flinza-contact-stage .flinza-contact-actions {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(22px, 3.4vh, 40px);
+}
+
+/* ══ 15. Careers: the dark talent-pool card ══════════════════════════════
+ * The client asked for the Atomik treatment — a dark, centred signup card — and gave the reason:
+ * "when they give all, we'd have the info". So this is the one dark surface on a light site, and it
+ * is intentionally the loudest object on /careers: it is the thing a candidate should notice before
+ * they start reading job descriptions.
+ *
+ * It is one element with one radial gradient behind it rather than a stack of layered glass, so it
+ * composites in a single pass. Nothing in it animates on scroll.
+ */
+.flinza-talent {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: clamp(8px, 2vh, 24px) 24px clamp(28px, 5vh, 60px);
+  box-sizing: border-box;
+}
+.flinza-talent-card {
+  position: relative;
+  width: 100%;
+  max-width: 660px;
+  padding: clamp(26px, 4.4vw, 44px) clamp(20px, 4vw, 42px) clamp(26px, 4vw, 40px);
+  border-radius: 28px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(158deg, #0b1418 0%, #0a1a20 46%, #08262f 100%);
+  border: 1px solid rgba(127, 209, 222, 0.16);
+  box-shadow: 0 50px 120px -50px rgba(8, 30, 38, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #eaf7fa;
+}
+.flinza-talent-glow {
+  position: absolute;
+  left: 50%;
+  top: -30%;
+  width: 150%;
+  height: 110%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background:
+    radial-gradient(46% 54% at 50% 34%, rgba(127, 209, 222, 0.3) 0%, rgba(127, 209, 222, 0) 70%),
+    radial-gradient(40% 46% at 82% 86%, rgba(46, 147, 172, 0.26) 0%, rgba(46, 147, 172, 0) 72%);
+}
+.flinza-talent-head,
+.flinza-talent-form,
+.flinza-talent-done {
+  position: relative;
+  z-index: 1;
+}
+.flinza-talent-head {
+  margin-bottom: clamp(20px, 3vh, 30px);
+}
+.flinza-talent-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7fd1de;
+}
+.flinza-talent-kicker i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7fd1de;
+  box-shadow: 0 0 10px #7fd1de;
+}
+.flinza-talent-title {
+  margin: 12px 0 10px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(27px, 4vw, 42px);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: #f4fdfe;
+}
+.flinza-talent-title em {
+  font-style: italic;
+  color: #7fd1de;
+}
+.flinza-talent-sub {
+  margin: 0;
+  max-width: 52ch;
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  font-weight: 300;
+  line-height: 1.62;
+  color: rgba(234, 247, 250, 0.66);
+}
+
+.flinza-talent-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.flinza-talent-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.flinza-talent-label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.flinza-talent-label > span {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(234, 247, 250, 0.5);
+}
+.flinza-talent-field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(127, 209, 222, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f4fdfe;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.flinza-talent-field::placeholder {
+  color: rgba(234, 247, 250, 0.34);
+}
+.flinza-talent-field:focus {
+  border-color: #7fd1de;
+  background: rgba(255, 255, 255, 0.08);
+}
+.flinza-talent-field--area {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.55;
+}
+select.flinza-talent-field option {
+  color: #0a1a20;
+  background: #ffffff;
+}
+
+/* A native file input, restyled. On a phone this is the control that opens the files picker, which
+ * a hand-built dropzone cannot do — so it stays a real input and only the label is dressed. */
+.flinza-talent-file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(127, 209, 222, 0.32);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.flinza-talent-file:hover,
+.flinza-talent-file:focus-within {
+  border-color: #7fd1de;
+  background: rgba(255, 255, 255, 0.06);
+}
+.flinza-talent-file input[type='file'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.flinza-talent-file-btn {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: #0a1a20;
+  background: linear-gradient(135deg, #bdeaf2, #7fd1de);
+}
+.flinza-talent-file-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: rgba(234, 247, 250, 0.6);
+}
+
+.flinza-talent-error {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff9db0;
+}
+.flinza-talent-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  filter: drop-shadow(0 18px 36px rgba(10, 62, 76, 0.5));
+}
+.flinza-talent-note {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: rgba(234, 247, 250, 0.44);
+  text-align: center;
+}
+
+.flinza-talent-done {
+  text-align: center;
+  padding: clamp(14px, 3vh, 26px) 0 clamp(4px, 1vh, 12px);
+}
+.flinza-talent-tick {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #06242b;
+  background: linear-gradient(135deg, #bdeaf2, #56c1d3);
+  box-shadow: 0 18px 40px -16px rgba(86, 193, 211, 0.8);
+}
+.flinza-talent-done h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  color: #f4fdfe;
+}
+.flinza-talent-done p {
+  margin: 0 auto;
+  max-width: 44ch;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.62;
+  color: rgba(234, 247, 250, 0.7);
+}
+.flinza-talent-done-meta {
+  margin-top: 10px !important;
+  font-size: 12px !important;
+  color: rgba(234, 247, 250, 0.42) !important;
+}
+
+/* ══ 16. The scale band on /about ═══════════════════════════════════════
+ * Four names on a page reads as a four-person agency, and a brand spending $80K a month wants to
+ * know what is actually behind the work. This sits directly under the team grid and answers it, in
+ * the same visual language as the stat band above it.
+ */
+.flinza-scaleband {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
+  gap: clamp(18px, 3.4vw, 46px);
+  align-items: center;
+  margin: clamp(26px, 4vw, 46px) auto 0;
+  padding: clamp(22px, 3.2vw, 34px);
+  border-radius: 22px;
+  box-sizing: border-box;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.66), rgba(224, 244, 249, 0.42));
+  border: 1px solid rgba(23, 132, 155, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+.flinza-scaleband strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(46px, 6.4vw, 76px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  color: var(--aqua-deep);
+  font-variant-numeric: tabular-nums;
+}
+.flinza-scaleband div span {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.46);
+}
+.flinza-scaleband p {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.68;
+  color: #52525b;
+}
+@media (max-width: 720px) {
+  .flinza-scaleband {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Creator roster monograms. The roster is anonymised, so there is no portrait — an honest stand-in
+ * that still gives the card a left edge to align to. */
+.flinza-roster-initials {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0a3e4c;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.92), rgba(127, 209, 222, 0.5));
+  box-shadow: inset 0 0 0 1px rgba(10, 62, 76, 0.12);
+}
+
+/* ══ 17. The answer block, and the lists that go with it ═════════════════
+ * The answer block is the single most quoted element on a service or article page: forty to sixty
+ * words that stand alone if they are lifted with no surrounding context. It is styled to read like
+ * a pull-quote rather than like a footnote, because that is what it is — the summary a reader
+ * wants first and the paragraph a search engine will quote back.
+ */
+.flinza-answerblock {
+  position: relative;
+  margin: 0 auto clamp(30px, 5vw, 56px);
+  padding: clamp(22px, 3.2vw, 34px) clamp(22px, 3.4vw, 40px);
+  max-width: 1040px;
+  border-radius: 24px;
+  box-sizing: border-box;
+  background: linear-gradient(138deg, rgba(255, 255, 255, 0.78), rgba(224, 244, 249, 0.5));
+  border: 1px solid rgba(23, 132, 155, 0.2);
+  box-shadow: 0 30px 70px -50px rgba(10, 62, 76, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.flinza-answerblock-tag {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+}
+.flinza-answerblock p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(17px, 1.9vw, 23px);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: rgba(9, 9, 11, 0.86);
+}
+
+.flinza-ticklist {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.flinza-ticklist li {
+  position: relative;
+  padding-left: 22px;
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #3f3f46;
+}
+.flinza-ticklist li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #56c1d3, #17849b);
+}
+
+/* The proof metric on a landing page, set as a number rather than as a sentence. */
+.flinza-proof-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(9, 9, 11, 0.1);
+}
+.flinza-proof-metric strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--aqua-deep);
+  font-variant-numeric: tabular-nums;
+}
+.flinza-proof-metric span {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.44);
+}
+
+/* Related links, at the foot of a service page or an article. Real anchors a reader can follow. */
+.flinza-related {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  max-width: 1040px;
+  margin: clamp(38px, 6vw, 72px) auto 0;
+  padding-top: 22px;
+  border-top: 1px solid rgba(9, 9, 11, 0.1);
+}
+.flinza-related > span {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.4);
+}
+.flinza-related a {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: #0a3e4c;
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(10, 62, 76, 0.22);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.flinza-related a:hover,
+.flinza-related a:focus-visible {
+  color: var(--aqua-deep);
+  border-color: var(--aqua-deep);
+}
+
+/* ══ 18. The blog: index cards and the article body ══════════════════════ */
+.flinza-post-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  max-width: 1180px;
+  margin: 0 auto clamp(20px, 3vw, 32px);
+}
+.flinza-post-meta-row > span {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.4);
+}
+.flinza-post-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.flinza-post-cat {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+  background: rgba(23, 132, 155, 0.1);
+  border: 1px solid rgba(23, 132, 155, 0.24);
+}
+.flinza-post-time {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.42);
+}
+
+.flinza-post-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.flinza-post-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.flinza-post-card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(20px, 2.2vw, 26px);
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+}
+.flinza-post-card-title a {
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.flinza-post-card-title a:hover,
+.flinza-post-card-title a:focus-visible {
+  color: var(--aqua-deep);
+}
+.flinza-post-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(9, 9, 11, 0.08);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: rgba(9, 9, 11, 0.44);
+}
+.flinza-post-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--aqua-deep);
+  text-decoration: none;
+}
+
+.flinza-article {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.flinza-article-head {
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+.flinza-article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+}
+.flinza-article-meta time {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: rgba(9, 9, 11, 0.44);
+}
+.flinza-article-head h1 {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(31px, 4.8vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.flinza-article-standfirst {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: clamp(15.5px, 1.4vw, 18px);
+  font-weight: 300;
+  line-height: 1.65;
+  color: #52525b;
+}
+.flinza-article-body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(24px, 3.4vw, 38px);
+}
+.flinza-article-body h2 {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(22px, 2.6vw, 31px);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.flinza-article-body p {
+  margin: 0 0 14px;
+  font-family: var(--font-ui);
+  font-size: clamp(15px, 1.15vw, 16.5px);
+  font-weight: 300;
+  line-height: 1.75;
+  color: #3f3f46;
+}
+.flinza-article-body p:last-child {
+  margin-bottom: 0;
+}
+.flinza-article-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-top: clamp(36px, 5vw, 60px);
+  padding: clamp(22px, 3.2vw, 34px);
+  border-radius: 24px;
+  box-sizing: border-box;
+  background: linear-gradient(138deg, rgba(255, 255, 255, 0.72), rgba(224, 244, 249, 0.46));
+  border: 1px solid rgba(23, 132, 155, 0.18);
+}
+.flinza-article-cta-tag {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+}
+.flinza-article-cta h2 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(21px, 2.6vw, 30px);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.flinza-article-cta p {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #52525b;
+}
+.flinza-article-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  filter: drop-shadow(0 16px 32px rgba(14, 124, 147, 0.22));
+}
+
+/* The article and the landing pages are centred columns; the shell adds the page padding. */
+@media (max-width: 720px) {
+  .flinza-article-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ══ 19. FAQ questions are headings, and the heading must not change the layout ══
+ * FaqList now wraps each question's button in an <h3>, so a screen reader can jump question to
+ * question and an answer engine can match the question to the page. A browser's default h3 rule is
+ * 1.17em bold with margins, which would push every row apart and re-set the question type — so the
+ * wrapper inherits everything from the row and contributes nothing but semantics.
+ */
+.flinza-faqrow-heading {
+  margin: 0;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-align: inherit;
+}
+
+/* ══ 20. The hero's frame: two rules, and the figure between them ════════
+ * The composition the client asked for, in his reference's own geometry: the eye lands on the
+ * centre of the frame — the figure in the light — and the two rules top and bottom carry the copy.
+ * Nothing is centred as a column of type; everything is anchored to an edge, which is what stops a
+ * full-bleed visual hero reading as a template.
+ *
+ * The bottom rule is a two-column grid rather than a centred stack: the claim and the CTA on the
+ * left, the four figures on the right, both sitting on the same baseline. At 900px it becomes one
+ * column and the figures go under the copy, which is the same information in the order a phone
+ * reader wants it.
+ */
+.flinza-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 48px;
+  flex-wrap: wrap;
+}
+
+.flinza-hero-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: end;
+  gap: clamp(28px, 4vw, 72px);
+}
+.flinza-hero-copy {
+  min-width: 0;
+}
+
+/* The scroll cue. One small letter-spaced label with a nudging arrow — a 6px translate on an 11px
+ * inline span, so it animates on the compositor and costs nothing next to the text around it. */
+.flinza-hero-scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: clamp(18px, 2.6vh, 28px);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.48);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.flinza-hero-scroll:hover,
+.flinza-hero-scroll:focus-visible {
+  color: var(--aqua-deep);
+}
+.flinza-hero-scroll span {
+  display: inline-block;
+  animation: flinza-hero-nudge 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes flinza-hero-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+/* One column on a phone, and on a short landscape window the figures go back beside the copy
+ * because vertical space is the scarce thing there, not horizontal. */
+@media (max-width: 900px) {
+  .flinza-hero-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+    align-items: start;
+  }
+  .flinza-hero-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
+
+@media (max-height: 560px) and (min-width: 760px) {
+  .flinza-hero-bottom {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-hero-scroll span {
+    animation: none;
+  }
+}
+
+/* ══ 21. The credit line in the footer ══════════════════════════════════
+ * Sits between the big decorative wordmark and the legal row, in the same 12px as the base row so
+ * it belongs to it, but on its own line and with the name set at full contrast: a credit that is
+ * as dim as the small print is a credit nobody reads, and the entire point of this line is that it
+ * is read.
+ */
+.flinza-foot-credit {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 9px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: rgba(9, 9, 11, 0.42);
+}
+.flinza-foot-credit a {
+  color: #0a3e4c;
+  text-decoration: none;
+  font-weight: 500;
+  padding-bottom: 1px;
+  border-bottom: 1px solid rgba(10, 62, 76, 0.24);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.flinza-foot-credit a:hover,
+.flinza-foot-credit a:focus-visible {
+  color: var(--aqua-deep);
+  border-color: var(--aqua-deep);
 }
