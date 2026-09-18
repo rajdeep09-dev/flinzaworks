@@ -2,86 +2,90 @@
   <!--
     The hero visual, as vector.
 
-    One file, two kilobytes, and it stays sharp at every device pixel ratio and every width —
-    which is why it is an SVG and not a photograph. The reference the client sent was a raster
-    silhouette against a radial bloom; this is the same image rebuilt from three primitives so the
-    site never ships a megabyte of hero art that has to be re-cropped per breakpoint.
+    The reference the client sent is a very soft, very low-contrast image: a pale cyan haze with a
+    white bloom behind a blurred figure, and no hard edge anywhere in the frame. Rebuilding that in
+    SVG rather than shipping a photograph has three advantages that matter on a first screen — it is
+    about 4 kB instead of a megabyte, it is sharp at every device pixel ratio without a srcset, and
+    the blur below is applied INSIDE the file, so the browser rasterises it once and then composites
+    a flat bitmap. A CSS `filter: blur()` on a full-viewport layer would be re-evaluated every frame
+    it is visible; this costs nothing after the first paint.
 
-    The blur is baked in with feGaussianBlur rather than left to a CSS `filter: blur()`. That
-    matters: a CSS filter on a full-viewport layer is re-evaluated by the compositor every frame it
-    is visible, whereas a blur applied inside an SVG is rasterised once and then composited as a
-    flat bitmap. Same picture, none of the per-frame cost.
+    If a photograph is ever preferred, the hero also looks for one at
+    public/images/hero-silhouette.{png,jpg,jpeg,webp,avif} and swaps itself out when it finds it —
+    see the note in app/page.jsx. Nothing in this file has to change.
 
-    Nothing here is brand copy. The wordmark is HTML in the hero, above this layer, so it stays
-    selectable, indexable and legible to a screen reader.
+    Nothing here is brand copy. The wordmark and the claim are HTML in the hero, above this layer,
+    so they stay selectable, indexable and legible to a screen reader.
   -->
   <defs>
-    <linearGradient id="hg-base" x1="0" y1="0" x2="0.85" y2="1">
-      <stop offset="0" stop-color="#f4fbfd"/>
-      <stop offset="0.42" stop-color="#e4f3f9"/>
-      <stop offset="1" stop-color="#c4e6f1"/>
+    <linearGradient id="hg-base" x1="0.05" y1="0" x2="0.95" y2="1">
+      <stop offset="0" stop-color="#f2fbfd"/>
+      <stop offset="0.42" stop-color="#e3f4fa"/>
+      <stop offset="1" stop-color="#cce7f1"/>
     </linearGradient>
 
     <radialGradient id="hg-bloom" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="1"/>
-      <stop offset="0.36" stop-color="#ffffff" stop-opacity="0.86"/>
-      <stop offset="0.68" stop-color="#ffffff" stop-opacity="0.34"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="0.3" stop-color="#ffffff" stop-opacity="0.82"/>
+      <stop offset="0.62" stop-color="#ffffff" stop-opacity="0.36"/>
       <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="hg-lobe-a" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#48b3ce" stop-opacity="0.62"/>
-      <stop offset="0.6" stop-color="#48b3ce" stop-opacity="0.22"/>
-      <stop offset="1" stop-color="#48b3ce" stop-opacity="0"/>
+    <radialGradient id="hg-aqua" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7fc6da" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#7fc6da" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="hg-lobe-b" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#1b7c96" stop-opacity="0.55"/>
-      <stop offset="0.62" stop-color="#1b7c96" stop-opacity="0.18"/>
-      <stop offset="1" stop-color="#1b7c96" stop-opacity="0"/>
+    <radialGradient id="hg-deep" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#3f97ad" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#3f97ad" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="hg-dark" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#26697d" stop-opacity="0.5"/>
-      <stop offset="1" stop-color="#26697d" stop-opacity="0"/>
-    </radialGradient>
-
-    <filter id="hg-figure" x="-45%" y="-45%" width="190%" height="190%">
-      <feGaussianBlur stdDeviation="26"/>
+    <!-- Two blurs: one for the wide washes, one for the figure. Both are baked at render time. -->
+    <filter id="hg-wash" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="72"/>
     </filter>
-
-    <filter id="hg-haze" x="-55%" y="-55%" width="210%" height="210%">
-      <feGaussianBlur stdDeviation="64"/>
+    <filter id="hg-figure" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="34"/>
+    </filter>
+    <filter id="hg-core" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="54"/>
     </filter>
   </defs>
 
   <!-- Ground -->
   <rect width="1440" height="900" fill="url(#hg-base)"/>
 
-  <!-- Haze: two aqua lobes so the frame is not a flat tint, and two quiet dark corners echoing the
-       camo palette the rest of the site paints with. -->
-  <g filter="url(#hg-haze)">
-    <ellipse cx="176" cy="112" rx="520" ry="400" fill="url(#hg-lobe-a)"/>
-    <ellipse cx="1290" cy="806" rx="560" ry="440" fill="url(#hg-lobe-b)"/>
-    <ellipse cx="128" cy="64" rx="400" ry="280" fill="url(#hg-dark)" opacity="0.75"/>
-    <ellipse cx="1402" cy="150" rx="320" ry="270" fill="url(#hg-dark)" opacity="0.6"/>
+  <!-- Haze. Five overlapping washes at low opacity rather than one flat tint: the reference has no
+       uniform colour anywhere in it, it is cloudy in every corner, and that unevenness is most of
+       what makes it read as a photograph of light rather than a gradient fill. -->
+  <g filter="url(#hg-wash)">
+    <ellipse cx="128" cy="58" rx="470" ry="300" fill="url(#hg-deep)" opacity="0.85"/>
+    <ellipse cx="1424" cy="176" rx="400" ry="340" fill="url(#hg-deep)" opacity="0.7"/>
+    <ellipse cx="76" cy="806" rx="360" ry="300" fill="url(#hg-deep)" opacity="0.55"/>
+    <ellipse cx="1386" cy="812" rx="340" ry="280" fill="url(#hg-aqua)" opacity="0.7"/>
+    <ellipse cx="720" cy="40" rx="640" ry="220" fill="url(#hg-aqua)" opacity="0.5"/>
+    <ellipse cx="300" cy="470" rx="300" ry="330" fill="url(#hg-aqua)" opacity="0.35"/>
   </g>
 
-  <!-- The light. This is what the figure is standing in front of. -->
-  <ellipse cx="706" cy="404" rx="548" ry="418" fill="url(#hg-bloom)"/>
-  <ellipse cx="706" cy="332" rx="404" ry="330" fill="#ffffff" opacity="0.72" filter="url(#hg-haze)"/>
+  <!-- The light. A wide bloom with a tighter core inside it, so the brightest point sits just above
+       the figure's shoulders and falls away slowly rather than in a ring. -->
+  <ellipse cx="744" cy="388" rx="552" ry="424" fill="url(#hg-bloom)"/>
+  <ellipse cx="774" cy="348" rx="306" ry="246" fill="#ffffff" opacity="0.78" filter="url(#hg-core)"/>
 
-  <!-- The figure: head, neck and shoulders, blurred into one soft mass and anchored below the
-       bottom edge so it reads as someone rising through the light rather than a portrait. -->
-  <g filter="url(#hg-figure)" fill="#0b1c24" opacity="0.96">
-    <ellipse cx="720" cy="316" rx="58" ry="76"/>
-    <rect x="688" y="380" width="64" height="78" rx="28"/>
-    <path d="M548 906 C548 636 612 466 720 450 C828 466 892 636 892 906 Z"/>
+  <!-- The figure: head, neck and a long torso, blurred into one soft mass and anchored below the
+       bottom edge so it reads as someone standing in the light rather than a cropped portrait.
+       The blur is deliberately large — in the reference there is no crisp edge on the figure at
+       all, which is exactly what makes the image feel like a memory rather than a photo. -->
+  <g filter="url(#hg-figure)" fill="#0c1c25" opacity="0.9">
+    <ellipse cx="720" cy="200" rx="46" ry="56"/>
+    <rect x="694" y="238" width="52" height="68" rx="22"/>
+    <path d="M606 902 C606 646 640 374 720 302 C800 374 834 646 834 902 Z"/>
   </g>
 
-  <!-- A thin warm rim on the right of the torso, so the silhouette is separated from the bloom
-       instead of sinking into it. -->
-  <g filter="url(#hg-figure)" opacity="0.22">
-    <path d="M812 906 C812 686 792 520 726 462 C840 486 892 646 892 906 Z" fill="#bdeaf2"/>
+  <!-- A whisper of cool light down one side of the mass, so the silhouette has a direction instead
+       of being a symmetrical blob. Barely visible on purpose. -->
+  <g filter="url(#hg-figure)" opacity="0.14">
+    <path d="M760 902 C760 686 748 470 712 330 C812 386 834 646 834 902 Z" fill="#cdeef6"/>
   </g>
 </svg>

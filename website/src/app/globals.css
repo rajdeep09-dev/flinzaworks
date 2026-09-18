@@ -605,33 +605,119 @@ main {
   }
 }
 
-/* ── Section reveals: fade + rise once when scrolled into view ── */
+/* ── Section-to-section motion ──
+ *
+ * One transition language for the seam between sections, on every route. The classes are applied by
+ * src/components/SectionReveal.jsx, which is mounted once in the root layout — read that file for
+ * the rules (nothing on the first screen moves on load, one-shot, cleanup after, fixed chrome
+ * skipped, blur only on short bands and only on a fine pointer). This block is only how it looks.
+ *
+ * ── Why these values ──
+ *
+ * `translate3d` rather than `translateY`. Identical rendering, except that the 3D form hands the
+ * band to the compositor for the length of the transition instead of leaving the browser to decide.
+ * On a page that also has a WebGL surface and a scrolling canvas on it, the difference is the
+ * difference between a smooth rise and a visible stutter.
+ *
+ * `cubic-bezier(0.22, 1, 0.36, 1)` is a long ease-out — quick off the mark, very slow to settle.
+ * That slow tail is what reads as "expensive" rather than "animated": the band is essentially in
+ * place about a third of the way through and spends the rest of the duration arriving.
+ *
+ * `transform: none` in the settled state, not `translateY(0)`. A used value of `none` leaves no
+ * transform on the element at all, so the band cannot remain a containing block for anything
+ * positioned inside it once the motion is over — and `SectionReveal` removes the classes entirely
+ * a moment later, so the end state is the untouched document.
+ *
+ * There is deliberately NO `will-change` here. The old version carried a `.will-reveal` modifier
+ * that nothing ever applied; had it been applied it would have promoted every band on the page to
+ * its own compositor layer permanently, which is a large amount of GPU memory to spend on a
+ * transition that lasts one second. An animating opacity/transform is promoted by the browser for
+ * exactly as long as it is animating, which is the behaviour we actually want.
+ */
 .reveal-init {
   opacity: 0;
-  transform: translateY(34px);
+  transform: translate3d(0, 30px, 0);
 }
 .reveal-in {
   opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: none;
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.reveal-in.will-reveal {
-  will-change: opacity, transform;
+
+/* The blur variant. `SectionReveal` adds `reveal-blur` only to a band under 320px tall, and only
+ * on a fine pointer, because a `filter` on a full-height section repaints that whole section on
+ * every frame of the transition — the one thing in this system that could cost a frame. On a
+ * heading, a label or a stat row it is a few thousand pixels and it is what gives the arrival its
+ * focus-pull quality, which is the same device the loader uses on the wordmark. */
+.reveal-init.reveal-blur {
+  filter: blur(7px);
 }
+.reveal-in.reveal-blur {
+  filter: blur(0);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Phones and small tablets: a shorter rise and a quicker settle. A 30px lift over 0.95s is a
+ * considered entrance on a 1440px canvas and a slow one on a 390px screen, where the same band is
+ * several screens tall and the reader is already scrolling past it. */
+@media (max-width: 900px) {
+  .reveal-init {
+    transform: translate3d(0, 18px, 0);
+  }
+  .reveal-in {
+    transition:
+      opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal-in.reveal-blur {
+    transition:
+      opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* Touch devices never get the blur at all, whatever the band's height: it is the most expensive
+ * property in the set and the least visible on a screen held at arm's length. */
+@media (hover: none), (pointer: coarse) {
+  .reveal-init.reveal-blur {
+    filter: none;
+  }
+  .reveal-in.reveal-blur {
+    filter: none;
+  }
+}
+
+/* A belt-and-braces guard. `SectionReveal` returns before it adds a single class when the reader
+ * has asked for reduced motion, so this should never have anything to do — it is here for any
+ * class left in the markup by hand or stranded by an interrupted transition. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .reveal-in {
+    transition: none;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* The opt-in path for staggering elements INSIDE a band — a grid of cards, a row of figures — when
+ * the band itself is one object and its children should follow it in. `SectionReveal` staggers the
+ * bands that arrive together; this staggers their children. Mark the parent `reveal-stagger` and
+ * give the children their own reveal classes. */
 .reveal-stagger > *:nth-child(2) { transition-delay: 60ms; }
 .reveal-stagger > *:nth-child(3) { transition-delay: 120ms; }
 .reveal-stagger > *:nth-child(4) { transition-delay: 180ms; }
 .reveal-stagger > *:nth-child(5) { transition-delay: 240ms; }
 .reveal-stagger > *:nth-child(6) { transition-delay: 300ms; }
-@media (prefers-reduced-motion: reduce) {
-  .reveal-init {
-    opacity: 1;
-    transform: none;
-  }
-  .reveal-in {
-    transition: none;
-  }
-}
 
 /* ── Below-fold sections: the reveal animations own the pacing ──
    These sections used to carry content-visibility: auto, which skipped paint for the whole
@@ -639,7 +725,19 @@ main {
    re-painted entire sections mid-scroll. The lazy mount gates below handle render cost
    without breaking animations. */
 
-/* ── Tap highlight + comfortable touch targets on mobile ── */
+/* ── Tap highlight + comfortable touch targets on mobile ──
+ *
+ * A blanket 44px minimum on every `a` and `button` is the right instinct and too blunt an
+ * instrument. It does not affect links in a paragraph — `min-height` has no effect on a
+ * non-replaced inline box — but every link inside a flex or grid container is blockified, so the
+ * footer's link columns, the legal row and the credit line were each stretched into a 44px row.
+ * On a phone that turned the densest part of the page, the footer, into the tallest part of it.
+ *
+ * The guideline now applies to controls and to links that stand alone, and the typographic link
+ * lists get their own row height instead. Those rows are deliberately 34px rather than 44px: at
+ * 44px in a vertical list the tap areas of adjacent links overlap by about 10px, and a mis-routed
+ * tap on the wrong page is a worse outcome than a target that misses the guideline by 10px while
+ * being surrounded by whitespace. */
 html {
   -webkit-tap-highlight-color: transparent;
 }
@@ -647,6 +745,20 @@ html {
   a,
   button {
     min-height: 44px;
+  }
+  .flinza-foot-cols a,
+  .flinza-foot-base a,
+  .flinza-foot-credit a,
+  .flinza-prose a,
+  .flinza-related a,
+  .flinza-post-card-title a {
+    min-height: 0;
+  }
+  .flinza-foot-cols a,
+  .flinza-foot-base nav a,
+  .flinza-foot-credit a {
+    padding-top: 7px;
+    padding-bottom: 7px;
   }
 }
 

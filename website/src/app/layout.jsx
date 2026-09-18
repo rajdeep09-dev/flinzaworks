@@ -3,6 +3,7 @@ import './globals.css';
    globals.css or as inline styles. See the file header for what is in it and why. */
 import './overrides.css';
 import RouteTransition from '@/components/RouteTransition';
+import SectionReveal from '@/components/SectionReveal';
 import JsonLd from '@/components/JsonLd';
 import { rootSchema, SITE_URL, SITE_NAME, DEVELOPER } from '@/data/seo';
 import { ONE_LINER } from '@/data/stats';
@@ -138,6 +139,11 @@ export default function RootLayout({ children }) {
             so a route change never exposes a bare white frame and the header shaders have
             something holding the screen while their chunks arrive. */}
         <RouteTransition />
+        {/* The motion between one section and the next. Mounted ONCE, here, rather than per page:
+            it scans the top-level bands of <main> and gives every route the same entrance, so a
+            new route cannot forget to opt in and the whole document needs one observer instead of
+            one per section. See the file for the rules it plays by. */}
+        <SectionReveal />
       </body>
     </html>
   );

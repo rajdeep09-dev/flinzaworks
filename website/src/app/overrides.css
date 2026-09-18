@@ -31,6 +31,21 @@
   height: auto;
 }
 
+/* `hidden` first, then `clip`, and both are wanted.
+ *
+ * The plate's surface is 120% wide so its corner radius can reach 50% on exit, which means
+ * something has to clip the extra 10% per side. `clip` is the right tool — it takes no scroll
+ * gesture and creates no scroll container — but it only exists from Safari 16, and where the
+ * declaration is dropped the surface becomes `overflow: visible`: 120% of the viewport, which is a
+ * horizontally scrollable page. `hidden` is the fallback, and on a fixed overlay it costs nothing.
+ *
+ * It lives here rather than beside the rule it amends because the stylesheet it amends is 5,900
+ * lines long, and the same declaration in a later sheet is equivalent at equal specificity. */
+.flinza-loader {
+  overflow: hidden;
+  overflow: clip;
+}
+
 /* ══ 2. The left rails never print over the footer ══════════════════════════
  * The page rail and the in-page section rail are both `position: fixed` in the left margin, which
  * is right over a page body and wrong over the footer: the footer's brand column starts at the
@@ -206,6 +221,25 @@ body {
   overflow-y: visible;
 }
 
+/* ── Safari before 16 has no `overflow: clip` ──
+ *
+ * There, `body { overflow-x: clip }` above is dropped outright. The failure is a quiet one — the
+ * page reverts to `overflow-x: visible`, so nothing clips horizontally — and the temptation is to
+ * "fix" it with `overflow-x: hidden` on the body, which is exactly the mistake this whole section
+ * exists to undo: a single-axis `hidden` beside a `visible` forces the other axis to `auto`, and
+ * the body becomes a second scroll container nested inside the viewport. That is the page that
+ * will not move under a finger.
+ *
+ * The correct fallback puts the clip on `html`, which is already the one real scroll container
+ * (`overflow-y: auto`, above). On that element `overflow-x: hidden` with `overflow-y: auto` is the
+ * intended combination rather than the accident, so it clips the horizontal overflow without
+ * introducing a second scroller. `@supports not (...)` means modern browsers never see it. */
+@supports not (overflow: clip) {
+  html {
+    overflow-x: hidden;
+  }
+}
+
 /* ══ 9. An open case study owns the machine, and scrolls under the thumb ═══
  * On a phone `is-focused` turns the letterbox into a full-screen surface, so the page behind it
  * must stop moving: otherwise a swipe that misses the copy scrolls the article underneath the
@@ -287,11 +321,13 @@ body {
  *     and the brand is a quiet letter-spaced label at the top of the frame instead.
  *
  *   · THE VISUAL. The reference hero the client sent was a blurred figure standing in a white
- *     bloom. That is reproduced by `public/images/hero-glow.svg` — vector, ~2 kB, sharp at every
+ *     bloom. That is reproduced by `public/images/hero-glow.svg` — vector, ~4 kB, sharp at every
  *     DPR, with the blur baked in by feGaussianBlur so the compositor rasterises it once instead of
  *     re-evaluating a CSS `filter: blur()` on a full-viewport layer every frame. The palette is the
  *     site's own aqua and the brand's blue, not the purple of the reference: the client asked for
- *     that hero's shape and was explicit that the colour had to stay Flinza.
+ *     that hero's shape and was explicit that the colour had to stay Flinza. The client's own
+ *     photograph wins over it automatically if one is dropped in as public/images/
+ *     hero-silhouette.{png,jpg,webp} — app/page.jsx resolves that at build time.
  *
  * Nothing in here is a shader or a canvas: it is text, one SVG and two painted gradients, so it is
  * on screen in the first frame and the h1 is the page's LCP.
@@ -304,7 +340,15 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(104px, 14vh, 168px) clamp(20px, 5vw, 64px) clamp(40px, 6vh, 78px);
+  /* Safe areas on all four sides, because `viewportFit: 'cover'` is set in the root layout — the
+   * page deliberately extends under the notch and the home indicator, so anything at the edge of a
+   * hero has to inset itself. It matters most in LANDSCAPE on a notched iPhone, where the left and
+   * right insets are ~44px and a 20px gutter would put the claim's first word under the cutout. */
+  padding:
+    calc(clamp(104px, 14vh, 168px) + env(safe-area-inset-top, 0px))
+    calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-right, 0px))
+    calc(clamp(40px, 6vh, 78px) + env(safe-area-inset-bottom, 0px))
+    calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-left, 0px));
   box-sizing: border-box;
   overflow: clip;
   background: transparent;
@@ -342,6 +386,21 @@ body {
   background-size: cover;
 }
 
+/* The optional photograph, when one exists — resolved on the server at build time and passed down
+ * as a prop, so this rule either has a layer to paint or has no element to apply to. Nothing here
+ * fetches anything that might be missing. It sits above the vector and below the scrim, which is
+ * the order the markup puts them in; `object-position` has no meaning on a background so the
+ * anchoring is `background-position` instead. */
+.flinza-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: 50% 100%;
+  background-size: cover;
+}
+
 /* Two painted gradients, no filter: a wash at the top so the header's dark type never sits on the
  * figure's head, and a light floor at the bottom so the copy block has something to stand on. */
 .flinza-hero-scrim {
@@ -356,7 +415,7 @@ body {
       rgba(247, 251, 252, 0.44) 20%,
       rgba(247, 251, 252, 0) 40%
     ),
-    linear-gradient(to top, rgba(247, 251, 252, 0.5) 0%, rgba(247, 251, 252, 0) 38%);
+    linear-gradient(to top, rgba(247, 251, 252, 0.34) 0%, rgba(247, 251, 252, 0) 38%);
 }
 
 .flinza-hero-inner {
@@ -1439,6 +1498,88 @@ select.flinza-talent-field option {
     flex-direction: column;
     align-items: flex-start;
     gap: 14px;
+  }
+
+  /* ── The crop, and why the floor has to come up ──
+   *
+   * The art is 16:9. `cover` on a tall, narrow screen scales it to the HEIGHT and crops the sides —
+   * on a 390px phone that leaves the central 33% of the frame, which is precisely where the figure
+   * is. So the primary crop is not incidental, it is the figure's torso, and the copy sits on top
+   * of a dark mass. Dark type on a dark mass is unreadable at any weight.
+   *
+   * The floor is therefore lifted on narrow screens until the figure reads as a head and shoulders
+   * emerging from the mist above the text. That is legible, and it is also closer to the reference
+   * than the desktop crop is: on a phone the image becomes a light field with a dark presence in
+   * the upper third, rather than a full-length figure competing with the type. */
+  .flinza-hero-scrim {
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(247, 251, 252, 0.95) 0%,
+        rgba(247, 251, 252, 0.42) 16%,
+        rgba(247, 251, 252, 0) 34%
+      ),
+      linear-gradient(
+        to top,
+        rgba(247, 251, 252, 0.97) 0%,
+        rgba(247, 251, 252, 0.9) 22%,
+        rgba(247, 251, 252, 0.55) 52%,
+        rgba(247, 251, 252, 0) 84%
+      );
+  }
+}
+
+/* ── The hero on one screen, on the narrowest phones ──
+ *
+ * An iPhone in portrait reports a small viewport of roughly 745px once the toolbars are counted
+ * (and an SE about 553px). At the desktop rhythm the hero's contents came to around 870px, so the
+ * last of the four figures and the scroll cue landed below the fold — which is the one thing a
+ * hero is not allowed to do on the device most of this site's visitors are using.
+ *
+ * So the rhythm is tightened rather than the content cut: the claim steps down, the lede loses a
+ * little leading, and the figures get a compact two-by-two. The one thing that does come off is
+ * the positioning note on the top rule — it is a second paragraph of persuasion and the hero only
+ * has room for one. It stays in the HTML, so nothing is lost to a crawler; it simply is not part
+ * of the phone's first screen. */
+@media (max-width: 600px) {
+  .flinza-hero-note {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .flinza-hero-stage {
+    padding-top: calc(clamp(76px, 11vh, 108px) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(clamp(26px, 4vh, 44px) + env(safe-area-inset-bottom, 0px));
+  }
+  .flinza-hero-inner {
+    gap: 20px;
+  }
+  .flinza-hero-claim {
+    margin-bottom: 10px;
+    font-size: clamp(30px, 8.8vw, 40px);
+  }
+  .flinza-hero-interest {
+    font-size: 13.5px;
+    line-height: 1.56;
+  }
+  .flinza-hero-actions {
+    margin-top: 16px;
+    gap: 10px 18px;
+  }
+  .flinza-hero-scroll {
+    margin-top: 12px;
+    font-size: 10px;
+  }
+  .flinza-hero-stats {
+    gap: 10px 16px;
+  }
+  .flinza-hero-stats strong {
+    font-size: 21px;
+  }
+  .flinza-hero-stats span {
+    font-size: 9px;
+    letter-spacing: 0.12em;
   }
 }
 

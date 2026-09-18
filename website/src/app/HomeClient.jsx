@@ -106,36 +106,12 @@ const ContactButton = dynamic(
 );
 
 // ── Smoothness hooks (shell-only; no visual code changes) ──
-
-// One-time reveal: returns a ref + whether the element has entered the
-// viewport. Fires exactly once — scrolling back up never re-hides content.
-function useReveal() {
-  const ref = useRef(null);
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return undefined;
-    if (typeof IntersectionObserver === 'undefined' ||
-        (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-      setRevealed(true);
-      return undefined;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setRevealed(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '0px 0px -10% 0px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return [ref, revealed];
-}
+//
+// `useReveal` used to live here — six instances of it, six pieces of state, six refs and six
+// `revealed ? 'reveal-in' : 'reveal-init'` ternaries, all of it covering this page and nothing
+// else. The seam between sections is now owned by <SectionReveal /> in the root layout, which
+// covers EVERY route with one observer and leaves this file with only the gates it actually needs:
+// mounting a heavy child shortly before it is scrolled to. See src/components/SectionReveal.jsx.
 
 // One-way in-view gate: mounts children just before they scroll into view
 // (rootMargin buffer), then stays mounted forever — nothing ever replays.
@@ -166,21 +142,14 @@ function useInView() {
   return [ref, inView];
 }
 
-export default function Page() {
+export default function Page({ heroPhoto = null }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
   // The fixed side rail must disappear over the FAQ/footer/contact region, where it collided with copy
   const [tocHidden, setTocHidden] = useState(false);
   const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
 
-  // Section reveal + lazy-mount hooks
-  const [storiesRef, storiesRevealed] = useReveal();
-  const [servicesRef, servicesRevealed] = useReveal();
-  const [testimonialsRef, testimonialsRevealed] = useReveal();
-  const [faqRef, faqRevealed] = useReveal();
-  const [contactRef, contactRevealed] = useReveal();
-  const [footerRef, footerRevealed] = useReveal();
-
+  // Lazy-mount anchors — the only refs this page still needs.
   const [storiesMountRef, storiesInView] = useInView();
   const [servicesMountRef, servicesInView] = useInView();
   const [testimonialsMountRef, testimonialsInView] = useInView();
@@ -192,12 +161,6 @@ export default function Page() {
      it. That leaves the hero's own text as the largest contentful paint and keeps a WebGL context
      from ever being created on a phone that never scrolls that far — which is most of them. */
   const [workMountRef, workInView] = useInView();
-
-  // Combine each section's reveal styling with its lazy-mount anchor.
-  const sectionRef = (mountRef, revealRef) => (el) => {
-    mountRef.current = el;
-    revealRef.current = el;
-  };
 
   // Track scroll position for TOC visibility and quick button hide/restore
   useEffect(() => {
@@ -363,10 +326,22 @@ export default function Page() {
           the fastest thing on the page — the carousel that used to sit here now mounts below the
           fold under its own heading, where it can be looked at on purpose. */}
       <section id="hero" className="flinza-hero-stage">
-        {/* The visual. One self-hosted SVG — a white bloom, two aqua lobes and a blurred figure
-            rising through it. 2 kB, sharp at every DPR, and the blur is baked into the file so the
-            compositor rasterises it once instead of blurring a full-viewport layer every frame. */}
+        {/* The visual. One self-hosted SVG — a white bloom over a cloudy aqua haze, with a blurred
+            figure rising through it. 4 kB, sharp at every DPR, and the blur is baked into the file
+            so the compositor rasterises it once instead of blurring a full-viewport layer every
+            frame.
+
+            `heroPhoto` is the optional real photograph, resolved on the server at build time (see
+            app/page.jsx). It is layered ABOVE the vector and below the scrim, so supplying it needs
+            no edit here and removing it falls back to the vector rather than to nothing. */}
         <div className="flinza-hero-visual" aria-hidden="true" />
+        {heroPhoto ? (
+          <div
+            className="flinza-hero-photo"
+            aria-hidden="true"
+            style={{ backgroundImage: `url("${heroPhoto}")` }}
+          />
+        ) : null}
         <div className="flinza-hero-scrim" aria-hidden="true" />
 
         <div className="flinza-hero-inner">
@@ -532,8 +507,7 @@ export default function Page() {
       {/* Founder Stories Section: Seamless Rectangular Puzzle Mosaic of Videos */}
       <section
         id="stories"
-        ref={sectionRef(storiesMountRef, storiesRef)}
-        className={`${storiesRevealed ? 'reveal-in' : 'reveal-init'}`}
+        ref={storiesMountRef}
         style={{
           width: '100%',
           minHeight: '100vh',
@@ -753,8 +727,7 @@ export default function Page() {
       {/* Services Section: Exactly 6 Services in 3 by 2 Layout */}
       <section
         id="services"
-        ref={sectionRef(servicesMountRef, servicesRef)}
-        className={`${servicesRevealed ? 'reveal-in' : 'reveal-init'}`}
+        ref={servicesMountRef}
         style={{
           width: '100%',
           minHeight: '100vh',
@@ -858,8 +831,7 @@ export default function Page() {
       ════════════════════════════════════════════════════════════ */}
       <section
         id="testimonials"
-        ref={sectionRef(testimonialsMountRef, testimonialsRef)}
-        className={`${testimonialsRevealed ? 'reveal-in' : 'reveal-init'}`}
+        ref={testimonialsMountRef}
         style={{
           width: '100%',
           padding: '120px 24px 110px',
@@ -1222,8 +1194,7 @@ export default function Page() {
       ════════════════════════════════════════════════════════════ */}
       <section
         id="faq"
-        ref={sectionRef(faqMountRef, faqRef)}
-        className={`${faqRevealed ? 'reveal-in' : 'reveal-init'}`}
+        ref={faqMountRef}
         style={{
           width: '100%',
           padding: '120px 24px 100px',
@@ -1290,8 +1261,6 @@ export default function Page() {
            CONTACT BUTTON — Centered, floats above footer
       ════════════════════════════════════════════════════════════ */}
       <section
-        ref={sectionRef(contactRef, contactRef)}
-        className={`${contactRevealed ? 'reveal-in' : 'reveal-init'}`}
         style={{
           width: '100%',
           padding: '60px 24px 80px',
@@ -1356,11 +1325,7 @@ export default function Page() {
           SiteFooter also flags the footer as on screen (`body.flinza-foot-inview`), and that is
           what fades the fixed left rails out before they can print over the wordmark — the
           overlap this page's own footer never reported, because it had no observer at all. */}
-      <div
-        id="contact"
-        ref={sectionRef(footerMountRef, footerRef)}
-        className={`flinza-home-foot ${footerRevealed ? 'reveal-in' : 'reveal-init'}`}
-      >
+      <div id="contact" ref={footerMountRef} className="flinza-home-foot">
         <div className="flinza-footer-glow" aria-hidden="true">
           <div className="flinza-mount-gate" style={{ width: '100%', height: '100%' }}>
             {footerInView ? <DiaFooter
