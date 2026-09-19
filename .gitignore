@@ -13,6 +13,9 @@ build/
 npm-debug.log*
 dev-server.log
 
+# Local bug-isolation copies of the site (never commit these)
+/isolate/
+
 # Env / secrets
 .env
 .env.*

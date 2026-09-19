@@ -1035,7 +1035,9 @@ body:has(.flinza-carousel-lock.is-focused) {
   background: rgba(255, 255, 255, 0.05);
   color: #f4fdfe;
   font-family: var(--font-ui);
-  font-size: 14px;
+  /* 16px floor: iOS Safari auto-zooms any focused field set below 16px,
+   * blowing the layout out until the next reload. */
+  font-size: 16px;
   outline: none;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -1054,6 +1056,16 @@ body:has(.flinza-carousel-lock.is-focused) {
 select.flinza-talent-field option {
   color: #0a1a20;
   background: #ffffff;
+}
+
+/* 16px floor on every text-entry field — iOS Safari auto-zooms the page when a focused
+ * field is set below 16px, blowing the layout out until the next reload. */
+.flinza-book-form input,
+.flinza-book-form textarea,
+.flinza-talent-form input,
+.flinza-talent-form select,
+.flinza-talent-form textarea {
+  font-size: 16px;
 }
 
 /* A native file input, restyled. On a phone this is the control that opens the files picker, which

@@ -53,7 +53,7 @@ export const row1Cards = [
     title: 'Creators Who Actually Convert',
     description:
       'We bring the best creators in your niche to promote your product. Scripting, briefing, editing and paid usage rights are handled end to end by us \u2014 you approve the cut, we ship it.',
-    image: { src: '/images/story_portrait.jpg' },
+    image: { src: '/images/story_portrait.webp' },
     caseStudy: proofFor('03 // CREATORS'),
   },
   {

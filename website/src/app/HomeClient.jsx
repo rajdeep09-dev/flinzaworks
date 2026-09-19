@@ -910,7 +910,8 @@ export default function Page({ heroPhoto = null }) {
             <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
               {testimonialsInView ? <WhatsApAudioPlayer
-                audioFile="/audio/testimonial_sarah.wav"
+                audioFile="/audio/testimonial_sarah.m4a"
+                audioFallback="/audio/testimonial_sarah.mp3"
                 userName="Founder"
                 userImageFile=""
                 timestamp="11:42 AM"
@@ -986,7 +987,8 @@ export default function Page({ heroPhoto = null }) {
             <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
               {testimonialsInView ? <WhatsApAudioPlayer
-                audioFile="/audio/testimonial_marcus.wav"
+                audioFile="/audio/testimonial_marcus.m4a"
+                audioFallback="/audio/testimonial_marcus.mp3"
                 userName="Growth Lead"
                 userImageFile=""
                 timestamp="4:18 PM"
@@ -1062,7 +1064,8 @@ export default function Page({ heroPhoto = null }) {
             <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
               {testimonialsInView ? <WhatsApAudioPlayer
-                audioFile="/audio/testimonial_elena.wav"
+                audioFile="/audio/testimonial_elena.m4a"
+                audioFallback="/audio/testimonial_elena.mp3"
                 userName="StillRing"
                 userImageFile=""
                 timestamp="Yesterday"

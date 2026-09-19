@@ -243,6 +243,28 @@
   color: var(--aqua-deep);
 }
 
+/* QA: on mid-width screens the claim's second line sits over the figure's dark
+ * torso, and the italic teal loses the figure. A soft radial paper veil behind
+ * the block lifts it off the art — it reads as atmosphere, not as a UI card.
+ * The ::before is trapped inside .flinza-hero-inner's stacking context, so it
+ * paints above the photo and below the words, and nothing else moves. */
+.flinza-hero-claim {
+  position: relative;
+}
+.flinza-hero-claim::before {
+  content: "";
+  position: absolute;
+  inset: -0.55em -1.1em;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse 58% 74% at 44% 52%,
+    rgba(247, 251, 252, 0.78) 0%,
+    rgba(247, 251, 252, 0.46) 54%,
+    rgba(247, 251, 252, 0) 100%
+  );
+  filter: blur(5px);
+}
+
 /* ── The bottom edge ── */
 
 .flinza-hero-bottom {
@@ -993,6 +1015,18 @@
 .flinza-faqlist .flinza-faqrow-head:hover .flinza-faqrow-sign,
 .flinza-faqlist .flinza-faqrow.is-open .flinza-faqrow-sign {
   opacity: 1;
+}
+
+/* QA: phone rows must clear the 52px touch floor, and the question should not
+ * shrink below ~15px when the whole page is being read on a 6-inch screen. */
+@media (max-width: 760px) {
+  .flinza-faqlist .flinza-faqrow-head {
+    padding: 17px 0;
+  }
+  .flinza-faqlist .flinza-faqrow-q {
+    font-size: 15.5px;
+    line-height: 1.38;
+  }
 }
 
 /* ── The contact scene ──
