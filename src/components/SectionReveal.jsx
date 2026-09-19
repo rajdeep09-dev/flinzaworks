@@ -143,6 +143,28 @@ export default function SectionReveal() {
 
     const timers = [];
 
+    /* A watchdog for the one way this system can strand a band: if the observer never announces
+     * a hidden band — a clipped ancestor, an embed that never lays out, an observer that lost a
+     * race with a lazy mount — the band would sit in `reveal-init` forever: invisible, and on a
+     * desktop blurred. That is the exact "glitchy half-blurred heading" the QA walkthrough
+     * caught. So every band gets one timed sweep; a band that reveals normally simply has its
+     * timer cancelled by its own reveal, and a band that was never announced degrades to plain
+     * visible text. Degradation, never disappearance. */
+    const sweep = () => {
+      for (const band of bands) {
+        if (!band.classList.contains("reveal-init")) continue;
+        band.classList.remove("reveal-init");
+        band.classList.add("reveal-in");
+        band.style.transitionDelay = "";
+        timers.push(
+          window.setTimeout(() => {
+            band.classList.remove("reveal-in", "reveal-blur");
+          }, CLEANUP_MS)
+        );
+      }
+    };
+    const watchdog = window.setTimeout(sweep, 6000);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries
@@ -162,6 +184,11 @@ export default function SectionReveal() {
                 band.style.transitionDelay = "";
               }, delay + CLEANUP_MS)
             );
+            /* Once any band has arrived, the sweep has nothing to rescue — cancel it. */
+            if (observer && !firstArrivalDone) {
+              firstArrivalDone = true;
+              window.clearTimeout(watchdog);
+            }
           });
       },
       /* Fires a little after a band's top edge crosses the bottom of the screen, so the motion is
@@ -170,12 +197,14 @@ export default function SectionReveal() {
       { rootMargin: "0px 0px -8% 0px" }
     );
 
+    let firstArrivalDone = false;
     for (const band of bands) observer.observe(band);
 
     /* Leaving the route mid-flight: drop the observer and put every band we touched back to its
        plain state, so a fast navigation cannot strand a class on a reused DOM node. */
     return () => {
       observer.disconnect();
+      window.clearTimeout(watchdog);
       timers.forEach((id) => window.clearTimeout(id));
       for (const band of bands) {
         band.classList.remove("reveal-init", "reveal-in", "reveal-blur");

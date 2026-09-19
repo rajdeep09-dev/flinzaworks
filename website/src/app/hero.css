@@ -250,11 +250,31 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: clamp(28px, 4vw, 72px);
+  /* One locked system (QA: copy + metrics "read as separate annotations"). A hairline
+   * connects both zones so the eye reads them as one rule, not two floaters. */
+  position: relative;
+  padding-top: 22px;
+}
+.flinza-hero-bottom::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(23, 132, 155, 0.5),
+    rgba(23, 132, 155, 0.16) 55%,
+    rgba(23, 132, 155, 0) 100%
+  );
 }
 
 .flinza-hero-copy {
   min-width: 0;
   max-width: 30ch;
+  /* Sit ON the rule, in the quietest text-safe zone — padding pulls the copy clear of it. */
+  padding-top: 2px;
 }
 
 /* The second small text — the narrow bottom-left column from the reference, at its size:
@@ -275,7 +295,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: clamp(14px, 2.2vh, 24px);
+  /* A real anchor needs a real target (QA: 44px hit). The visual stays a 13px label; the
+   * padding makes the touch area honest without changing the composition. */
+  min-height: 44px;
+  padding: 6px 10px;
+  margin: clamp(8px, 1.6vh, 18px) -10px 0;
+  box-sizing: border-box;
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 400;
@@ -283,6 +308,11 @@
   color: rgba(9, 9, 11, 0.62);
   text-decoration: none;
   transition: color 0.25s ease;
+}
+.flinza-hero-scroll:focus-visible {
+  outline: 1.5px solid var(--aqua-deep);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 .flinza-hero-scroll:hover,
 .flinza-hero-scroll:focus-visible {
@@ -804,5 +834,392 @@
   .flinza-proof-card:hover {
     transition: none;
     transform: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+ * QA PASS — hierarchy, contrast and conversion, from the section-by-section
+ * visual audit. Loaded last (this file's job), so every rule here wins the
+ * cascade without !important.
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Selected Work: the proof-before-play status block ──
+ * The ring's interaction was discoverable only by trying it, and the section's
+ * strongest number hid behind that discovery. This block shows the active case's
+ * identity, a live counter, its headline result and the guidance — readable
+ * before anyone touches the ring, crossfading as it turns. */
+.flinza-work-status {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 40px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1480px;
+  margin: clamp(22px, 3.4vh, 38px) auto 0;
+  padding: 14px clamp(16px, 3vw, 32px);
+  box-sizing: border-box;
+  border-top: 1px solid rgba(9, 9, 11, 0.09);
+}
+
+.flinza-work-status-main {
+  display: flex;
+  align-items: baseline;
+  gap: 14px 20px;
+  min-width: 0;
+}
+
+.flinza-work-counter {
+  font-family: var(--font-ui);
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.flinza-work-counter-sep {
+  margin: 0 0.18em;
+  font-weight: 400;
+  color: rgba(9, 9, 11, 0.34);
+}
+
+/* Crossfades when the ring turns: the key on the wrapper in JSX remounts this
+ * node, and this animation is its entrance. Short, compositor-only. */
+.flinza-work-status-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  animation: flinza-status-swap 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.flinza-work-status-copy strong {
+  font-family: var(--font-ui);
+  font-size: clamp(15px, 1.35vw, 18px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.flinza-work-status-copy span {
+  font-family: var(--font-ui);
+  font-size: clamp(12.5px, 1.05vw, 14px);
+  font-weight: 500;
+  color: var(--aqua-deep);
+}
+@keyframes flinza-status-swap {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.flinza-work-hint {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(9, 9, 11, 0.44);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .flinza-work-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .flinza-work-hint {
+    white-space: normal;
+    font-size: 11.5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-work-status-copy {
+    animation: none;
+  }
+}
+
+/* ── FAQ: grouped by decision stage ──
+ * A twelve-row wall forced a linear scan; three titled clusters map to how the
+ * buying decision actually runs. The group title takes the accent rule already
+ * used by the section labels, so the treatment is the site's own. */
+.flinza-faq-group {
+  width: 100%;
+}
+
+.flinza-faq-group-title {
+  margin: 0 0 6px;
+  padding-left: 56px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+}
+
+/* First group needs no top offset — the section header provides it. */
+.flinza-faq-group + .flinza-faq-group {
+  margin-top: 40px;
+}
+
+@media (max-width: 640px) {
+  .flinza-faq-group-title {
+    padding-left: 44px;
+  }
+  .flinza-faq-group + .flinza-faq-group {
+    margin-top: 34px;
+  }
+}
+
+/* FAQ contrast pass (QA 6.8/10): the question is the darkest text in the row and
+ * the sign gets a real affordance circle on hover/open, instead of a faint plus.
+ * Colour-only changes — no layout shift. */
+.flinza-faqlist .flinza-faqrow {
+  border-bottom-color: rgba(9, 9, 11, 0.14);
+}
+.flinza-faqlist .flinza-faqrow-q {
+  color: #060708;
+  font-weight: 550;
+}
+.flinza-faqlist .flinza-faqrow-sign {
+  opacity: 0.85;
+}
+.flinza-faqlist .flinza-faqrow-head:hover .flinza-faqrow-sign,
+.flinza-faqlist .flinza-faqrow.is-open .flinza-faqrow-sign {
+  opacity: 1;
+}
+
+/* ── The contact scene ──
+ * The final CTA was a small pill in a large field. This gives it a headline of
+ * its own (serif, matching the section voices), one explanation line, the
+ * three-step expectation, the action, and the quiet email fallback. */
+.flinza-cta-scene {
+  text-align: center;
+}
+
+.flinza-cta-headline {
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 5.6vw, 72px);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.flinza-cta-headline em {
+  font-style: italic;
+  color: var(--aqua-deep);
+}
+
+.flinza-cta-lede {
+  margin: 0 0 26px;
+  max-width: 52ch;
+  font-family: var(--font-ui);
+  font-size: clamp(14.5px, 1.3vw, 17px);
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(9, 9, 11, 0.62);
+}
+
+.flinza-cta-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0 0 34px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(9, 9, 11, 0.56);
+}
+.flinza-cta-steps i {
+  font-style: normal;
+  color: var(--aqua-deep);
+}
+
+.flinza-cta-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 26px;
+}
+
+.flinza-cta-alt {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: rgba(9, 9, 11, 0.48);
+}
+.flinza-cta-alt a {
+  color: #0a3e4c;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(10, 62, 76, 0.24);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.flinza-cta-alt a:hover,
+.flinza-cta-alt a:focus-visible {
+  color: var(--aqua-deep);
+  border-color: var(--aqua-deep);
+}
+
+@media (max-width: 640px) {
+  .flinza-cta-steps {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .flinza-cta-steps i {
+    transform: rotate(90deg);
+  }
+  .flinza-cta-headline {
+    font-size: clamp(30px, 9vw, 40px);
+  }
+}
+
+/* ── Client proof cards: the result leads ──
+ * QA: "the numerical result does not dominate enough — make it the first scan
+ * target." The result moves to the top as the dominant line, the sector/context
+ * pair goes under it; the index becomes the quiet corner mark. */
+.flinza-proof-card {
+  gap: 3px;
+}
+.flinza-proof-result {
+  order: -1;
+  margin: 0 0 10px;
+  padding-top: 0;
+  font-family: var(--font-ui);
+  font-size: clamp(19px, 1.8vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--ink);
+  text-transform: none;
+}
+.flinza-proof-sector {
+  font-size: clamp(14.5px, 1.25vw, 16.5px);
+  font-weight: 600;
+  color: var(--ink);
+}
+.flinza-proof-role {
+  font-size: 12.5px;
+  color: rgba(9, 9, 11, 0.52);
+}
+.flinza-proof-index {
+  position: absolute;
+  top: clamp(18px, 2vw, 26px);
+  right: clamp(18px, 2vw, 26px);
+  margin-bottom: 0;
+  font-size: 10.5px;
+  color: rgba(9, 9, 11, 0.38);
+}
+.flinza-proof-card {
+  position: relative;
+}
+/* A hairline accent on hover/focus — the card is a link; show where it goes. */
+.flinza-proof-card::after {
+  content: "";
+  position: absolute;
+  left: clamp(20px, 2.4vw, 30px);
+  right: clamp(20px, 2.4vw, 30px);
+  bottom: clamp(16px, 2vw, 24px);
+  height: 1px;
+  background: linear-gradient(90deg, var(--aqua-deep), rgba(23, 132, 155, 0));
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-proof-card:hover::after,
+.flinza-proof-card:focus-visible::after {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .flinza-proof-index {
+    top: 16px;
+    right: 16px;
+  }
+  .flinza-proof-result {
+    font-size: 21px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flinza-proof-card::after {
+    transition: none;
+  }
+}
+
+/* ── Footer: three zones and a confident close ──
+ * A hairline cyan rule now opens the band (QA: "a designed ending rather than
+ * leftover page content"), and the wordmark gains strength plus a cool tint. */
+.flinza-foot {
+  border-top: none;
+}
+.flinza-foot::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: clamp(18px, 4.4vw, 56px);
+  right: clamp(18px, 4.4vw, 56px);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(23, 132, 155, 0.55),
+    rgba(23, 132, 155, 0.12) 45%,
+    rgba(23, 132, 155, 0)
+  );
+}
+
+.flinza-foot-mark {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 62, 76, 0.3) 0%,
+    rgba(23, 132, 155, 0.14) 58%,
+    rgba(23, 132, 155, 0.02) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.flinza-foot-cta {
+  padding-top: clamp(20px, 2.6vw, 30px);
+}
+
+@media (max-width: 900px) {
+  .flinza-foot::before {
+    left: 20px;
+    right: 20px;
+  }
+}
+
+/* ── Section rail / TOC: readable wayfinding ──
+ * QA: "the navigation becomes extremely faint over the page surface." The active
+ * item gets a solid accent tick instead of a bare colour change, and inactive
+ * items gain contrast over the pale paper. Applies to both rails (the home TOC's
+ * vendored rows and the shared .flinza-pagetoc used on inner pages). */
+.flinza-pagetoc a {
+  color: rgba(9, 9, 11, 0.6);
+}
+.flinza-pagetoc a.is-active {
+  color: #060708;
+  font-weight: 600;
+}
+
+@media (min-width: 1181px) {
+  .flinza-toc-desktop a,
+  .flinza-toc-desktop button {
+    color: rgba(9, 9, 11, 0.62);
+  }
+  .flinza-toc-desktop .is-active a,
+  .flinza-toc-desktop .is-active button {
+    color: #060708;
+    font-weight: 700;
   }
 }

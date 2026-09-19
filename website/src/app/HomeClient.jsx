@@ -6,10 +6,19 @@ import Link from 'next/link';
 import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
 import { faqItems } from '@/data/faqs';
+
+/* The FAQ reads as three decision stages rather than a twelve-row wall — grouping is presentation
+ * only (the JSON-LD schema in ./seo.js still mirrors the flat array), so it is derived here from
+ * the same single source. */
 /* The hero's numbers and the positioning line, from the one file that also feeds the About page
    and the Organization JSON-LD — so the same figure is stated the same way everywhere. */
 import { STATS, POSITIONING } from '@/data/stats';
 import { carouselProjects } from '@/data/projects';
+
+/* The first case study's headline result — shown beside the ring before anyone touches it, so the
+ * section's proof is visible without interaction discovery (QA: "Show the first case-study result
+ * by default"). Derived, not duplicated: it can never drift from the carousel's own data. */
+const FIRST_CASE = carouselProjects[0];
 import { founderStories } from '@/data/stories';
 /* The proof band that replaced the founder-stories mosaic: capabilities, anonymised clients.
    Same honesty rules as the case studies — no invented brands, no invented numbers. */
@@ -143,6 +152,9 @@ export default function Page({ heroPhoto = null }) {
   // The fixed side rail must disappear over the FAQ/footer/contact region, where it collided with copy
   const [tocHidden, setTocHidden] = useState(false);
   const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
+  /* Which of the eight cases the ring is currently resting on — drives the live `01 / 08` counter
+   * and the crossfading outcome line under it (both added by the QA pass). */
+  const [activeCase, setActiveCase] = useState(0);
 
   // Lazy-mount anchors — the only refs this page still needs.
   const [storiesMountRef] = useInView();
@@ -424,6 +436,27 @@ export default function Page({ heroPhoto = null }) {
             Turn the ring and pick a case study: the situation, what we changed, and what it
             produced. Real numbers, and the ones that failed are written up on the work page too.
           </p>
+
+          {/* The proof-before-play block. The ring's interaction was previously discoverable only
+              by trying it (QA: "the interaction affordance is too subtle"), and the section's
+              strongest number was hidden behind that discovery. So the active case's identity,
+              live counter, headline result and guidance sit directly under the heading — readable
+              before anyone touches the ring, updating as it turns. */}
+          <div className="flinza-work-status">
+            <div className="flinza-work-status-main">
+              <span className="flinza-work-counter" aria-hidden="true">
+                {String(activeCase + 1).padStart(2, '0')}
+                <span className="flinza-work-counter-sep">/</span>08
+              </span>
+              <div className="flinza-work-status-copy" key={activeCase}>
+                <strong>{carouselProjects[activeCase]?.brand}</strong>
+                <span>{carouselProjects[activeCase]?.description}</span>
+              </div>
+            </div>
+            <p className="flinza-work-hint">
+              Drag the ring — or scroll inside it. Click a card to read the case.
+            </p>
+          </div>
         </div>
 
         <div className="flinza-work-stage">
@@ -461,6 +494,7 @@ export default function Page({ heroPhoto = null }) {
           showCounter={false}
           showCursor={true}
           onFocusChange={setFocusedCaseStudy}
+          onActiveChange={setActiveCase}
           font={{
             fontFamily: "'Nohemi', -apple-system, BlinkMacSystemFont, sans-serif",
             fontSize: 16,
@@ -1089,7 +1123,7 @@ export default function Page({ heroPhoto = null }) {
         }}
       >
         {/* Section Badge + Header */}
-        <div style={{ textAlign: 'center', maxWidth: 720, marginBottom: 64 }}>
+        <div style={{ textAlign: 'center', maxWidth: 720, marginBottom: 56 }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -1128,14 +1162,23 @@ export default function Page({ heroPhoto = null }) {
           </p>
         </div>
 
-        {/* ExpandOnHoverList blocks — 3 items each, covering 10 questions */}
-        <div className="flinza-faq" style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 0 }}>
-
-          {/* Rendered unconditionally. The section used to defer mounting until it scrolled into
-              view, and when that gate failed to fire the entire FAQ rendered as an empty box —
-              which is what "the FAQ is blank / loads slowly" was. Twelve rows of text cost
-              nothing to mount, so there is no reason to gamble on a gate here. */}
-          <FaqList items={faqItems} />
+        {/* Twelve questions, three decision stages. A single 12-row wall forced every reader to
+            linear-scan for their own objection (QA: "The visitor does not immediately see that the
+            questions are grouped by decision stage"); the three clusters map to how buying
+            decisions actually run — can we work together, what does it cost and how fast, and
+            what do we control. Presentation only: the JSON-LD FAQPage schema in ./seo.js still
+            mirrors the flat array, so the machine-readable answers are unchanged. */}
+        <div className="flinza-faq" style={{ width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 44 }}>
+          {[
+            { title: 'Fit & process', ids: ['01', '02', '05', '09', '11'] },
+            { title: 'Pricing & speed', ids: ['03', '04', '10'] },
+            { title: 'Ownership, creators & access', ids: ['06', '07', '08', '12'] },
+          ].map((group) => (
+            <div key={group.title} className="flinza-faq-group">
+              <h3 className="flinza-faq-group-title">{group.title}</h3>
+              <FaqList items={group.ids.map((n) => faqItems.find((q) => q.number === n)).filter(Boolean)} />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -1143,27 +1186,37 @@ export default function Page({ heroPhoto = null }) {
            CONTACT BUTTON — Centered, floats above footer
       ════════════════════════════════════════════════════════════ */}
       <section
+        className="flinza-cta-scene"
+        aria-labelledby="cta-scene-title"
         style={{
           width: '100%',
-          padding: '60px 24px 80px',
+          padding: 'clamp(72px, 10vh, 120px) 24px clamp(56px, 8vh, 96px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
           position: 'relative',
           zIndex: 30,
         }}
       >
-        <p style={{
-          fontSize: 'clamp(13px,1.4vw,15px)',
-          color: '#71717a',
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          fontWeight: 600,
-          marginBottom: 24,
-        }}>
-          <FluidText as="span" text="Ready to scale something profitable?" stagger={34} />
+        {/* The conversion scene (QA: "the final CTA is too small relative to the open space").
+            Promise, one-line explanation, the three-step expectation, the dominant action and
+            the quiet secondary — everything needed to decide, in one frame. */}
+        <h2 id="cta-scene-title" className="flinza-cta-headline">
+          Ready to find the revenue
+          <br />
+          <em>left on the table?</em>
+        </h2>
+        <p className="flinza-cta-lede">
+          We audit the bottlenecks, map the first tests, and return a fixed-scope plan.
         </p>
+        <p className="flinza-cta-steps" aria-label="What happens after you book">
+          <span>Discovery call</span>
+          <i aria-hidden="true">→</i>
+          <span>Bottleneck audit</span>
+          <i aria-hidden="true">→</i>
+          <span>Fixed-scope plan in 48h</span>
+        </p>
+        <div className="flinza-cta-actions">
         <ContactButton
           buttonTextDefault="Get In Touch"
           buttonHoverTextHover="Let's Build"
@@ -1186,6 +1239,10 @@ export default function Page({ heroPhoto = null }) {
           iconHoverIconColor="rgb(14,124,147)"
           buttonHoverBorder={{ borderColor: 'rgb(23,132,155)', borderStyle: 'solid', borderWidth: 1 }}
         />
+        </div>
+        <p className="flinza-cta-alt">
+          Prefer email? <a href="mailto:hello@flinzaworks.com">hello@flinzaworks.com</a>
+        </p>
       </section>
 
       {/* ════════════════════════════════════════════════════════════

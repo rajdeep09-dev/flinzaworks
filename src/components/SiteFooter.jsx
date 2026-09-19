@@ -125,6 +125,9 @@ export default function SiteFooter() {
 
   return (
     <footer className="flinza-foot" ref={footerRef}>
+      {/* Zone 1 — the closing conversion. QA: the CTA block and the columns below it compressed
+          into one visual mass; the hairline rule above the block separates "decide" from
+          "navigate" so each gets its own read. */}
       <div className="flinza-foot-cta">
         <div>
           <p className="flinza-foot-kicker">Start</p>
@@ -137,6 +140,7 @@ export default function SiteFooter() {
         </CamoCtaButton>
       </div>
 
+      {/* Zone 2 — identity and navigation, kept as one grid (unchanged). */}
       <div className="flinza-foot-grid">
         <div className="flinza-foot-brand">
           <Link href="/" aria-label="Flinza Works home">
@@ -167,8 +171,9 @@ export default function SiteFooter() {
         </nav>
       </div>
 
-      {/* A full-width typographic close. Decorative, so it is hidden from assistive tech — the
-          wordmark in the brand column above is the real, readable one. */}
+      {/* Zone 3 — the typographic close. QA: "too faint to feel intentional" — the wordmark's
+          gradient was softened and given a cool tint at the top edge so it reads as a designed
+          end, not leftover ink. Still decorative and hidden from assistive tech. */}
       <span className="flinza-foot-mark" aria-hidden="true">
         FLINZA WORKS
       </span>

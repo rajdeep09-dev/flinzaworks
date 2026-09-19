@@ -35,17 +35,44 @@ export default function FluidText({
       setVisible(true);
       return undefined;
     }
+    /* Revealed means the words leave their blurred, translated start state for good — so the
+     * fallbacks below must only ever turn it ON, never off.
+     *
+     * Two fallbacks cover the ways the observer alone can strand a heading mid-blur:
+     *
+     *  1. Already on screen at mount (a restored scroll position, a slow hydration, a heading
+     *     inside a band whose own reveal is still animating) — show it on the next frame instead
+     *     of waiting for an intersection that already happened before we subscribed.
+     *  2. A watchdog: if the observer still has not fired after 4s, show it anyway. A heading
+     *     that is never announced by the observer (a clipped ancestor, an exotic embed) must
+     *     degrade to plain visible text, never to a permanent blur — the exact "glitchy blurred
+     *     heading" reported in the QA walkthrough. */
+    let done = false;
+    const reveal = () => {
+      if (done) return;
+      done = true;
+      setVisible(true);
+      observer.disconnect();
+      window.clearTimeout(watchdog);
+    };
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
+        if (entries[0].isIntersecting) reveal();
       },
       { rootMargin, threshold: 0.12 }
     );
+    const frame = requestAnimationFrame(() => {
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) reveal();
+    });
+    const watchdog = window.setTimeout(reveal, 4000);
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      done = true;
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.clearTimeout(watchdog);
+    };
   }, [rootMargin]);
 
   const words = useMemo(() => {
