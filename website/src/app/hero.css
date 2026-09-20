@@ -26,7 +26,29 @@
   position: relative;
   display: flex;
   min-height: 100svh;
-  overflow: hidden;
+  /* `clip`, not `hidden`: a hidden box is a scroll container, which on touch gives the hero
+   * first claim on a gesture that should belong to the page (see overrides.css §11). */
+  overflow: clip;
+}
+
+/* One REAL screen on a desktop, too. The site renders at `html { zoom: 0.75 }` on fine
+ * pointers (globals.css), so one viewport unit paints at 0.75 of a screen percent — the
+ * site-wide convention is that a full screen is 133.333vh (133.333 × 0.75 = 100). At the
+ * 100vh/100svh this rule used before, the hero painted at ~75% of the screen and the next
+ * section intruded on the first paint. With the hero filling the screen, the blur dissolve
+ * into the noisy paper below sits below the fold: discovered by scrolling, not seen on
+ * arrival. Phones keep the plain 100svh — iOS ignores zoom. */
+@media (min-width: 1024px) and (pointer: fine) {
+  .flinza-hero-stage {
+    min-height: 133.333vh;
+  }
+}
+@supports (min-height: 100svh) {
+  @media (min-width: 1024px) and (pointer: fine) {
+    .flinza-hero-stage {
+      min-height: 133.333svh;
+    }
+  }
 }
 
 /* ── The visual ── */
@@ -56,33 +78,96 @@
 .flinza-hero-photo {
   background-position: 50% 40%;
   background-size: cover;
-  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 99%);
-  mask-image: linear-gradient(to bottom, #000 72%, transparent 99%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 99.5%);
+  mask-image: linear-gradient(to bottom, #000 76%, transparent 99.5%);
 }
 
 /* The second half of the dissolve: a fog band pinned to the hero's foot. Its
- * backdrop-filter genuinely BLURS the figure and the bloom underneath it, and
- * its gradient washes that blurred remnant into the paper colour the next
- * section sits on. One static layer, no animation on it — the cost is one
- * raster while it is on screen, which is what every frosted app header already
- * spends. It sits above the photo and below the scrim. */
+ * backdrop-filter genuinely BLURS the figure and the bloom underneath it, and its
+ * gradient washes that blurred remnant into the paper colour the next section sits on —
+ * feathered by the mask at every step, so there is no edge anywhere to read as a band.
+ * On a desktop the hero now fills the screen, which puts this whole band below the fold:
+ * the visitor lands on a clean hero and meets the dissolve only by scrolling. One static
+ * layer, no animation on it — the cost is one raster while it is on screen, which is what
+ * every frosted app header already spends. It sits above the photo and below the scrim. */
 .flinza-hero-fog {
   position: absolute;
   left: 0;
   right: 0;
   bottom: -1px;
-  height: clamp(120px, 24vh, 220px);
+  height: clamp(170px, 30vh, 300px);
   z-index: 0;
   pointer-events: none;
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.65) 45%, transparent 100%);
-  mask-image: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.65) 45%, transparent 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.04);
+  backdrop-filter: blur(18px) saturate(1.04);
+  -webkit-mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    rgba(0, 0, 0, 0.72) 38%,
+    rgba(0, 0, 0, 0.16) 74%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    #000 0%,
+    rgba(0, 0, 0, 0.72) 38%,
+    rgba(0, 0, 0, 0.16) 74%,
+    transparent 100%
+  );
   background: linear-gradient(
     to top,
-    rgba(251, 252, 253, 0.92) 0%,
-    rgba(251, 252, 253, 0) 100%
+    rgba(251, 252, 253, 0.98) 0%,
+    rgba(243, 250, 252, 0.42) 46%,
+    rgba(243, 250, 252, 0) 100%
   );
+}
+
+/* The cyan under-glow — the colour half of the blue-to-noise handoff. A restrained radial
+ * of the brand aqua under the figure, breathing on opacity only (compositor-safe), feeding
+ * the same accent the Selected Work overline ticks with. */
+.flinza-hero-bloom {
+  position: absolute;
+  left: 50%;
+  bottom: -14%;
+  width: min(74vw, 920px);
+  height: clamp(180px, 34vh, 340px);
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 62% at 50% 66%,
+    rgba(46, 147, 172, 0.3) 0%,
+    rgba(46, 147, 172, 0.12) 46%,
+    rgba(46, 147, 172, 0) 74%
+  );
+  filter: blur(10px);
+  animation: flinza-hero-breathe 12s ease-in-out infinite;
+}
+@keyframes flinza-hero-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Atmospheric drift — the brief's "background drift 1–2% over 18–30s" and "figure movement
+ * 4–8px": the vector bloom and the photograph breathe on a composited transform, the photo a
+ * touch slower so the two layers separate by a few pixels and the silhouette reads as moving
+ * in its own mist. Transform-only, so it never re-rasters the blur. */
+.flinza-hero-visual,
+.flinza-hero-photo {
+  animation: flinza-hero-drift 26s ease-in-out infinite alternate;
+}
+@keyframes flinza-hero-drift {
+  from {
+    transform: scale(1.015) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.03) translate3d(-0.5%, -0.35%, 0);
+  }
 }
 
 /* The vector underneath is a fallback for builds without the photograph, and
@@ -90,6 +175,15 @@
  * edge. The single-selector form above would re-anchor it. */
 .flinza-hero-visual {
   background-position: 50% 100%;
+}
+
+/* Portrait phones: the figure reads behind the lower half of the frame, with the upper half
+ * kept as quiet sky for the message. `cover` on a 16:10-ish source crops from the top, so
+ * anchoring at 58% keeps the head in frame and the mass low. */
+@media (max-width: 700px) {
+  .flinza-hero-photo {
+    background-position: 50% 58%;
+  }
 }
 
 /* Two painted washes, no filter: a top wash so the header's dark type never
@@ -139,11 +233,68 @@
 .flinza-hero-brand {
   margin: 0;
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--ink);
+  white-space: nowrap;
+}
+
+/* The left chrome cluster: lockup + quiet desktop nav, one baseline. The links sit beside
+ * the lockup — the metal mark keeps the centre of the row, which is the alignment the client
+ * asked for — and fold away under 1120px, where the row would crowd the CTA. */
+.flinza-hero-chrome-left {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 2.6vw, 38px);
+  min-width: 0;
+}
+.flinza-hero-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 30px);
+}
+.flinza-hero-nav a {
+  position: relative;
+  padding: 8px 2px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(9, 9, 11, 0.62);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.flinza-hero-nav a::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 4px;
+  height: 1px;
+  background: var(--aqua-deep);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-hero-nav a:hover,
+.flinza-hero-nav a:focus-visible {
+  color: var(--ink);
+}
+.flinza-hero-nav a:hover::after,
+.flinza-hero-nav a:focus-visible::after {
+  transform: scaleX(1);
+}
+.flinza-hero-nav a:focus-visible {
+  outline: 1.5px solid var(--aqua-deep);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+@media (max-width: 1120px) {
+  .flinza-hero-nav {
+    display: none;
+  }
 }
 
 /* The call pill, top-right — the reference's "Contact Us ↗", kept compact. On hover it takes
@@ -158,12 +309,13 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 9px 16px;
-  border: 1px solid rgba(9, 9, 11, 0.22);
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid rgba(9, 9, 11, 0.26);
   border-radius: 999px;
   background: rgba(247, 251, 252, 0.4);
   font-family: var(--font-ui);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--ink);
@@ -220,18 +372,114 @@
   color: rgba(9, 9, 11, 0.46);
 }
 
+/* ── The message block: eyebrow · claim · support · secondary action ── */
+
+.flinza-hero-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* The eyebrow — small, tracked, high contrast, opened by the same aqua tick the Selected
+ * Work overline uses, so the promise and the proof below the fold read as one system. */
+.flinza-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 clamp(14px, 2.2vh, 24px);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(9, 9, 11, 0.78);
+}
+.flinza-hero-eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1.5px;
+  background: var(--aqua-deep);
+}
+.flinza-hero-eyebrow span {
+  color: rgba(9, 9, 11, 0.34);
+}
+
+/* The supporting line — one sentence under the claim, in a readable measure. The services
+ * list lives here; the method paragraph lives at the bottom edge; nothing is said twice. */
+.flinza-hero-support {
+  margin: clamp(16px, 2.6vh, 26px) 0 0;
+  max-width: 46ch;
+  font-family: var(--font-ui);
+  font-size: clamp(14px, 1.15vw, 16px);
+  font-weight: 400;
+  line-height: 1.65;
+  color: rgba(9, 9, 11, 0.62);
+}
+
+/* The secondary action — a text link, deliberately not a second pill. The underline sweeps
+ * in from the left; the arrow dips. Full 44px target. */
+.flinza-hero-explore {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 2px;
+  margin-top: clamp(4px, 1vh, 10px);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.flinza-hero-explore::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 8px;
+  height: 1px;
+  background: var(--aqua-deep);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-hero-explore:hover,
+.flinza-hero-explore:focus-visible {
+  color: var(--aqua-deep);
+}
+.flinza-hero-explore:hover::after,
+.flinza-hero-explore:focus-visible::after {
+  transform: scaleX(1);
+}
+.flinza-hero-explore:focus-visible {
+  outline: 1.5px solid var(--aqua-deep);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.flinza-hero-explore span {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-hero-explore:hover span,
+.flinza-hero-explore:focus-visible span {
+  transform: translateY(3px);
+}
+
 /* ── The claim, in the middle of the frame ── */
 
-/* The claim — deliberately not a shout. The client cut the 88px version:
- * "minimal". This is a statement set at roughly half that ceiling, still the
- * largest type on the screen but no longer the loudest thing in the room. */
+/* The claim — the redesign brief asks for clearly stronger scale; the client cut the 88px
+ * shout, so the ceiling rises to 74px, not 112. Tighter leading (0.96) gives the two lines
+ * the editorial set the brief describes while the break stays owned by the composition. */
 .flinza-hero-claim {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(33px, 4.4vw, 62px);
-  line-height: 1.02;
-  letter-spacing: -0.032em;
+  font-size: clamp(36px, 5.4vw, 74px);
+  line-height: 0.96;
+  letter-spacing: -0.034em;
   color: var(--ink);
 }
 .flinza-hero-claim span,
@@ -243,26 +491,28 @@
   color: var(--aqua-deep);
 }
 
-/* QA: on mid-width screens the claim's second line sits over the figure's dark
- * torso, and the italic teal loses the figure. A soft radial paper veil behind
- * the block lifts it off the art — it reads as atmosphere, not as a UI card.
- * The ::before is trapped inside .flinza-hero-inner's stacking context, so it
- * paints above the photo and below the words, and nothing else moves. */
+/* The claim sits over the figure's torso on mid-width screens, and the italic teal loses
+ * the figure without help. The previous fix here — a sized radial behind the h1 — was the
+ * "washed-out horizontal band" the QA report flagged: with ellipse radii larger than half
+ * the box on both axes, the gradient was CLIPPED by the h1's box into a hard-edged stripe
+ * across the silhouette. closest-side guarantees the ellipse lands entirely inside the box
+ * and reaches zero before any edge — a feathered wash with no rectangle geometry anywhere,
+ * kept soft by the blur. */
 .flinza-hero-claim {
   position: relative;
 }
 .flinza-hero-claim::before {
   content: "";
   position: absolute;
-  inset: -0.55em -1.1em;
+  inset: -0.7em -1.4em;
   z-index: -1;
   background: radial-gradient(
-    ellipse 58% 74% at 44% 52%,
-    rgba(247, 251, 252, 0.78) 0%,
-    rgba(247, 251, 252, 0.46) 54%,
+    closest-side,
+    rgba(247, 251, 252, 0.8) 0%,
+    rgba(247, 251, 252, 0.48) 58%,
     rgba(247, 251, 252, 0) 100%
   );
-  filter: blur(5px);
+  filter: blur(10px);
 }
 
 /* ── The bottom edge ── */
@@ -355,15 +605,16 @@
   }
 }
 
-/* The numbers — ONE row, packed to the right edge, exactly like the reference: a bold figure
- * with a sentence-case label under it, nothing tracked, nothing uppercase. Same numbers as
- * /about and the Organization schema (they come from src/data/stats.js). */
+/* The numbers — ONE row as four equal columns, packed to the right edge, exactly like the
+ * reference: a bold figure with a sentence-case label under it, nothing tracked, nothing
+ * uppercase. Same numbers as /about and the Organization schema (they come from src/data/stats.js). */
 .flinza-hero-stats {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: end;
   gap: clamp(30px, 4.5vw, 76px);
 }
 .flinza-hero-stats li {
@@ -380,6 +631,13 @@
   letter-spacing: -0.01em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+  display: inline-block;
+  /* The brief's "metric value lift: 2px on hover/focus" — transform-only. */
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flinza-hero-stats li:hover strong,
+.flinza-hero-stats li:focus-within strong {
+  transform: translateY(-2px);
 }
 /* The reference's labels are sentence case at roughly 14px — larger and quieter than the
  * uppercase micro-caps this used to wear, and applied here so stats.js stays the single
@@ -389,8 +647,51 @@
   font-size: clamp(11.5px, 0.95vw, 14px);
   font-weight: 400;
   letter-spacing: 0;
-  color: rgba(9, 9, 11, 0.55);
+  color: rgba(9, 9, 11, 0.64);
   white-space: nowrap;
+}
+
+/* ── The entrance ──
+ * Runs once, on first paint — pure CSS, so nothing waits on a script. The claim reveals with
+ * a mask over ~620ms; eyebrow, support and the secondary action follow; the bottom edge lands
+ * ~150ms after the claim completes. Reduced-motion gets the finished composition instantly. */
+@keyframes flinza-hero-mask {
+  from {
+    clip-path: inset(0 0 102% 0);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(-4% 0 -10% 0);
+    opacity: 1;
+  }
+}
+@keyframes flinza-hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.flinza-hero-eyebrow {
+  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.flinza-hero-claim {
+  animation: flinza-hero-mask 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+.flinza-hero-support {
+  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+.flinza-hero-explore {
+  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+}
+.flinza-hero-note {
+  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+}
+.flinza-hero-bottom {
+  animation: flinza-hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.76s both;
 }
 
 /* ── Narrow screens ──
@@ -471,6 +772,26 @@
   .flinza-hero-claim {
     font-size: clamp(28px, 8.2vw, 38px);
   }
+  .flinza-hero-eyebrow {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    gap: 9px;
+  }
+  .flinza-hero-eyebrow::before {
+    width: 18px;
+  }
+  .flinza-hero-support {
+    font-size: 13.5px;
+    max-width: 100%;
+  }
+  .flinza-hero-explore {
+    font-size: 13px;
+  }
+  .flinza-hero-interest {
+    font-size: 13px;
+    line-height: 1.62;
+    max-width: 100%;
+  }
   .flinza-hero-interest {
     font-size: 13px;
     line-height: 1.62;
@@ -504,8 +825,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flinza-hero-scroll span {
+  .flinza-hero-scroll span,
+  .flinza-hero-eyebrow,
+  .flinza-hero-claim,
+  .flinza-hero-support,
+  .flinza-hero-explore,
+  .flinza-hero-note,
+  .flinza-hero-bottom,
+  .flinza-hero-visual,
+  .flinza-hero-photo,
+  .flinza-hero-bloom {
     animation: none;
+  }
+  .flinza-hero-explore::after,
+  .flinza-hero-nav a::after {
+    transition: none;
   }
 }
 

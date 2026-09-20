@@ -271,9 +271,19 @@ export default function Page({ heroPhoto = null }) {
         opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
         transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
       }}>
-        <a href="#hero" className="flinza-hero-brand" style={{ textDecoration: 'none', justifySelf: 'start' }}>
-          Flinza
-        </a>
+        <div className="flinza-hero-chrome-left" style={{ justifySelf: 'start' }}>
+          <a href="#hero" className="flinza-hero-brand" style={{ textDecoration: 'none' }}>
+            Flinza Works
+          </a>
+          {/* Quiet desktop navigation, same baseline as the lockup and the call pill. The metal
+              mark keeps the centre of the row — that alignment is the one the client asked for
+              explicitly — so the links live beside the lockup, deliberately spaced. */}
+          <nav className="flinza-hero-nav" aria-label="Primary">
+            <a href="#work">Work</a>
+            <a href="#services">Services</a>
+            <a href="/about">About</a>
+          </nav>
+        </div>
 
         <a
           href="#hero"
@@ -370,6 +380,7 @@ export default function Page({ heroPhoto = null }) {
         {/* The dissolve: blurs the figure's foot and washes it into the paper colour the
             "Selected work" band sits on, so the hero releases into the page instead of ending. */}
         <div className="flinza-hero-fog" aria-hidden="true" />
+        <div className="flinza-hero-bloom" aria-hidden="true" />
         <div className="flinza-hero-scrim" aria-hidden="true" />
 
         <div className="flinza-hero-inner">
@@ -380,15 +391,27 @@ export default function Page({ heroPhoto = null }) {
             <p className="flinza-hero-note">{POSITIONING}</p>
           </div>
 
-          {/* The claim stands between the head and the foot, where the reference puts its
-              wordmark: the middle of the frame, with air on both sides. The bottom edge is left
-              to the small text and the numbers, which is where the reference keeps its weight.
-              The two lines are separate blocks so the break belongs to the composition rather
+          {/* The message block — eyebrow, claim, one supporting line, and the secondary action.
+              It owns the middle of the frame with air on both sides; the bottom edge is left to
+              the small text and the numbers, which is where the reference keeps its weight. The
+              two claim lines are separate blocks so the break belongs to the composition rather
               than to whatever width the viewport happens to be. */}
-          <h1 className="flinza-hero-claim">
-            <span>Ecommerce growth,</span>
-            <em>engineered for profit.</em>
-          </h1>
+          <div className="flinza-hero-message">
+            <p className="flinza-hero-eyebrow">
+              DTC Growth <span aria-hidden="true">/</span> Creative + Performance
+            </p>
+            <h1 className="flinza-hero-claim">
+              <span>Ecommerce growth,</span>
+              <em>engineered for profit.</em>
+            </h1>
+            <p className="flinza-hero-support">
+              Meta ads, creator-led and founder-led content for DTC brands spending $50K+ a
+              month.
+            </p>
+            <a className="flinza-hero-explore" href="#work">
+              Explore selected work <span aria-hidden="true">↓</span>
+            </a>
+          </div>
 
           <div className="flinza-hero-bottom">
             <div className="flinza-hero-copy">
@@ -396,8 +419,13 @@ export default function Page({ heroPhoto = null }) {
                   /about, where there is room for it; a hero that explains everything explains
                   nothing. The CTA is no longer here either — it is in the corner of the frame, and
                   the header carries the camo button on every route. */}
+              {/* The bottom-left block of the redesigned hero: who this is for and how it works,
+                  in two sentences, then the scroll cue. (The supporting line under the claim
+                  carries the services; this one carries the method — no duplicated sentence.) */}
               <p className="flinza-hero-interest">
-                Meta ads, creator-led and founder-led content for DTC brands spending $50K+ a month.
+                A data-driven growth agency for ecommerce brands spending $50K+ a month —
+                48-hour creative testing, profit-first paid media and the creators to match.
+                Built to find what converts, and to scale it fast.
               </p>
 
               <a className="flinza-hero-scroll" href="#work">
@@ -427,7 +455,7 @@ export default function Page({ heroPhoto = null }) {
         <div className="flinza-work-head">
           <p className="flinza-overline">
             <span aria-hidden="true" />
-            Selected work
+            Selected work / Real numbers
           </p>
           <h2 className="flinza-work-title">
             Eight accounts, <em>eight levers</em>
