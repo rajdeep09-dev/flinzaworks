@@ -844,6 +844,47 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════════
+ * PREFERRED SOURCES — the Google Search badge, footer brand column
+ * ════════════════════════════════════════════════════════════════════════
+ * Google's library renders its own styled button into the attribute div; the
+ * wrapper only supplies rhythm and the invitation copy, and hides cleanly if
+ * the third-party script is blocked (the deeplink below it still works).
+ */
+.flinza-foot-pref {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(9, 58, 72, 0.14);
+  max-width: 34ch;
+}
+.flinza-foot-pref-copy {
+  margin: 10px 0 14px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.flinza-foot-pref-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--aqua-deep);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.flinza-foot-pref-link:hover,
+.flinza-foot-pref-link:focus-visible {
+  color: var(--ink);
+}
+.flinza-foot-pref-link:focus-visible {
+  outline: 1.5px solid var(--aqua-deep);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
  * THE PROOF BAND — marquee · statement · clients
  * ════════════════════════════════════════════════════════════════════════
  *

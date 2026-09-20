@@ -25,6 +25,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import CamoCtaButton from "./CamoCtaButton";
 import { MAILTO } from "@/lib/site";
+import { SITE_URL } from "@/data/seo";
 
 /* The socials are lazy, and that is a performance decision rather than a nicety.
  *
@@ -154,6 +155,29 @@ export default function SiteFooter() {
           <div className="flinza-foot-social">
             <p className="flinza-foot-social-label">Follow &amp; reach us</p>
             <SocialGlassRow />
+          </div>
+
+          {/* Preferred sources (Google Search) — the Search Central standard implementation: the
+              library loaded in layout.jsx scans for the google-add-preferred-source-btn
+              attribute below and renders its localized button in place. A reader who picks
+              Flinza Works here is served the site with a "preferred" badge in Top Stories, AI
+              Mode, AI Overviews and Discover. The deeplink is the docs' no-JS fallback, so the
+              invitation survives even if the third-party script is blocked. */}
+          <div className="flinza-foot-pref">
+            <p className="flinza-foot-social-label">Preferred on Google</p>
+            <p className="flinza-foot-pref-copy">
+              Pick Flinza Works as a preferred source and Google surfaces our work first in Top
+              Stories, AI Overviews and Discover.
+            </p>
+            <div google-add-preferred-source-btn="" data-theme="light" />
+            <a
+              className="flinza-foot-pref-link"
+              href={`https://www.google.com/preferences/source?q=${new URL(SITE_URL).host}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Or add us manually ↗
+            </a>
           </div>
         </div>
 

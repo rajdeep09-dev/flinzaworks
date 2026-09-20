@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 /* Deliberately second: it carries the handful of rules that must beat declarations already set in
    globals.css or as inline styles. See the file header for what is in it and why. */
 import './overrides.css';
@@ -145,6 +146,16 @@ export default function RootLayout({ children }) {
             new route cannot forget to opt in and the whole document needs one observer instead of
             one per section. See the file for the rules it plays by. */}
         <SectionReveal />
+        {/* Google "preferred sources" — the standard implementation from Search Central (two
+            lines: this library + the button div in SiteFooter). After a reader picks Flinza
+            Works, Google is more likely to surface the site in Top Stories, AI Mode, AI
+            Overviews and Discover for that reader. `afterInteractive` loads it async after
+            hydration, so it never competes with the first paint; the library itself scans the
+            DOM for the button attribute and renders its localized, Google-styled button. */}
+        <Script
+          src="https://news.google.com/swg/js/v1/publisher.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
