@@ -68,14 +68,24 @@
   background-size: cover;
 }
 
-/* The real photograph (28 kB WebP), resolved at build time. Anchored at 40% so
- * the bloom and the head stay in frame on tall screens — bottom-anchoring would
- * crop the sky and leave the figure headless on a phone.
+/* The real photograph (28 kB WebP), resolved at build time. The figure sits RIGHT of centre
+ * (56%) like the reference composition — text owns the left half at every width because both
+ * sides scale with the viewport, not with hardcoded pixel caps. 40% vertical keeps the head
+ * in frame on tall screens.
  *
  * The mask is the first half of the hero-to-page dissolve: the photo fades out
  * over its last quarter, so the figure never meets the section below on a hard
  * edge — it thins into the paper. */
 .flinza-hero-photo {
+  /* The background-POSITION is percentage-of-overflow, which collapses when the image fits
+   * exactly — so the offset lives on the ELEMENT: the box is 118% wide, pushed 18% right.
+   * The figure (centre of the photo) lands at ~59% of the viewport at every size, purely
+   * proportional — no pixel caps, adapts to any screen. */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 18%;
+  right: -18%;
   background-position: 50% 40%;
   background-size: cover;
   -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 99.5%);
@@ -183,8 +193,11 @@
 @media (max-width: 700px) {
   /* The figure anchors behind the LOWER half of the frame: 58% cropped the head into the
    * claim's zone, which is the "hazardous" composition in the mobile screenshot. 76% sinks
-   * the bust below the fold line, and the scrim above it keeps the text half quiet sky. */
+   * the bust below the fold line, and the scrim above it keeps the text half quiet sky.
+   * The sideways offset relaxes — phones stack text over figure instead of splitting. */
   .flinza-hero-photo {
+    left: 0;
+    right: 0;
     background-position: 50% 76%;
   }
   .flinza-hero-scrim {
@@ -426,10 +439,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* One left rail for every hero text: the claim column is capped so no line — at any
-   * viewport — runs under the figure. The figure owns the right half; type owns the left. */
-  width: 100%;
-  max-width: 680px;
+  /* One left rail for every hero text — and it SCALES: 56% of the container (the figure
+   * offset's mirror image), clamped to a readable band. At 2560px the rail is ~1.4kpx; at
+   * 1280px it's ~660px. No pixel caps to break at an untested width. */
+  width: min(100%, 56%);
+  min-width: min(100%, 480px);
 }
 
 /* Mobile: the claim reads against quiet sky at the TOP of the frame. */
@@ -547,7 +561,9 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(34px, 4.7vw, 64px);
+  /* Pure viewport scaling: 5vw tracks the rail's 56% share, no ceiling — the claim grows
+   * with the screen exactly as the figure does. */
+  font-size: clamp(34px, 4.9vw, 5vw);
   line-height: 0.96;
   letter-spacing: -0.034em;
   color: var(--ink);
