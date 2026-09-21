@@ -22,6 +22,15 @@ import * as React from "react";
 export default function FaqList({ items = [], defaultOpen = null }) {
   const [open, setOpen] = React.useState(defaultOpen);
 
+  /*
+   * This component is mounted three times on the home page (one per FAQ cluster), so a
+   * plain `faq-answer-${index}` id repeats across the document and every
+   * aria-controls reference becomes ambiguous. useId() gives each instance its own
+   * namespace; the colon-stripping keeps the value valid as an HTML id.
+   */
+  const uid = React.useId();
+  const idBase = `faq-${uid.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+
   if (!items.length) return null;
 
   return (
@@ -46,7 +55,7 @@ export default function FaqList({ items = [], defaultOpen = null }) {
                 type="button"
                 className="flinza-faqrow-head"
                 aria-expanded={isOpen}
-                aria-controls={`faq-answer-${index}`}
+                aria-controls={`${idBase}-answer-${index}`}
                 onClick={() => setOpen((prev) => (prev === index ? null : index))}
               >
                 <span className="flinza-faqrow-num" aria-hidden="true">
@@ -57,7 +66,7 @@ export default function FaqList({ items = [], defaultOpen = null }) {
               </button>
             </h3>
 
-            <div className="flinza-faqrow-body" id={`faq-answer-${index}`}>
+            <div className="flinza-faqrow-body" id={`${idBase}-answer-${index}`}>
               <div className="flinza-faqrow-body-inner">
                 <p className="flinza-faqrow-a">{item.answer}</p>
               </div>

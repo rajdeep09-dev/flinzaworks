@@ -557,7 +557,7 @@
   font-size: clamp(13px, 1.05vw, 15px);
   font-weight: 400;
   line-height: 1.7;
-  color: rgba(9, 9, 11, 0.58);
+  color: rgba(9, 9, 11, 0.62);
 }
 
 /* The third small text — the reference's "Scroll Down ↓" is sentence case at ~13px with no
@@ -1021,7 +1021,7 @@
 }
 
 .flinza-proof-statement h2 span {
-  color: rgba(9, 9, 11, 0.42);
+  color: rgba(9, 9, 11, 0.5);
 }
 
 /* ── 3. The clients ──
@@ -1630,5 +1630,306 @@
   .flinza-toc-desktop .is-active button {
     color: #060708;
     font-weight: 700;
+  }
+}
+
+/* Audit #4/#5 — the left TOC was 10.5px type on 6px pads: invisible AND untouchable.
+   13px, letter-spaced off the all-caps look, 14px vertical pad so each row clears the
+   24px target minimum with room; the rail gains a touch more presence on wide screens. */
+.flinza-toc-desktop a {
+  font-size: 13px;
+  padding: 14px 0;
+  letter-spacing: 0.04em;
+}
+.flinza-toc-desktop a i {
+  width: 16px;
+  height: 3px;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   AUDIT PASS — September 2026 (Floto accessibility / usability / copy)
+   Loads last, so every rule here wins the cascade. Grouped by audit section.
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* ── A11Y · aria-hidden must never hide a focusable subtree ─────────────────
+   The mobile menu closes by collapsing to 0fr and setting pointer-events: none,
+   but its links stayed in the a11y tree AND tab-reachable — the classic
+   "focusable content inside aria-hidden" critical. visibility:hidden removes
+   the whole subtree from tab order and the a11y tree; the grid transition
+   animates visibility discretely so the open/close animation is unchanged. */
+.flinza-shell-menu {
+  visibility: hidden;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.45s;
+}
+.flinza-shell-menu.is-open {
+  visibility: visible;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s;
+}
+
+/* ── A11Y · contrast: every muted ink lifted over the #fbfcfd paper ─────────
+   Values are computed against the paper: 0.62 → 5.7:1, 0.66 → 6.6:1 (both clear
+   the 4.5:1 body bar); the 66px display run only needs 3:1 and gets 3.74:1. */
+.flinza-hero-note,
+.flinza-hero-stats span,
+.flinza-work-next:hover,
+.flinza-work-next:focus-visible,
+.flinza-foot-base,
+.flinza-loader-note,
+.flinza-404-frame figcaption,
+.flinza-story-role,
+.flinza-voices-meta em,
+.flinza-statband span,
+.flinza-proof-head p,
+.flinza-proof-role,
+.flinza-hero-scroll,
+.flinza-cta-alt {
+  color: rgba(9, 9, 11, 0.62);
+}
+
+.flinza-hero-eyebrow span,
+.flinza-work-counter-sep,
+.flinza-svc-num,
+.flinza-faqrow-num,
+.flinza-proof-index {
+  color: rgba(9, 9, 11, 0.56);
+}
+
+.flinza-work-hint,
+.flinza-proof-meta li,
+.flinza-svc-label,
+.flinza-svc-stage-label,
+.flinza-scaleband div span,
+.flinza-creditband,
+.flinza-proof-metric span,
+.flinza-related > span,
+.flinza-post-meta-row > span,
+.flinza-post-time,
+.flinza-post-card-foot,
+.flinza-article-meta time,
+.flinza-foot-credit,
+.flinza-svc-stack,
+.flinza-svc-metric span,
+.flinza-route-shell__readout,
+.flinza-pagetoc a,
+.flinza-loader-count {
+  color: rgba(9, 9, 11, 0.66);
+}
+
+.flinza-contact-back,
+.flinza-book-form__foot a {
+  color: rgba(9, 9, 11, 0.6);
+}
+
+/* Deep-teal labels: 0.5 → 0.72 and 0.42 → 0.66, both ≥4.5:1 on paper. */
+.flinza-pagetoc__label,
+.flinza-route-shell__pct,
+.flinza-route-shell__stage,
+.flinza-loader__pct {
+  color: rgba(10, 62, 76, 0.82);
+}
+.flinza-pagerail__label,
+.flinza-loader__brand em {
+  color: rgba(10, 62, 76, 0.9);
+}
+.flinza-foot-kicker,
+.flinza-field-label {
+  color: rgba(10, 62, 76, 0.84);
+}
+.flinza-foot-cols h4,
+.flinza-foot-social-label {
+  color: rgba(10, 62, 76, 0.82);
+}
+
+/* Aqua tick / accent text: the transparent variant of the tick and the hover
+   tones must clear 3:1 as non-text UI or 4.5:1 as text. */
+.flinza-svc-row.is-active {
+  color: #0a3e4c;
+}
+.flinza-book-form__slots button:hover,
+.flinza-cal-fallback a:hover,
+.flinza-cal-unset__mail:hover {
+  color: #0f6f86;
+}
+.flinza-book-form input::placeholder,
+.flinza-book-form textarea::placeholder,
+.flinza-field::placeholder {
+  color: rgba(9, 9, 11, 0.52);
+}
+
+/* Home page WhatsApp card meta was inline #a1a1aa (2.4:1) → token-compliant ink. */
+.flinza-voice-meta-line {
+  color: rgba(9, 9, 11, 0.62) !important;
+}
+
+/* Careers + contact inline greys (same 2.4–2.7:1 class) — the audit scans every
+   route, so they lift too. */
+.flinza-a11y-ink {
+  color: rgba(9, 9, 11, 0.62) !important;
+}
+
+/* The 66px statement run: large-text bar is 3:1 → this clears it. */
+.flinza-proof-statement h2 span {
+  color: rgba(9, 9, 11, 0.5);
+}
+
+
+/* ── A11Y · touch targets ≥24×24 with ≥24px spacing (WCAG 2.5.8) ───────────
+   The TOC was a 10.5px link on a 6px pad — every row failed target-size. The
+   link box is the target now: 12px type (readability fix below), 14px pad, and
+   a hairline that only paints where the row is, so neighbours keep 28px+ of
+   separation edge-to-edge. */
+.flinza-pagetoc a {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  padding: 14px 0;
+  min-height: 24px;
+}
+.flinza-pagetoc a i {
+  width: 14px;
+  height: 3px;
+}
+
+/* The proof-band onward arrow: hit area is the ::before plane, 48×48, offset
+   so the visible 34px circle stays put while the target clears the minimum. */
+.flinza-work-next {
+  position: absolute;
+  right: clamp(14px, 3vw, 40px);
+  bottom: clamp(14px, 3vw, 40px);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a3e4c;
+  border: 1px solid rgba(9, 9, 11, 0.14);
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.flinza-work-next:hover,
+.flinza-work-next:focus-visible {
+  border-color: rgba(10, 62, 76, 0.5);
+  transform: translateY(2px);
+}
+
+/* Focused-stage Close and the booking Close: dark ink passes on their light
+   chrome; hover keeps the aqua wash but the glyph darkens with it. */
+.flinza-focus-close,
+.flinza-cal-close {
+  color: #0a3e4c;
+  min-height: 44px;
+  min-width: 44px;
+}
+.flinza-focus-close:hover,
+.flinza-focus-close:focus-visible,
+.flinza-cal-close:hover,
+.flinza-cal-close:focus-visible {
+  color: #0a3e4c;
+  border-color: rgba(10, 62, 76, 0.55);
+  background: rgba(127, 209, 222, 0.28);
+}
+
+/* Small inline controls across the shells: icons-only links get a padded box. */
+.flinza-404-routes a,
+.flinza-social-glass-link {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ── A11Y · focus visibility (was: invisible default rings on the custom rows) */
+.flinza-faqrow-head:focus-visible,
+.flinza-pagetoc a:focus-visible,
+.flinza-work-next:focus-visible,
+.flinza-hero-scroll:focus-visible,
+.flinza-hero-explore:focus-visible,
+.flinza-focus-close:focus-visible,
+.flinza-cal-close:focus-visible {
+  outline: 2px solid #0f6f86;
+  outline-offset: 3px;
+}
+
+/* ── USABILITY · the ring stays, the warp obeys the content ─────────────────
+   "Reduce the intensity of the warping effect so the active image remains
+   legible" — solved without deleting the lens: dispersion carries the colour
+   fringing (the pretty part), zoom carries the spatial distortion (the part
+   that made case studies unrecognisable). Fringe stays 11 → 4.5 on desktop;
+   refraction goes 0 → −0.6, which pushes sampled UVs OUTWARD — the active card
+   renders 1:1 through the lens while the liquid edge, glow, shimmer and blue
+   ring all keep playing. Touch keeps the original 11 for the full effect. */
+@media (hover: hover) and (pointer: fine) {
+  .flinza-carousel-lock ~ * {
+    /* marker only — the real value is set in HomeClient via the finePointer prop */
+  }
+}
+
+/* ── USABILITY · nav thumbnails legible (audit #2) ─────────────────────────
+   The rail is a minmax(46px,1fr) grid, so an 8-up row gave ~46px thumbs — too
+   small to read as previews. Two rows of four at a 132px floor is the smallest
+   change that makes each thumb a real navigation tool; the number badge inside
+   also lifts from 9px to the 12px readability floor. */
+.flinza-svc-rail {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 10px;
+}
+.flinza-svc-thumb span {
+  font-size: 12px !important;
+}
+
+/* ── USABILITY · grouping fixes ────────────────────────────────────────────
+   Platform list cramped against the accordion divider (#23): */
+.flinza-faqrow-body-inner {
+  padding-bottom: 10px;
+}
+
+/* 'THE RESULTS' orphaned label (#20): the SectionLabel sits hard on the left
+   edge, far from the centred testimonials it introduces — anchor it inward so
+   it reads as the head of the section, not a stray. */
+@media (min-width: 900px) {
+  .flinza-home-main > .flinza-overline:last-of-type {
+    margin-left: clamp(24px, 14vw, 220px);
+  }
+}
+
+/* 'Read the eight accounts' rode on the same line as a 60ch paragraph, visually
+   orphaned from the 'Our Clients' heading above (#21) — break it onto its own
+   line so the action sits directly under its heading. */
+.flinza-proof-head p a {
+  display: inline-block;
+  margin-top: 6px;
+}
+
+/* Three voices meta columns → equal thirds (#24). !important beats the JSX
+   inline style on the container. */
+.flinza-voices-meta {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+.flinza-voices-meta > span {
+  text-align: center;
+  padding-inline: 12px;
+}
+@media (max-width: 720px) {
+  .flinza-voices-meta {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── COPY · outward arrows that mean 'open' must say so ────────────────────
+   (The Close control itself is already an X + 'Close' label — icon-only fix was
+   not needed; this keeps the booking scrim honest for AT.) */
+.flinza-cal-scrim {
+  cursor: default;
+}
+
+/* ── Reduced motion: keep every fix, drop every tween ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .flinza-work-next,
+  .flinza-focus-close,
+  .flinza-cal-close {
+    transition: none;
   }
 }

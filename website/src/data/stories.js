@@ -15,8 +15,8 @@
 
 export const founderStories = [
   {
-    id: 'dtc-home',
-    title: 'DTC Home',
+    id: 'dtc-supplements',
+    title: 'DTC Supplements',
     time: '2h',
     image: { src: '/images/story_action.webp', alt: 'Production still from a client shoot' },
     items: [

@@ -149,6 +149,14 @@ function useInView() {
 export default function Page({ heroPhoto = null }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  /* True when the visitor is a mouse/trackpad user. The carousel's lens distortion reads as
+   * delight under a cursor you steer deliberately — but the usability audit flagged it as the
+   * thing that made case studies unrecognisable, so on fine-pointer devices the refraction
+   * component of the lens is released (fringe, glow and shimmer stay) while touch keeps the
+   * full effect. Resolved once, on mount, so the value is stable for the render. */
+  const [finePointer] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches,
+  );
   // The fixed side rail must disappear over the FAQ/footer/contact region, where it collided with copy
   const [tocHidden, setTocHidden] = useState(false);
   const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
@@ -429,7 +437,7 @@ export default function Page({ heroPhoto = null }) {
               </p>
 
               <a className="flinza-hero-scroll" href="#work">
-                Scroll Down <span aria-hidden="true">↓</span>
+                See how we work <span aria-hidden="true">↓</span>
               </a>
             </div>
 
@@ -458,7 +466,7 @@ export default function Page({ heroPhoto = null }) {
             Selected work / Real numbers
           </p>
           <h2 className="flinza-work-title">
-            Eight accounts, <em>eight levers</em>
+            Eight accounts, <em>eight ways we move revenue</em>
           </h2>
           <p className="flinza-work-sub">
             Turn the ring and pick a case study: the situation, what we changed, and what it
@@ -492,6 +500,7 @@ export default function Page({ heroPhoto = null }) {
           <LiquidGlassCarousel
           projects={carouselProjects.map(withCaseStudyTestimonial)}
           panelHeight={480}
+          finePointer={finePointer}
           gap={12}
           glide={0.075}
           wheelSensitivity={1}
@@ -543,11 +552,12 @@ export default function Page({ heroPhoto = null }) {
               Hidden while a case study is open, and it stays out of the ring's pointer area. */}
           <a
             href="#stories"
-            aria-label="Continue — capabilities and clients"
             className="flinza-work-next"
+            aria-label="Continue to capabilities and clients"
             style={{
               opacity: focusedCaseStudy ? 0 : undefined,
               pointerEvents: focusedCaseStudy ? 'none' : undefined,
+              visibility: focusedCaseStudy ? 'hidden' : undefined,
             }}
           >
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -576,6 +586,7 @@ export default function Page({ heroPhoto = null }) {
           zIndex: 999,
           opacity: (scrolledPastHero && isLoaded && !tocHidden) ? 1 : 0,
           pointerEvents: (scrolledPastHero && isLoaded && !tocHidden) ? 'auto' : 'none',
+          visibility: (scrolledPastHero && isLoaded && !tocHidden) ? 'visible' : 'hidden',
           transition: 'opacity 0.4s ease, transform 0.4s ease',
           display: 'flex',
           flexDirection: 'column',
@@ -583,15 +594,15 @@ export default function Page({ heroPhoto = null }) {
         }}
       >
         <TableOfContent
-          title1="HOME"
+          title1="Home"
           link1="#hero"
-          title2="WORK"
+          title2="Work"
           link2="#work"
-          title3="SERVICES"
+          title3="Services"
           link3="#services"
-          title4="VOICES"
+          title4="Voices"
           link4="#testimonials"
-          title5="CONTACT"
+          title5="Contact"
           link5="#contact"
           lineColor="rgba(40, 45, 55, 0.75)"
           linkColor="#09090b"
@@ -649,7 +660,7 @@ export default function Page({ heroPhoto = null }) {
           <h3>Our Clients</h3>
           <p>
             Anonymised out of respect for the accounts — every result below is stated the same way
-            in its case study. <Link href="/work">Read the eight levers →</Link>
+            in its case study. <Link href="/work">Read the eight accounts →</Link>
           </p>
         </div>
         <div className="flinza-proof-cards">
@@ -849,13 +860,13 @@ export default function Page({ heroPhoto = null }) {
         {/* A second beat between the headline and the media: three hairline-separated facts
             about what the notes actually are. Deliberately no invented statistics — it labels
             the section instead of decorating it, which is what the layout was missing. */}
-        <div className="flinza-voices-meta" role="list">
+        <div className="flinza-voices-meta">
           {[
             ['Unedited', 'Sent as recorded, in one take'],
             ['Owners & growth leads', 'The people who signed off the work'],
             ['Post-result', 'Recorded after the numbers moved'],
           ].map(([title, sub]) => (
-            <span key={title} role="listitem">
+            <span key={title}>
               <strong className="flinza-display">{title}</strong>
               <em>{sub}</em>
             </span>
@@ -974,7 +985,7 @@ export default function Page({ heroPhoto = null }) {
               }}>
                 ⚡ Weekly Optimization Calls
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
+              <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
 
@@ -1051,7 +1062,7 @@ export default function Page({ heroPhoto = null }) {
               }}>
                 📈 +89% Revenue in 12 Weeks
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
+              <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
 
@@ -1080,8 +1091,8 @@ export default function Page({ heroPhoto = null }) {
                     </span>
                     <span style={{ color: '#17849B', fontSize: 13 }} title="Verified client">✓</span>
                   </div>
-                  <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }}>
-                    StillRing · Supplements
+                  <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }} className="flinza-voice-meta-line">
+                    Supplements · 8-figure DTC
                   </span>
                 </div>
               </div>
@@ -1091,12 +1102,12 @@ export default function Page({ heroPhoto = null }) {
             {/* Real Framer WhatsApp Audio Player */}
             <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
               <div className="flinza-mount-gate" style={{ width: '100%' }}>
-              {testimonialsInView ? <WhatsApAudioPlayer
-                audioFile="/audio/testimonial_elena.m4a"
-                audioFallback="/audio/testimonial_elena.mp3"
-                userName="StillRing"
-                userImageFile=""
-                timestamp="Yesterday"
+              {testimonialsInView ?                <WhatsApAudioPlayer
+                  audioFile="/audio/testimonial_elena.m4a"
+                  audioFallback="/audio/testimonial_elena.mp3"
+                  userName="Founder"
+                  userImageFile=""
+                  timestamp="Yesterday"
                 isOwn={false}
                 accentColor="#17849B"
               /> : null}</div>
@@ -1128,7 +1139,7 @@ export default function Page({ heroPhoto = null }) {
               }}>
                 🚀 ROAS 1.8x → 4.2x
               </span>
-              <span style={{ fontSize: 12, color: '#a1a1aa' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
+              <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
             </div>
           </div>
         </div>
@@ -1240,7 +1251,7 @@ export default function Page({ heroPhoto = null }) {
         <p className="flinza-cta-lede">
           We audit the bottlenecks, map the first tests, and return a fixed-scope plan.
         </p>
-        <p className="flinza-cta-steps" aria-label="What happens after you book">
+        <p className="flinza-cta-steps">
           <span>Discovery call</span>
           <i aria-hidden="true">→</i>
           <span>Bottleneck audit</span>
@@ -1258,7 +1269,7 @@ export default function Page({ heroPhoto = null }) {
           cardNameColor="rgb(9,9,11)"
           cardTitleColor="rgba(9,9,11,0.6)"
           cardEmailColor="rgb(9,9,11)"
-          cardEmailLabelColor="rgba(9,9,11,0.42)"
+          cardEmailLabelColor="rgba(9,9,11,0.62)"
           cardBGColor="rgba(255,255,255,0.16)"
           cardBGBlurDefault={26}
           cardBorder={{ borderColor: 'rgba(255,255,255,0.55)', borderStyle: 'solid', borderWidth: 1 }}

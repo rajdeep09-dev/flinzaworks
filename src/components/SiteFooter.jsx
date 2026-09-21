@@ -176,7 +176,7 @@ export default function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Or add us manually ↗
+              How to add us to Google Search ↗
             </a>
           </div>
         </div>

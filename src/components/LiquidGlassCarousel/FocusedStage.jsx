@@ -429,6 +429,9 @@ export default function FocusedStage({ caseStudy, image, focused, compact, onClo
           style={{
             pointerEvents: focused ? "auto" : "none",
             opacity: focused ? 1 : 0,
+            /* visibility keeps the closed control out of the tab order — opacity:0 alone
+               leaves it keyboard-reachable, which is exactly the audit's "stray element". */
+            visibility: focused ? "visible" : "hidden",
             transform: focused ? "none" : "translateY(-6px)",
             transition: "opacity .4s ease, transform .4s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
