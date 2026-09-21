@@ -181,8 +181,41 @@
  * kept as quiet sky for the message. `cover` on a 16:10-ish source crops from the top, so
  * anchoring at 58% keeps the head in frame and the mass low. */
 @media (max-width: 700px) {
+  /* The figure anchors behind the LOWER half of the frame: 58% cropped the head into the
+   * claim's zone, which is the "hazardous" composition in the mobile screenshot. 76% sinks
+   * the bust below the fold line, and the scrim above it keeps the text half quiet sky. */
   .flinza-hero-photo {
-    background-position: 50% 58%;
+    background-position: 50% 76%;
+  }
+  .flinza-hero-scrim {
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(247, 251, 252, 0.94) 0%,
+        rgba(247, 251, 252, 0.55) 26%,
+        rgba(247, 251, 252, 0.18) 52%,
+        rgba(247, 251, 252, 0) 72%
+      ),
+      linear-gradient(to top, rgba(247, 251, 252, 0.4) 0%, rgba(247, 251, 252, 0) 40%);
+  }
+
+  /* ── The chrome row on phones: three items, one optical line ──
+   * The mark's inline 68px box made the row feel lopsided against a 44px pill — the lockup
+   * sat on its own line-height while the pill centred on the mark's box. With the mark at
+   * 46px all three heights are near-equal and the grid's centering aligns them for real. */
+  .flinza-logo-btn.flinza-mark-stack,
+  .flinza-logo-btn .flinza-mark-still {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .flinza-hero-call {
+    min-height: 40px;
+    padding: 8px 15px;
+    font-size: 12.5px;
+  }
+  .flinza-hero-brand {
+    font-size: 11px;
+    letter-spacing: 0.24em;
   }
 }
 
@@ -384,6 +417,16 @@
   max-width: 680px;
 }
 
+/* Mobile: the claim reads against quiet sky at the TOP of the frame. */
+@media (max-width: 700px) {
+  .flinza-hero-claim {
+    font-size: clamp(34px, 11vw, 44px);
+  }
+  .flinza-hero-note {
+    display: none;
+  }
+}
+
 /* The eyebrow — small, tracked, high contrast, opened by the same aqua tick the Selected
  * Work overline uses, so the promise and the proof below the fold read as one system. */
 .flinza-hero-eyebrow {
@@ -418,6 +461,11 @@
   font-weight: 400;
   line-height: 1.65;
   color: rgba(9, 9, 11, 0.62);
+}
+@media (max-width: 700px) {
+  .flinza-hero-support {
+    max-width: 30ch;
+  }
 }
 
 /* The secondary action — a text link, deliberately not a second pill. The underline sweeps

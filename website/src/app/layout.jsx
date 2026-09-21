@@ -4,6 +4,7 @@ import Script from 'next/script';
    globals.css or as inline styles. See the file header for what is in it and why. */
 import './overrides.css';
 import './hero.css';
+import './polish.css';
 import RouteTransition from '@/components/RouteTransition';
 import SectionReveal from '@/components/SectionReveal';
 import JsonLd from '@/components/JsonLd';
