@@ -382,65 +382,18 @@ body:has(.flinza-carousel-lock.is-focused) {
   }
 }
 
-/* The visual and its scrim. `inset: 0` against the stage covers it exactly at any zoom factor —
- * the same distinction that mattered for the loader plate. `50% 100%` keeps the figure anchored to
- * the bottom edge however the frame is cropped, which is what makes it read as someone standing in
- * the light rather than a pasted-in shape. */
-.flinza-hero-visual {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: url("/images/hero-glow.svg");
-  background-repeat: no-repeat;
-  background-position: 50% 100%;
-  background-size: cover;
-}
-
-/* The optional photograph, when one exists — resolved on the server at build time and passed down
- * as a prop, so this rule either has a layer to paint or has no element to apply to. Nothing here
- * fetches anything that might be missing. It sits above the vector and below the scrim, which is
- * the order the markup puts them in; `object-position` has no meaning on a background so the
- * anchoring is `background-position` instead. */
-.flinza-hero-photo {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-repeat: no-repeat;
-  background-position: 50% 100%;
-  background-size: cover;
-}
-
-/* Two painted gradients, no filter: a wash at the top so the header's dark type never sits on the
- * figure's head, and a light floor at the bottom so the copy block has something to stand on. */
-.flinza-hero-scrim {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(247, 251, 252, 0.94) 0%,
-      rgba(247, 251, 252, 0.44) 20%,
-      rgba(247, 251, 252, 0) 40%
-    ),
-    linear-gradient(to top, rgba(247, 251, 252, 0.34) 0%, rgba(247, 251, 252, 0) 38%);
-}
-
-.flinza-hero-inner {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: clamp(36px, 9vh, 108px);
-}
+/* ── The hero's layers and frame are declared in hero.css, and ONLY there ──
+ *
+ * This file used to carry a second, older definition of `.flinza-hero-visual`,
+ * `.flinza-hero-photo`, `.flinza-hero-scrim` and `.flinza-hero-inner`. Because hero.css is
+ * imported AFTER this file, the later declarations usually won — which is exactly what made the
+ * duplicates so expensive: they were invisible everywhere they lost, and silently authoritative
+ * everywhere they did not. Any property this file declared that hero.css did not leaked straight
+ * 
+ * through into the built page — the scroll cue's `text-transform: uppercase` and
+ * `letter-spacing: 0.22em`, for instance, so the sentence-case fix made in hero.css never
+ * actually shipped. One definition, one file.
+ */
 
 /* ══ 22. The left rails get a lane, and no page content enters it ══════════
  * Both rails are `position: fixed` at `left: clamp(18px, 2.4vw, 34px)`, and the section rail clips
@@ -495,27 +448,17 @@ body:has(.flinza-carousel-lock.is-focused) {
     margin-inline: -130px;
   }
 
-  /* ...so the hero's copy takes the inset instead. Applied to a centred block inside a padded
-     parent it resolves to a constant 160px left edge at every width — 64px of stage padding plus
-     half of the 320px cap — against a rail that ends at 110px. The claim can never be reached by
-     the rail, and the art is never cropped to achieve it. */
-  .flinza-home-main > .flinza-hero-stage .flinza-hero-inner {
-    max-width: min(1240px, calc(100vw - 320px));
-  }
+  /* ...and the inset that keeps the copy clear of the rail is applied to the hero's text rail
+     AND to the pinned chrome TOGETHER, from one rule in hero.css (`.flinza-hero-chrome,
+     .flinza-hero-inner`).
+
+     It used to live here, alone, on `.flinza-hero-inner` — at a three-class specificity that no
+     hero.css rule could outrank, at a different value (1240 it was 1308), which is why the claim
+     sat ~58px inside the lockup on every desktop and why five rounds of "align them" produced no
+     visible change: the two frames were being set by two different files and this one always won. */
 }
 
-/* The brand label. One word, upper case, widely letter-spaced — how the client's own reference
- * sets the mark, and the only place the brand name appears in the hero. Lower case in the markup,
- * so a screen reader says "Flinza" instead of spelling out five capitals. */
-.flinza-hero-brand {
-  margin: 0;
-  font-family: var(--font-ui);
-  font-size: clamp(11px, 0.86vw, 13px);
-  font-weight: 500;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
+/* `.flinza-hero-brand` is declared in hero.css too — see the note above. */
 
 /* The one action, in the corner the reference puts it: a hairline capsule, deliberately not a
  * filled button. The camo shader stays reserved for the header, so the two never compete.
@@ -625,14 +568,11 @@ body:has(.flinza-carousel-lock.is-focused) {
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-.flinza-hero-stats span {
-  font-family: var(--font-ui);
-  font-size: clamp(9.5px, 0.8vw, 11.5px);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(9, 9, 11, 0.46);
-}
+/* `.flinza-hero-stats span` is in hero.css. The duplicate here carried the same leak as the
+ * scroll cue — `text-transform: uppercase` — which is why the four labels under the figures have
+ * been rendering as tracked 9.5px capitals while hero.css asked for 11.5–14px sentence case.
+ * Same cause, same fix: one definition, in one file.
+ */
 
 /* ACTION moved to the corner of the frame — see `.flinza-hero-call`. The full-width shader pill
  * and the "See the work" link that used to sit here are gone: the header carries the camo button on

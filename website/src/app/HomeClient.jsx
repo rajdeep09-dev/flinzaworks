@@ -265,16 +265,18 @@ export default function Page({ heroPhoto = null }) {
           call pill right — so all three live in this fixed row and share its height. It belongs
           to the hero only: it fades out with the hero and steps out of the way of the focused
           case study below the fold. */}
-      <header style={{
+      <header className="flinza-hero-chrome" style={{
         position: 'fixed',
         top: 'calc(18px + env(safe-area-inset-top, 0px))',
         left: 0,
         right: 0,
-        /* Same grid as the hero's text rail: 1240px + the same inset, centred. Without this
-         * the lockup hugged the screen edge while every text block started further in — the
-         * misalignment in the screenshots. The mark stays dead-centre of the page because the
-         * grid itself is centred. */
-        maxWidth: 1308,
+        /* The frame — max-width and inset — lives in hero.css as `.flinza-hero-chrome`, and it
+         * is SHARED with `.flinza-hero-inner`. One rule lays out the lockup, the mark, the pill
+         * and every hero text block, so their left edges are the same line by construction. It
+         * has to be a stylesheet rule rather than these inline values because the cap changes
+         * once the page's fixed side rail is on screen (see the ≥1101px block in hero.css) and
+         * an inline style cannot be media-queried. The mark stays dead-centre of the page
+         * because the grid itself is centred. */
         margin: '0 auto',
         zIndex: 100,
         display: 'grid',
@@ -391,9 +393,10 @@ export default function Page({ heroPhoto = null }) {
             style={{ backgroundImage: `url("${heroPhoto}")` }}
           />
         ) : null}
-        {/* The dissolve: blurs the figure's foot and washes it into the paper colour the
-            "Selected work" band sits on, so the hero releases into the page instead of ending. */}
-        <div className="flinza-hero-fog" aria-hidden="true" />
+        {/* The dissolve is carried by three static layers and no blur plate: the photo's own
+            mask thins the figure into the paper, the scrim's floor wash lifts the bottom of
+            the frame, and the bloom below feeds the brand aqua into the seam. There is
+            deliberately no `backdrop-filter` band here — see the note in hero.css. */}
         <div className="flinza-hero-bloom" aria-hidden="true" />
         <div className="flinza-hero-scrim" aria-hidden="true" />
 
@@ -430,7 +433,19 @@ export default function Page({ heroPhoto = null }) {
               month.
             </p>
             <a className="flinza-hero-explore" href="#work">
-              Explore selected work <span aria-hidden="true">↓</span>
+              Explore selected work
+              <span aria-hidden="true">
+                <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
+                  <path
+                    d="M6 1.9v7.4M2.8 6.2 6 9.7l3.2-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
             </a>
           </div>
 
@@ -450,7 +465,19 @@ export default function Page({ heroPhoto = null }) {
               </p>
 
               <a className="flinza-hero-scroll" href="#work">
-                See how we work <span aria-hidden="true">↓</span>
+                See how we work
+                <span aria-hidden="true">
+                  <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
+                    <path
+                      d="M6 1.9v7.4M2.8 6.2 6 9.7l3.2-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
               </a>
             </div>
 

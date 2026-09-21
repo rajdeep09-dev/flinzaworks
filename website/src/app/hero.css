@@ -69,12 +69,15 @@
   /* Same box as the photograph below — if the two layers ever disagree, the vector peeks
    * out from behind the photo's edge as a dark sliver (exactly the far-left strip in the
    * screenshots). One shared offset, one shared dissolve. */
-  top: 0;
-  bottom: 0;
-  left: 18%;
-  right: -18%;
-  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 88%);
-  mask-image: linear-gradient(to bottom, #000 62%, transparent 88%);
+  /* FULL BLEED — no offset box. An element narrower than the viewport hands the
+   * photograph a hard vertical edge, and that edge was the vertical seam down the
+   * left of every screenshot: the layer simply stopped at 18% and the bare stage
+   * showed through. A full-bleed `cover` layer cannot do that — panning a cover
+   * background only changes WHICH slice is cropped, never whether an edge is
+   * inside the frame. */
+  inset: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 86%);
+  mask-image: linear-gradient(to bottom, #000 58%, transparent 86%);
 }
 
 /* The real photograph (28 kB WebP), resolved at build time. The figure sits RIGHT of centre
@@ -91,17 +94,31 @@
    * The figure (centre of the photo) lands at ~59% of the viewport at every size, purely
    * proportional — no pixel caps, adapts to any screen. */
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 18%;
-  right: -18%;
-  background-position: 50% 38%;
+  inset: 0;
+  /* The figure is dead centre in the source frame — measured from the file itself,
+   * the dark core of the silhouette sits at 45–52% of the 1632px width — so the pan
+   * is what places it. `cover` pans linearly across exactly the horizontal overflow,
+   * so 15% lands the figure at ~62% of the viewport on every desktop aspect, and
+   * because the layer is full-bleed there is no edge anywhere to leave behind. */
+  background-position: 15% 50%;
   background-size: cover;
   /* The dissolve completes at 82% of the hero's height — the figure thins to mist from the
    * waist down, so the bottom UI row (which spans the full width) reads on paper, and the
    * image's own bottom edge can never surface as a line. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 82%);
-  mask-image: linear-gradient(to bottom, #000 52%, transparent 82%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 66%,
+    rgba(0, 0, 0, 0.6) 82%,
+    rgba(0, 0, 0, 0) 95%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 66%,
+    rgba(0, 0, 0, 0.6) 82%,
+    rgba(0, 0, 0, 0) 95%
+  );
 }
 
 /* The second half of the dissolve: a fog band pinned to the hero's foot. Its
@@ -112,37 +129,16 @@
  * the visitor lands on a clean hero and meets the dissolve only by scrolling. One static
  * layer, no animation on it — the cost is one raster while it is on screen, which is what
  * every frosted app header already spends. It sits above the photo and below the scrim. */
-.flinza-hero-fog {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: clamp(170px, 30vh, 300px);
-  z-index: 0;
-  pointer-events: none;
-  -webkit-backdrop-filter: blur(18px) saturate(1.04);
-  backdrop-filter: blur(18px) saturate(1.04);
-  -webkit-mask-image: linear-gradient(
-    to top,
-    #000 0%,
-    rgba(0, 0, 0, 0.72) 38%,
-    rgba(0, 0, 0, 0.16) 74%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to top,
-    #000 0%,
-    rgba(0, 0, 0, 0.72) 38%,
-    rgba(0, 0, 0, 0.16) 74%,
-    transparent 100%
-  );
-  background: linear-gradient(
-    to top,
-    rgba(251, 252, 253, 0.98) 0%,
-    rgba(243, 250, 252, 0.42) 46%,
-    rgba(243, 250, 252, 0) 100%
-  );
-}
+/* There is no fog plate any more, and its absence is the fix.
+ *
+ * A full-width `backdrop-filter` band was the "washed-out horizontal rectangle across the
+ * silhouette": Chrome clips a backdrop filter to the element's box and the mask then
+ * feathers that already-clipped result, so the plate's edge survives as a soft but very
+ * visible seam over the figure — on top of being the most expensive layer in the hero.
+ *
+ * Everything it was doing is now done by two plain gradients that have nothing to clip: the
+ * photograph's own mask (nothing solid past 95%) and the scrim's floor wash. Both are
+ * static, both are free per frame, and neither can produce an edge. */
 
 /* The cyan under-glow — the colour half of the blue-to-noise handoff. A restrained radial
  * of the brand aqua under the figure, breathing on opacity only (compositor-safe), feeding
@@ -196,16 +192,19 @@
  * it must keep its bottom anchoring — its figure is drawn against the bottom
  * edge. The single-selector form above would re-anchor it. */
 .flinza-hero-visual {
-  background-position: 50% 100%;
+  background-position: 15% 100%;
 }
 
-/* Portrait phones: the stacked composition puts the figure low, full width. */
+/* Portrait phones: the same two layers, zoomed and anchored low, so the figure's
+ * mass reads behind the lower third of the column instead of behind the type.
+ * `auto 132%` is what makes this possible — a plain `cover` on a portrait element
+ * has no vertical overflow at all, so the figure could never be moved down without
+ * also moving the layout. The zoom gives the pan a vertical axis to work on. */
 @media (max-width: 700px) {
-  .flinza-hero-visual {
-    left: 0;
-    right: 0;
-    -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 88%);
-    mask-image: linear-gradient(to bottom, #000 58%, transparent 88%);
+  .flinza-hero-visual,
+  .flinza-hero-photo {
+    background-size: auto 132%;
+    background-position: 50% 40%;
   }
 }
 
@@ -213,26 +212,9 @@
  * kept as quiet sky for the message. `cover` on a 16:10-ish source crops from the top, so
  * anchoring at 58% keeps the head in frame and the mass low. */
 @media (max-width: 700px) {
-  /* The figure anchors behind the LOWER half of the frame: 58% cropped the head into the
-   * claim's zone, which is the "hazardous" composition in the mobile screenshot. 76% sinks
-   * the bust below the fold line, and the scrim above it keeps the text half quiet sky.
-   * The sideways offset relaxes — phones stack text over figure instead of splitting. */
-  .flinza-hero-photo {
-    left: 0;
-    right: 0;
-    background-position: 50% 76%;
-  }
-  .flinza-hero-scrim {
-    background:
-      linear-gradient(
-        to bottom,
-        rgba(247, 251, 252, 0.94) 0%,
-        rgba(247, 251, 252, 0.55) 26%,
-        rgba(247, 251, 252, 0.18) 52%,
-        rgba(247, 251, 252, 0) 72%
-      ),
-      linear-gradient(to top, rgba(247, 251, 252, 0.4) 0%, rgba(247, 251, 252, 0) 40%);
-  }
+  /* The figure's placement is set in the block above; the veil is the vertical one in the
+   * ≤900px block below. One definition each — the scrim that used to be duplicated here was
+   * being overridden by that block anyway, so it was never doing anything. */
 
   /* ── The chrome row on phones: three items, one optical line ──
    * The mark's inline 68px box made the row feel lopsided against a 44px pill — the lockup
@@ -263,20 +245,67 @@
   z-index: 0;
   pointer-events: none;
   background:
+    /* 1 · the top wash — the lockup, the two notes and the metal mark sit on paper. */
     linear-gradient(
       to bottom,
-      rgba(247, 251, 252, 0.92) 0%,
-      rgba(247, 251, 252, 0.4) 18%,
-      rgba(247, 251, 252, 0) 40%
+      rgba(247, 251, 252, 0.94) 0%,
+      rgba(247, 251, 252, 0.5) 15%,
+      rgba(247, 251, 252, 0) 34%
     ),
-    linear-gradient(to top, rgba(247, 251, 252, 0.32) 0%, rgba(247, 251, 252, 0) 36%);
+    /* 2 · THE VEIL. This is the piece that finally lets left-aligned type live beside a
+       centre-right figure, and it is DIRECTIONAL on purpose: one horizontal gradient
+       across the whole frame, so there is no box, no card and no rectangle for the eye
+       to catch — the photograph's own light simply grows toward the left edge and is
+       gone by 68%, which leaves the figure's entire right side crisp. (The old
+       approach — a radial sized behind the <h1> — was the hard-edged white band the
+       QA report kept flagging.) */
+    linear-gradient(
+      90deg,
+      rgba(247, 251, 252, 0.97) 0%,
+      rgba(247, 251, 252, 0.9) 28%,
+      rgba(247, 251, 252, 0.52) 44%,
+      rgba(247, 251, 252, 0.16) 56%,
+      rgba(247, 251, 252, 0) 68%
+    ),
+    /* 3 · the floor — full-width contrast for the bottom row, feathered away. */
+    linear-gradient(
+      to top,
+      rgba(247, 251, 252, 0.6) 0%,
+      rgba(247, 251, 252, 0.24) 20%,
+      rgba(247, 251, 252, 0) 44%
+    );
+}
+
+/* ── THE SHARED FRAME ─────────────────────────────────────────────────────
+ * One rule lays out the pinned chrome (lockup · metal mark · call pill) and the hero's text
+ * rail. Both are the same 1308px border-box with the same inset, so their content boxes are
+ * identical at every width and `FLINZA WORKS`, the head notes and the claim all hang on one
+ * vertical line — left, and mirrored on the right.
+ *
+ * The ≥1101px cap below is not cosmetic. That is where the page's fixed table-of-contents rail
+ * appears at the far left (28px → ~138px), so both frames walk in together to a 194px content
+ * edge — clearing the rail while the lockup stays exactly above the claim. Because it is ONE
+ * rule, they cannot drift apart again. They were 58px apart before this, because the cap was
+ * applied to the hero's rail alone, from overrides.css, at a specificity no hero.css rule could
+ * outrank. */
+.flinza-hero-chrome {
+  max-width: 1308px;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 2.4vw, 34px);
+  box-sizing: border-box;
 }
 
 .flinza-hero-inner {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1240px;
+  /* THE alignment fix. This was 1240px with `box-sizing: border-box` and 34px of side
+   * padding, so the hero's CONTENT started 34px inside where the fixed header's content
+   * started — the header is a 1308px border-box with the same padding. Two frames, one
+   * of them inset 34px: that is the "flinza is not the width of the logo and the button"
+   * gap, and no amount of nudging the type would ever have closed it. Same frame, same
+   * padding, same content width (1240px) as the header, so every edge lines up. */
+  max-width: 1308px;
   margin: 0 auto;
   /* The natural inset: text blocks hang on a rail that starts INSIDE the container, not
    * flush against its edge — the gap the composition was missing. The fixed header uses the
@@ -288,6 +317,17 @@
   flex-direction: column;
   justify-content: space-between;
   gap: clamp(32px, 8vh, 96px);
+}
+
+/* The rail lane, declared AFTER both base rules above — and that position is load-bearing. A
+ * media query adds no specificity, so a cap written above them is simply overridden by the
+ * `max-width: 1308px` further down this same file. It has to come last to win. (It did not, the
+ * first time: the two frames stayed 58px apart and looked exactly as broken as before.) */
+@media (min-width: 1101px) {
+  .flinza-hero-chrome,
+  .flinza-hero-inner {
+    max-width: min(1308px, calc(100vw - 320px));
+  }
 }
 
 /* ── The top rule ──
@@ -310,7 +350,9 @@
 }
 .flinza-hero-note--right {
   text-align: right;
-  max-width: 22ch;
+  /* Flush to the container's right edge (the head group is space-between), sized to a
+   * two-line measure so the right column of the hero carries real text and not a stub. */
+  max-width: 26ch;
   /* It's an <a>: kill the default underline — the underline running into the figure's head
    * read as a stray rule in the composition. Hover/focus still answer. */
   text-decoration: none;
@@ -458,7 +500,9 @@
  * this is the first of the three. */
 .flinza-hero-note {
   margin: 0 0 clamp(8px, 1.4vh, 16px);
-  max-width: 30ch;
+  /* 38ch reads as three editorial lines instead of five narrow ones — the note is a
+   * real sentence and was breaking the way a sidebar breaks. */
+  max-width: 38ch;
   align-self: flex-start;
   text-align: left;
   font-family: var(--font-display);
@@ -474,11 +518,13 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* One left rail for every hero text — and it SCALES: 56% of the container (the figure
-   * offset's mirror image), clamped to a readable band. At 2560px the rail is ~1.4kpx; at
-   * 1280px it's ~660px. No pixel caps to break at an untested width. */
-  width: min(100%, 56%);
-  min-width: min(100%, 480px);
+  /* One left rail for every hero text, expressed as a share of the container so it
+   * tracks the frame instead of a screenshot: 52% of 1240px is 645px, and the figure's
+   * dark core sits at ~62% — the rail's right edge therefore stops ~10% short of the
+   * figure on every desktop. (The old `min-width: min(100%, 480px)` floor is gone: on a
+   * container between 480px and 860px it overrode the 52% and pushed the rail wider than
+   * intended, which is how the claim kept reaching the silhouette at mid widths.) */
+  width: min(100%, 52%);
 }
 
 /* Mobile: the claim reads against quiet sky at the TOP of the frame. */
@@ -579,14 +625,27 @@
   border-radius: 4px;
 }
 .flinza-hero-explore span {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* The ↓ glyph renders as a tofu box in the display font (no coverage for U+2193 in its
- * subset). The UI font carries it — arrows speak the UI font everywhere on this site. */
+/* The ↓ glyph has no coverage in EITHER subset — the UI font painted it as a tofu box too,
+ * which is the rectangle at the end of "Explore selected work" in the screenshots. The
+ * arrows are real SVG now, so they cannot fall back to a box on any platform or device. */
 .flinza-hero-explore span,
 .flinza-hero-scroll span {
-  font-family: var(--font-ui);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+}
+.flinza-hero-explore span svg,
+.flinza-hero-scroll span svg {
+  display: block;
+  width: 12px;
+  height: 12px;
 }
 .flinza-hero-explore:hover span,
 .flinza-hero-explore:focus-visible span {
@@ -602,9 +661,10 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  /* Pure viewport scaling: 5vw tracks the rail's 56% share, no ceiling — the claim grows
-   * with the screen exactly as the figure does. */
-  font-size: clamp(34px, 4.9vw, 5vw);
+  /* Tracks the rail: at 4vw the claim is ~60px on a 1512 screen and reaches its 74px
+   * ceiling at 1850. The cap only exists so a 2560px monitor does not get a poster — it
+   * is still proportional everywhere below that, and the rail keeps it off the figure. */
+  font-size: clamp(38px, 4vw, 74px);
   line-height: 0.96;
   letter-spacing: -0.034em;
   color: var(--ink);
@@ -654,7 +714,11 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: clamp(28px, 4vw, 72px);
+  /* If a window is ever too narrow to hold the copy and four figures side by side, the
+   * figures drop to their own line and stay on the right — instead of being clipped off
+   * the right edge, which is what the screenshot showed ("MANAG…"). */
+  flex-wrap: wrap;
+  gap: clamp(24px, 3vw, 56px) clamp(28px, 4vw, 72px);
   /* One locked system (QA: copy + metrics "read as separate annotations"). A hairline
    * connects both zones so the eye reads them as one rule, not two floaters. */
   position: relative;
@@ -665,9 +729,17 @@
    * the bottom row sits below that line on paper. */
   width: 100%;
 }
+/* The numbers take the right edge and nothing else: auto basis, pushed to the far side of
+ * the row so the LAST label's right edge is the container's right edge — which is what
+ * makes "the right column reaches the right side" true at every width rather than at the
+ * one width it was tuned on. */
+@media (min-width: 901px) {
+  .flinza-hero-bottom .flinza-hero-stats {
+    margin-left: auto;
+  }
+}
 .flinza-hero-bottom .flinza-hero-stats {
-  flex: 0 1 52%;
-  justify-content: space-between;
+  flex: 0 1 auto;
 }
 .flinza-hero-bottom::before {
   content: "";
@@ -719,6 +791,12 @@
   font-size: 13px;
   font-weight: 400;
   letter-spacing: 0.01em;
+  /* Declared, not assumed. A legacy duplicate of this rule in overrides.css sets
+   * `text-transform: uppercase`; hero.css does not mention the property, so that old value
+   * stayed the only one in the cascade and the cue shipped as tracked capitals no matter what
+   * this file said. Every property the design depends on is now stated here, so an earlier
+   * stylesheet cannot leave a stray one behind — that is the whole rule for this file. */
+  text-transform: none;
   color: rgba(9, 9, 11, 0.62);
   text-decoration: none;
   transition: color 0.25s ease;
@@ -733,7 +811,9 @@
   color: var(--aqua-deep);
 }
 .flinza-hero-scroll span {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   animation: flinza-hero-nudge 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -759,7 +839,7 @@
   /* Left-packed like everything else on the rail — the right-packed row let the last label
    * run off the viewport edge and under the figure's haze. */
   justify-content: flex-start;
-  gap: clamp(26px, 3.6vw, 60px);
+  gap: clamp(20px, 2.6vw, 52px);
 }
 .flinza-hero-stats li {
   display: flex;
@@ -793,7 +873,10 @@
   letter-spacing: 0;
   color: rgba(9, 9, 11, 0.64);
   white-space: normal;
-  max-width: 14ch;
+  /* Same reason as the scroll cue above: the legacy duplicate set `uppercase` and this file did
+   * not, so the labels under the four figures have been rendering as tracked 9.5px capitals. */
+  text-transform: none;
+  max-width: 13ch;
   line-height: 1.35;
 }
 
@@ -864,20 +947,26 @@
     font-size: 12px;
   }
 
+  /* Tablet and phone: the column and the figure share the same space, so the veil has to
+   * be VERTICAL rather than directional — paper from the top through the text zone, clearing
+   * in the lower third where the figure is allowed to be itself, with a floor under the
+   * bottom row. Every stop is a gradient, so there is still no box anywhere. */
   .flinza-hero-scrim {
     background:
       linear-gradient(
         to bottom,
-        rgba(247, 251, 252, 0.95) 0%,
-        rgba(247, 251, 252, 0.42) 16%,
-        rgba(247, 251, 252, 0) 34%
+        rgba(247, 251, 252, 0.96) 0%,
+        rgba(247, 251, 252, 0.88) 24%,
+        rgba(247, 251, 252, 0.62) 44%,
+        rgba(247, 251, 252, 0.2) 60%,
+        rgba(247, 251, 252, 0) 74%
       ),
       linear-gradient(
         to top,
-        rgba(247, 251, 252, 0.97) 0%,
-        rgba(247, 251, 252, 0.9) 22%,
-        rgba(247, 251, 252, 0.55) 52%,
-        rgba(247, 251, 252, 0) 84%
+        rgba(247, 251, 252, 0.92) 0%,
+        rgba(247, 251, 252, 0.6) 20%,
+        rgba(247, 251, 252, 0.18) 44%,
+        rgba(247, 251, 252, 0) 64%
       );
   }
 }
