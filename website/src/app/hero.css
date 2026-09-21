@@ -243,6 +243,11 @@
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
+  /* The natural inset: text blocks hang on a rail that starts INSIDE the container, not
+   * flush against its edge — the gap the composition was missing. The fixed header uses the
+   * same max-width + padding, so the lockup, the note and the claim all share one grid. */
+  padding: 0 clamp(12px, 2.4vw, 34px);
+  box-sizing: border-box;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -258,9 +263,19 @@
  * button should be aligned with the metallic logo"). The head group carries
  * only the positioning note. */
 
+/* The head group is a ROW now: the positioning note hangs left, a quiet work teaser hangs
+ * right — the reference's diagonal balance, and the right half of the frame stops being
+ * empty air. */
 .flinza-hero-head {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+}
+.flinza-hero-note--right {
+  text-align: right;
+  max-width: 24ch;
 }
 
 .flinza-hero-brand {
@@ -425,6 +440,9 @@
   .flinza-hero-note {
     display: none;
   }
+  .flinza-hero-head {
+    display: none;
+  }
 }
 
 /* The eyebrow — small, tracked, high contrast, opened by the same aqua tick the Selected
@@ -552,6 +570,12 @@
  * kept soft by the blur. */
 .flinza-hero-claim {
   position: relative;
+}
+/* The text-protection veil is GONE. With the claim locked to the 680px left rail it sits on
+ * pale sky at every width — the veil was only rendering as the whitish box over the figure's
+ * head, which is exactly what the screenshots kept showing. */
+.flinza-hero-claim::before {
+  display: none;
 }
 .flinza-hero-claim::before {
   content: "";

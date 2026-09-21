@@ -270,11 +270,17 @@ export default function Page({ heroPhoto = null }) {
         top: 'calc(18px + env(safe-area-inset-top, 0px))',
         left: 0,
         right: 0,
+        /* Same grid as the hero's text rail: 1240px + the same inset, centred. Without this
+         * the lockup hugged the screen edge while every text block started further in — the
+         * misalignment in the screenshots. The mark stays dead-centre of the page because the
+         * grid itself is centred. */
+        maxWidth: 1308,
+        margin: '0 auto',
         zIndex: 100,
         display: 'grid',
         gridTemplateColumns: '1fr auto 1fr',
         alignItems: 'center',
-        padding: '0 calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-right, 0px)) 0 calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-left, 0px))',
+        padding: '0 clamp(12px, 2.4vw, 34px)',
         pointerEvents: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 'auto' : 'none',
         opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
         transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -397,6 +403,13 @@ export default function Page({ heroPhoto = null }) {
               metal mark), so the head group carries only this. */}
           <div className="flinza-hero-head">
             <p className="flinza-hero-note">{POSITIONING}</p>
+            {/* The right-side quiet text: the reference balances its small texts diagonally, so
+                the empty right half of the frame carries a work teaser — what the agency does,
+                pointed at the Selected Work section below the fold. */}
+            <a className="flinza-hero-note flinza-hero-note--right" href="#work">
+              Selected work, real numbers —
+              eight accounts, rebuilt for profit.
+            </a>
           </div>
 
           {/* The message block — eyebrow, claim, one supporting line, and the secondary action.
