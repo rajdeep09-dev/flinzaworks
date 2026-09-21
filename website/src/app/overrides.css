@@ -693,6 +693,31 @@ body:has(.flinza-carousel-lock.is-focused) {
   box-sizing: border-box;
   overflow: clip;
 }
+/* ── The seam bridge ──
+ * The hard line in the screenshots is the band's top edge itself: the hero's fog ends in its
+ * own warm paper (#f7fbfc) and the grain band begins in a cooler tone, so the texture flips on
+ * at full strength along one pixel row. The bridge is a strip across the band's FIRST pixels,
+ * painted in the hero's exact paper tone and fading DOWNWARD — at the boundary both sides are
+ * the same colour (no seam), and the grain dissolves in over the next ~100px instead of
+ * switching on. Inside the box, so `overflow: clip` can't eat it, and under the head's padding
+ * so it never washes the eyebrow. */
+.flinza-work-band::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: clamp(80px, 11vh, 130px);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(247, 251, 252, 1) 0%,
+    rgba(247, 251, 252, 0.72) 34%,
+    rgba(247, 251, 252, 0.28) 66%,
+    rgba(247, 251, 252, 0) 100%
+  );
+}
 .flinza-work-head {
   width: 100%;
   max-width: 780px;
@@ -740,6 +765,16 @@ body:has(.flinza-carousel-lock.is-focused) {
 @supports (height: 100svh) {
   .flinza-work-stage {
     height: clamp(430px, 62svh, 600px);
+  }
+}
+/* Desktop: give the ring room to breathe — the 62vh cap left the cards letterboxed mid-band.
+ * Wider stage, fuller cards (the engine's own fill factor was raised to match), more air
+ * below the head. */
+@media (min-width: 901px) {
+  .flinza-work-stage {
+    height: clamp(480px, 72vh, 700px);
+    width: min(100%, 1560px);
+    margin: 0 auto;
   }
 }
 @media (max-width: 900px) {

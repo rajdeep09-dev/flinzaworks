@@ -499,10 +499,10 @@ export default function Page({ heroPhoto = null }) {
           {workInView ? (
           <LiquidGlassCarousel
           projects={carouselProjects.map(withCaseStudyTestimonial)}
-          panelHeight={480}
+          panelHeight={560}
           finePointer={finePointer}
-          gap={12}
-          glide={0.075}
+          gap={16}
+          glide={0.085}
           wheelSensitivity={1}
           snap={true}
           snapDistance={60}

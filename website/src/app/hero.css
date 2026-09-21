@@ -361,10 +361,10 @@
  * The reference runs three quiet texts and none of them is bigger than ~13px;
  * this is the first of the three. */
 .flinza-hero-note {
-  margin: 0;
-  max-width: 34ch;
-  align-self: flex-end;
-  text-align: right;
+  margin: 0 0 clamp(8px, 1.4vh, 16px);
+  max-width: 30ch;
+  align-self: flex-start;
+  text-align: left;
   font-family: var(--font-display);
   font-size: clamp(11px, 0.85vw, 13px);
   font-style: italic;
@@ -378,6 +378,10 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  /* One left rail for every hero text: the claim column is capped so no line — at any
+   * viewport — runs under the figure. The figure owns the right half; type owns the left. */
+  width: 100%;
+  max-width: 680px;
 }
 
 /* The eyebrow — small, tracked, high contrast, opened by the same aqua tick the Selected
@@ -477,7 +481,7 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(36px, 5.4vw, 74px);
+  font-size: clamp(34px, 4.7vw, 64px);
   line-height: 0.96;
   letter-spacing: -0.034em;
   color: var(--ink);
@@ -614,8 +618,10 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, auto);
-  justify-content: end;
-  gap: clamp(30px, 4.5vw, 76px);
+  /* Left-packed like everything else on the rail — the right-packed row let the last label
+   * run off the viewport edge and under the figure's haze. */
+  justify-content: flex-start;
+  gap: clamp(26px, 3.6vw, 60px);
 }
 .flinza-hero-stats li {
   display: flex;
@@ -648,7 +654,9 @@
   font-weight: 400;
   letter-spacing: 0;
   color: rgba(9, 9, 11, 0.64);
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 14ch;
+  line-height: 1.35;
 }
 
 /* ── The entrance ──
