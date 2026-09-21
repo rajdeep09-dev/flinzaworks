@@ -66,6 +66,15 @@
   background-image: url("/images/hero-glow.svg");
   background-position: 50% 100%;
   background-size: cover;
+  /* Same box as the photograph below — if the two layers ever disagree, the vector peeks
+   * out from behind the photo's edge as a dark sliver (exactly the far-left strip in the
+   * screenshots). One shared offset, one shared dissolve. */
+  top: 0;
+  bottom: 0;
+  left: 18%;
+  right: -18%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 88%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 88%);
 }
 
 /* The real photograph (28 kB WebP), resolved at build time. The figure sits RIGHT of centre
@@ -86,10 +95,13 @@
   bottom: 0;
   left: 18%;
   right: -18%;
-  background-position: 50% 40%;
+  background-position: 50% 38%;
   background-size: cover;
-  -webkit-mask-image: linear-gradient(to bottom, #000 76%, transparent 99.5%);
-  mask-image: linear-gradient(to bottom, #000 76%, transparent 99.5%);
+  /* The dissolve completes at 82% of the hero's height — the figure thins to mist from the
+   * waist down, so the bottom UI row (which spans the full width) reads on paper, and the
+   * image's own bottom edge can never surface as a line. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 82%);
+  mask-image: linear-gradient(to bottom, #000 52%, transparent 82%);
 }
 
 /* The second half of the dissolve: a fog band pinned to the hero's foot. Its
@@ -185,6 +197,16 @@
  * edge. The single-selector form above would re-anchor it. */
 .flinza-hero-visual {
   background-position: 50% 100%;
+}
+
+/* Portrait phones: the stacked composition puts the figure low, full width. */
+@media (max-width: 700px) {
+  .flinza-hero-visual {
+    left: 0;
+    right: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 88%);
+    mask-image: linear-gradient(to bottom, #000 58%, transparent 88%);
+  }
 }
 
 /* Portrait phones: the figure reads behind the lower half of the frame, with the upper half
@@ -288,7 +310,20 @@
 }
 .flinza-hero-note--right {
   text-align: right;
-  max-width: 24ch;
+  max-width: 22ch;
+  /* It's an <a>: kill the default underline — the underline running into the figure's head
+   * read as a stray rule in the composition. Hover/focus still answer. */
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.flinza-hero-note--right:hover,
+.flinza-hero-note--right:focus-visible {
+  color: rgba(9, 9, 11, 0.78);
+}
+.flinza-hero-note--right:focus-visible {
+  outline: 1.5px solid var(--aqua-deep);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .flinza-hero-brand {
@@ -547,6 +582,12 @@
   display: inline-block;
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* The ↓ glyph renders as a tofu box in the display font (no coverage for U+2193 in its
+ * subset). The UI font carries it — arrows speak the UI font everywhere on this site. */
+.flinza-hero-explore span,
+.flinza-hero-scroll span {
+  font-family: var(--font-ui);
+}
 .flinza-hero-explore:hover span,
 .flinza-hero-explore:focus-visible span {
   transform: translateY(3px);
@@ -618,6 +659,15 @@
    * connects both zones so the eye reads them as one rule, not two floaters. */
   position: relative;
   padding-top: 22px;
+  /* Same proportional rule as the message block: the copy column takes 56% max, the stats
+   * take the remaining 44%-ish — at no width do the numbers slide left under the figure's
+   * coat (the "$500K+ on the coat" problem). The figure dissolves to mist by 82% height;
+   * the bottom row sits below that line on paper. */
+  width: 100%;
+}
+.flinza-hero-bottom .flinza-hero-stats {
+  flex: 0 1 52%;
+  justify-content: space-between;
 }
 .flinza-hero-bottom::before {
   content: "";
