@@ -16,11 +16,17 @@
 
 import { insights } from '@/data/insights';
 import { servicePages } from '@/data/services';
-import { SITE_URL } from '@/data/seo';
+import { SITE_URL, CONTENT_UPDATED } from '@/data/seo';
+
+/* The `lastModified` below is `CONTENT_UPDATED`, not `new Date()`.
+ *
+ * The sitemap used to stamp every URL with the moment the build ran. Thirty URLs all claiming to
+ * have changed on every deploy is not freshness information, it is noise — and a crawler that
+ * learns `lastmod` is always "now" stops using it to decide what is worth recrawling, which is the
+ * opposite of what a sitemap is for. The date moves when the copy is actually reviewed, by hand. */
+const reviewed = new Date(`${CONTENT_UPDATED}T00:00:00.000Z`);
 
 export default function sitemap() {
-  const lastModified = new Date();
-
   const routes = [
     { path: '/', priority: 1.0, changeFrequency: 'weekly' },
     { path: '/services', priority: 0.95, changeFrequency: 'monthly' },
@@ -53,7 +59,8 @@ export default function sitemap() {
 
   return [...routes, ...serviceRoutes, ...articleRoutes].map((route) => ({
     url: `${SITE_URL}${route.path}`,
-    lastModified: route.lastModified || lastModified,
+    /* Articles carry their own real publish/update date; everything else carries the review date. */
+    lastModified: route.lastModified || reviewed,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));

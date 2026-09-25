@@ -270,19 +270,19 @@ export default function Page({ heroPhoto = null }) {
         top: 'calc(18px + env(safe-area-inset-top, 0px))',
         left: 0,
         right: 0,
-        /* The frame — max-width and inset — lives in hero.css as `.flinza-hero-chrome`, and it
-         * is SHARED with `.flinza-hero-inner`. One rule lays out the lockup, the mark, the pill
-         * and every hero text block, so their left edges are the same line by construction. It
-         * has to be a stylesheet rule rather than these inline values because the cap changes
-         * once the page's fixed side rail is on screen (see the ≥1101px block in hero.css) and
-         * an inline style cannot be media-queried. The mark stays dead-centre of the page
-         * because the grid itself is centred. */
+        /* The frame — the gutter — lives in hero.css as `.flinza-hero-chrome`, and it is SHARED
+         * with `.flinza-hero-inner`: one declaration lays out the lockup, the mark, the pill and
+         * every hero text block, so their outer edges are the same two lines by construction. It
+         * has to be a stylesheet rule rather than an inline value because `--flinza-rail` steps
+         * out at 1101px to clear the page's fixed table-of-contents rail, and an inline style
+         * cannot be media-queried — the inline `padding` that used to sit here is exactly what
+         * stopped the header from ever matching the hero. The mark stays dead-centre of the page
+         * because the grid is centred inside a symmetric rail. */
         margin: '0 auto',
         zIndex: 100,
         display: 'grid',
         gridTemplateColumns: '1fr auto 1fr',
         alignItems: 'center',
-        padding: '0 clamp(12px, 2.4vw, 34px)',
         pointerEvents: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 'auto' : 'none',
         opacity: (isLoaded && !scrolledPastHero && !focusedCaseStudy) ? 1 : 0,
         transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',

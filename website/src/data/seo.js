@@ -26,8 +26,21 @@
  */
 
 import { ONE_LINER } from './stats';
+import { SERVICES } from './services';
 
 export const SITE_NAME = 'Flinza Works';
+
+/* ── When the content on this site was last substantively reviewed ──
+ *
+ * This is used for the sitemap's `lastModified` and as the `datePublished` on the case-study
+ * list. It is deliberately a fixed date and NOT `new Date()`.
+ *
+ * The sitemap used to stamp every URL with the build time, which is the fastest way to teach a
+ * crawler that a `lastmod` field carries no information: if every one of the thirty URLs claims to
+ * have changed on every deploy, the field is noise, and crawlers stop using it to decide what to
+ * recrawl. A real date — moved when the copy is actually reviewed — is a signal worth having.
+ * Bump it by hand. */
+export const CONTENT_UPDATED = '2026-09-25';
 
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL || 'https://www.flinzaworks.com'
@@ -161,6 +174,25 @@ export function rootSchema() {
         'creator-led content',
         'ecommerce growth',
       ],
+      /* The offer menu, attached to the company node rather than only to a page. This is what lets
+       * "what services does Flinza Works offer" be answered from the entity alone, on any route,
+       * instead of only on /services. It is built from the same `SERVICES` array that page renders,
+       * so the catalogue cannot say something the site does not sell. */
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: `${SITE_NAME} services`,
+        itemListElement: SERVICES.map((service, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          itemOffered: {
+            '@type': 'Service',
+            name: service.title,
+            description: service.copy,
+            serviceType: service.title,
+            url: absolute(service.slug ? `/services/${service.slug}` : '/services'),
+          },
+        })),
+      },
     },
     /* The person node, in the same graph as the company so a crawler meets them together and
        attaches the two. `sameAs` is the Instagram profile the client asked to be findable. */
@@ -247,7 +279,87 @@ export function faqSchema(items = []) {
     mainEntity: items.map((item) => ({
       '@type': 'Question',
       name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+        /* `speakable` points voice assistants at the two elements that hold the question and the
+         * answer, using the class names `FaqList.jsx` actually renders (`.flinza-faqrow-q` and
+         * `.flinza-faqrow-a`). It is a selector, not a promise: if those class names ever change,
+         * this silently stops matching — which is why they are named here rather than invented. */
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: ['.flinza-faqrow-q', '.flinza-faqrow-a'],
+        },
+      },
+    })),
+  };
+}
+
+/** ItemList of the eight services, for /services.
+ *
+ * The /services page emitted a HowTo and a breadcrumb, but nothing describing what the agency
+ * actually sells. A list is the shape an answer engine wants for "what does X offer" — it can
+ * read the eight names, the eight descriptions and the eight URLs straight out of it, instead of
+ * inferring a service menu from prose. `serviceSlug` is declared per entry in ./services, so an
+ * entry without a landing page points at /services rather than at a URL that does not exist. */
+export function serviceListSchema(services = SERVICES) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${SITE_NAME} services`,
+    description:
+      'The eight services Flinza Works sells: revenue leak audit, Meta ads, creator-led content, founder-led content, launch clipping, conversion video, profit-first optimisation and rapid iteration.',
+    numberOfItems: services.length,
+    itemListElement: services.map((service, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Service',
+        name: service.title,
+        description: service.copy,
+        serviceType: service.title,
+        url: absolute(service.slug ? `/services/${service.slug}` : '/services'),
+        provider: { '@id': `${SITE_URL}/#organization` },
+        areaServed: ['US', 'GB', 'DE', 'AE'],
+      },
+    })),
+  };
+}
+
+/** ItemList of the case studies, for /work.
+ *
+ * The case studies are the most quotable content the site has — a sector, a number and a
+ * sentence — and until now none of it was machine-readable. Each entry carries the situation, the
+ * change and the outcome in one `description`, written so the outcome lands in the same sentence
+ * a language model would lift: an AI Overview quoting "StillRing, supplements, $4M/yr" should
+ * arrive here with the +$412K attached, not with a page link it has to open.
+ *
+ * `CreativeWork` rather than `Article`: a case study is not an article, it has no byline, and
+ * asserting a publish date per study would be inventing a fact. `genre` and `about` carry the
+ * shape instead. */
+export function caseStudyListSchema(studies = []) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${SITE_NAME} ecommerce case studies`,
+    description:
+      'Written ecommerce engagements: the situation, what changed, and the measured outcome. Brands under NDA are shown by sector and revenue band.',
+    numberOfItems: studies.length,
+    itemListElement: studies.map((study, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: `${study.client} (${study.sector}) — ${study.service}`,
+        abstract: study.result,
+        description: `${study.situation} What we changed: ${study.changed} Outcome: ${study.result}`,
+        url: absolute('/work'),
+        genre: 'case study',
+        about: { '@type': 'Thing', name: study.service },
+        creator: { '@id': `${SITE_URL}/#organization` },
+        datePublished: CONTENT_UPDATED,
+        inLanguage: 'en',
+      },
     })),
   };
 }

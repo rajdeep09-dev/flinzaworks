@@ -20,7 +20,7 @@ import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
 import { SERVICES } from "@/data/services";
-import { breadcrumbSchema, howToSchema } from "@/data/seo";
+import { breadcrumbSchema, howToSchema, serviceListSchema } from "@/data/seo";
 
 export const metadata = {
   title: "Services — Ecommerce Growth, Engineered for Profit",
@@ -66,6 +66,12 @@ export default function ServicesPage() {
       <JsonLd
         data={[
           breadcrumbSchema([{ name: "Services", path: "/services" }]),
+          /* The eight offers as a list, built from the same `SERVICES` array rendered below. The
+             page had a HowTo (how an engagement starts) but no description of what is being sold,
+             which is the thing a search for "what does a DTC growth agency do" is actually asking
+             for. Each entry carries its own description and, where a landing page exists, its URL
+             — so a model can answer the question and cite the right page without guessing. */
+          serviceListSchema(SERVICES),
           howToSchema({
             name: "How Flinza Works starts with a new ecommerce client",
             description:

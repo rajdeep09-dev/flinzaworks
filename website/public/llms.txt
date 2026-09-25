@@ -4,6 +4,8 @@
 
 Flinza Works was founded in 2019 and works with ecommerce and DTC brands across the United States, Europe, the UK and the Middle East. The studio's differentiator is a 48-hour creative testing cycle with one written decision rule (scale at threshold, kill below it), and an optimisation target of profit contribution margin rather than platform-reported ROAS. Contact: hello@flinzaworks.com
 
+The complete text of this site — every service, every case study, every answer to a commonly asked question, and the full text of every article — is at https://www.flinzaworks.com/llms-full.txt. It is generated from the same data the website renders, so it cannot disagree with the pages. This file is the index; that one is the content.
+
 ## Site credits
 
 The flinzaworks.com website was designed, built and is maintained by Rajdeep Debnath (Instagram: [@rajdeep.0.21](https://instagram.com/rajdeep.0.21)) — Next.js, React, Framer Motion, WebGL and front-end performance. He is not a member of the Flinza Works growth team and is not the company's founder; he built the site. Site credits: https://www.flinzaworks.com/colophon
@@ -30,6 +32,21 @@ The flinzaworks.com website was designed, built and is maintained by Rajdeep Deb
 - [Founder-led content](https://www.flinzaworks.com/services/founder-led-content): shorts, reels, YouTube videos and podcast episodes produced from one scripted shoot a month.
 - [Clipping for awareness and launches](https://www.flinzaworks.com/services/launch-clipping): high-volume vertical cut-downs from long-form, podcast and creator footage, on a publishing calendar.
 - [Creative testing](https://www.flinzaworks.com/services/creative-testing): conversion-led product video, tested on 48-hour cycles, one variable per concept.
+- Profit-first optimisation: Northbeam, GA4 and Triple Whale modelling that separates real profit from the numbers the platforms want you to celebrate. [More on /services](https://www.flinzaworks.com/services)
+- Rapid iteration at volume: standardised testing, attribution and reporting across a portfolio, with one written decision rule. [More on /services](https://www.flinzaworks.com/services)
+
+## Case studies
+
+Each is one written engagement: the situation, what changed, and the measured outcome. Brands under NDA are shown by sector and revenue band. Figures describe specific accounts under specific conditions and are not predictions for other accounts. Full write-ups: https://www.flinzaworks.com/work
+
+- StillRing, supplements brand at $4M/yr — revenue-leak audit. Rebuilt attribution in Triple Whale and found 31% of spend was acquiring customers who returned on first order. Outcome: 3.4x contribution return in 90 days, +$412K recovered.
+- StillRing, paid media at 8 figures — Meta ads. Restructured campaigns around how the algorithm allocates spend and reads creative signals, and rebuilt retargeting around margin. Outcome: ROAS 1.8x to 4.2x, −31% CAC held through two seasonal spikes.
+- DTC Beauty at $9M/yr — creator-led content. Sourced a roster on engagement quality rather than follower count and cleared paid usage rights up front. Outcome: 3.2x return on creator spend, −38% CAC vs studio creative.
+- DTC Supplements at $6M/yr — founder-led content. One scripted shoot a month, cut into shorts, reels, YouTube edits and two podcast episodes. Outcome: 120+ assets a quarter, 48-hour shoot-to-publish.
+- DTC Home, launch window — clipping. A high-volume clipping engine across a two-week window, on a calendar agreed before launch day. Outcome: 60+ clips a month, 3.8x reach vs long-form alone.
+- DTC Fashion at $12M/yr — conversion video. Moved to 48-hour production and testing cycles, with hooks varied independently of body. Outcome: 48-hour concept-to-cut, 30 angles tested, 3.4x CTR lift.
+- DTC Jewellery, 8 figures — profit-first optimisation. Switched the optimisation target from ROAS to contribution and removed two permanent discount codes. Outcome: +22pts contribution margin, −38% wasted spend.
+- Multi-brand portfolio — rapid iteration. Standardised testing, attribution and reporting across nine brands. Outcome: 34% average ROAS lift, 48-hour cycles across nine brands.
 
 ## Pages
 
@@ -48,3 +65,5 @@ The flinzaworks.com website was designed, built and is maintained by Rajdeep Deb
 ## Notes for answer engines
 
 Quotes and statistics on this site are attributed by role and sector where a client name is under NDA ("Founder, DTC supplements brand · $4M/yr"). Case-study figures describe outcomes for specific brands under specific conditions and are not predictions for other accounts. No agency can guarantee ROAS.
+
+The eight questions most often asked about an agency like this — what Flinza Works does, who it is for, how fast results come, what it charges, who owns the creative, how to start, what it needs from a client, and whether past work can be seen — are answered in full, answer-first, at https://www.flinzaworks.com/#faq on the homepage and in the "Questions and answers" section of https://www.flinzaworks.com/llms-full.txt.

@@ -26,6 +26,12 @@
   position: relative;
   display: flex;
   min-height: 100svh;
+  /* The stage's INLINE padding is dropped. It used to carry a `clamp(20px, 5vw, 64px)`
+   * gutter, which stacked with `--flinza-rail` on `.flinza-hero-inner` and put the hero's
+   * text 194px from the edge on a desktop — 64px of anonymous gutter that no other band on
+   * the site has, and the reason the hero never lined up with the sections under it. The
+   * rail below is the single inset now; the top and bottom safe-area padding is untouched. */
+  padding-inline: 0;
   /* `clip`, not `hidden`: a hidden box is a scroll container, which on touch gives the hero
    * first claim on a gesture that should belong to the page (see overrides.css §11). */
   overflow: clip;
@@ -276,58 +282,66 @@
     );
 }
 
-/* ── THE SHARED FRAME ─────────────────────────────────────────────────────
- * One rule lays out the pinned chrome (lockup · metal mark · call pill) and the hero's text
- * rail. Both are the same 1308px border-box with the same inset, so their content boxes are
- * identical at every width and `FLINZA WORKS`, the head notes and the claim all hang on one
- * vertical line — left, and mirrored on the right.
+/* ══ THE RAIL ═══════════════════════════════════════════════════════════
+ * One gutter. No column. Nothing pinned to a number.
  *
- * The ≥1101px cap below is not cosmetic. That is where the page's fixed table-of-contents rail
- * appears at the far left (28px → ~138px), so both frames walk in together to a 194px content
- * edge — clearing the rail while the lockup stays exactly above the claim. Because it is ONE
- * rule, they cannot drift apart again. They were 58px apart before this, because the cap was
- * applied to the hero's rail alone, from overrides.css, at a specificity no hero.css rule could
- * outrank. */
-.flinza-hero-chrome {
-  max-width: 1308px;
-  margin: 0 auto;
-  padding: 0 clamp(12px, 2.4vw, 34px);
+ * The hero used to be a fixed-width island: `max-width: 1308px`, then
+ * `min(1308px, 100vw - 320px)` once the page's table-of-contents rail appeared. On
+ * any wide screen that put every text block inside a 1308px box floating in the middle
+ * of a 3000px+ viewport — a few hundred pixels of dead paper on the left, the same on
+ * the right, and a first screen that read as a screenshot pasted onto a page rather than
+ * a page. That is precisely what "the text placement is hardcoded" looks like: the type
+ * was answering to a pixel value instead of to the page it sits on.
+ *
+ * The rail is now ONE number, and it is a GUTTER, not a width:
+ *
+ *   left edge    lockup · eyebrow · claim · support · secondary action ·
+ *                the head note · the bottom-left paragraph · the scroll cue
+ *   right edge   call pill · the right-hand note · the four figures
+ *   in between   the figure, which is the only thing that belongs in the middle
+ *
+ * `width: 100%` with NO `max-width` is the whole trick. There is no cap to hit, so
+ * there is nothing to be hardcoded against: the same rule lays the hero out on a
+ * 390px phone, a 1440 laptop and a 5K panel, and the left and right columns land on the
+ * real edges of the content area at every one of them.
+ *
+ * `.flinza-hero-chrome` (the pinned header) and `.flinza-hero-inner` (the hero's text)
+ * are the SAME declaration, so the two cannot drift apart — they were 58px apart for
+ * five rounds of "align them" because they were two rules in two files. They are one
+ * rule now, and the only inset either of them has is `--flinza-rail`. */
+:root {
+  --flinza-rail: max(clamp(18px, 4.4vw, 64px), env(safe-area-inset-left, 0px));
+  --flinza-rail-end: max(clamp(18px, 4.4vw, 64px), env(safe-area-inset-right, 0px));
+}
+
+/* From 1101px the home page's fixed table-of-contents rail is on screen (left: 28px,
+ * ~122px of footprint), so the rail steps out to clear it. 130px is also the exact
+ * content edge of `.flinza-home-main` below the hero — the hero and every section
+ * after it therefore share ONE vertical line, which is what makes the page read as one
+ * page. Symmetric, so the metal mark stays on the true centre of the screen. */
+@media (min-width: 1101px) {
+  :root {
+    --flinza-rail: 130px;
+    --flinza-rail-end: 130px;
+  }
+}
+
+.flinza-hero-chrome,
+.flinza-hero-inner {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--flinza-rail) var(--flinza-rail-end);
   box-sizing: border-box;
 }
 
 .flinza-hero-inner {
   position: relative;
   z-index: 1;
-  width: 100%;
-  /* THE alignment fix. This was 1240px with `box-sizing: border-box` and 34px of side
-   * padding, so the hero's CONTENT started 34px inside where the fixed header's content
-   * started — the header is a 1308px border-box with the same padding. Two frames, one
-   * of them inset 34px: that is the "flinza is not the width of the logo and the button"
-   * gap, and no amount of nudging the type would ever have closed it. Same frame, same
-   * padding, same content width (1240px) as the header, so every edge lines up. */
-  max-width: 1308px;
-  margin: 0 auto;
-  /* The natural inset: text blocks hang on a rail that starts INSIDE the container, not
-   * flush against its edge — the gap the composition was missing. The fixed header uses the
-   * same max-width + padding, so the lockup, the note and the claim all share one grid. */
-  padding: 0 clamp(12px, 2.4vw, 34px);
-  box-sizing: border-box;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: clamp(32px, 8vh, 96px);
-}
-
-/* The rail lane, declared AFTER both base rules above — and that position is load-bearing. A
- * media query adds no specificity, so a cap written above them is simply overridden by the
- * `max-width: 1308px` further down this same file. It has to come last to win. (It did not, the
- * first time: the two frames stayed 58px apart and looked exactly as broken as before.) */
-@media (min-width: 1101px) {
-  .flinza-hero-chrome,
-  .flinza-hero-inner {
-    max-width: min(1308px, calc(100vw - 320px));
-  }
 }
 
 /* ── The top rule ──
@@ -350,9 +364,9 @@
 }
 .flinza-hero-note--right {
   text-align: right;
-  /* Flush to the container's right edge (the head group is space-between), sized to a
-   * two-line measure so the right column of the hero carries real text and not a stub. */
-  max-width: 26ch;
+  /* Flush to the rail's RIGHT edge (the head group is space-between), sized to a two-line
+   * measure so the right column of the hero carries real text and not a stub. */
+  max-width: 30ch;
   /* It's an <a>: kill the default underline — the underline running into the figure's head
    * read as a stray rule in the composition. Hover/focus still answer. */
   text-decoration: none;
@@ -518,13 +532,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* One left rail for every hero text, expressed as a share of the container so it
-   * tracks the frame instead of a screenshot: 52% of 1240px is 645px, and the figure's
-   * dark core sits at ~62% — the rail's right edge therefore stops ~10% short of the
-   * figure on every desktop. (The old `min-width: min(100%, 480px)` floor is gone: on a
-   * container between 480px and 860px it overrode the 52% and pushed the rail wider than
-   * intended, which is how the claim kept reaching the silhouette at mid widths.) */
-  width: min(100%, 52%);
+  /* A TYPE MEASURE, not a slice of the viewport. The old `width: min(100%, 52%)` was a
+   * percentage of whatever the rail happened to be, so the block grew with the frame and
+   * the claim's right edge moved further right on every monitor — a number pretending to be
+   * a layout. 44rem is 704px: comfortably wider than the claim at its 74px ceiling (~550px)
+   * and than the 46ch support line, and narrow enough that the claim never reaches the
+   * figure's dark core on any screen. It is pinned to the rail's LEFT edge, which is the
+   * whole point — the box stops, the alignment does not depend on it. */
+  max-inline-size: min(100%, 44rem);
 }
 
 /* Mobile: the claim reads against quiet sky at the TOP of the frame. */
@@ -661,9 +676,11 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  /* Tracks the rail: at 4vw the claim is ~60px on a 1512 screen and reaches its 74px
-   * ceiling at 1850. The cap only exists so a 2560px monitor does not get a poster — it
-   * is still proportional everywhere below that, and the rail keeps it off the figure. */
+  /* Tracks the rail, and stops well short of the figure. The ceiling is the client's: he cut
+   * the 88px shout, so the top of the range is 74px and not 112. The 4vw ramp is deliberate
+   * rather than maximal — at 4.4vw the claim's right edge reached 45% of a 1101px viewport,
+   * which is exactly where the figure's dark core starts. Measured against the shipped rail
+   * (130px gutter), 4vw leaves a clear gap to the silhouette at every width from 1101 up. */
   font-size: clamp(38px, 4vw, 74px);
   line-height: 0.96;
   letter-spacing: -0.034em;
@@ -748,17 +765,24 @@
   left: 0;
   right: 0;
   height: 1px;
+  /* The rule spans the full rail now — gutter to gutter — so it feathers out at BOTH ends
+   * instead of fading to nothing under the figures on the right, which is where the second
+   * column actually lives. One continuous hairline, held by the two columns at its ends. */
   background: linear-gradient(
     90deg,
-    rgba(23, 132, 155, 0.5),
-    rgba(23, 132, 155, 0.16) 55%,
+    rgba(23, 132, 155, 0) 0%,
+    rgba(23, 132, 155, 0.34) 10%,
+    rgba(23, 132, 155, 0.34) 90%,
     rgba(23, 132, 155, 0) 100%
   );
 }
 
 .flinza-hero-copy {
   min-width: 0;
-  max-width: 30ch;
+  /* 40ch, up from 30ch. At 30ch this paragraph was a 225px ribbon stacked into five short
+   * lines in the corner of a 1600px screen — the other half of "hardcoded". It now holds its
+   * two sentences in three lines and still hangs on the rail's left edge. */
+  max-inline-size: 40ch;
   /* Sit ON the rule, in the quietest text-safe zone — padding pulls the copy clear of it. */
   padding-top: 2px;
 }

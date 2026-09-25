@@ -19,8 +19,9 @@ import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import { caseStudyTestimonials } from "@/data/testimonials";
+import { CASE_STUDIES } from "@/data/caseStudies";
 import CamoCtaButton from "@/components/CamoCtaButton";
-import { breadcrumbSchema } from "@/data/seo";
+import { breadcrumbSchema, caseStudyListSchema } from "@/data/seo";
 
 export const metadata = {
   title: "Case Studies — Ecommerce Growth Results",
@@ -42,77 +43,22 @@ export const metadata = {
   },
 };
 
-const STUDIES = [
-  {
-    tag: "01 // REVENUE AUDIT",
-    client: "StillRing",
-    sector: "Supplements · $4M/yr",
-    situation: "Spend was growing 20% month on month while contribution margin went backwards.",
-    changed: "Rebuilt attribution in Triple Whale and found 31% of spend was acquiring customers who returned on first order.",
-    result: "3.4× contribution return in 90 days, +$412K recovered",
-  },
-  {
-    tag: "02 // META ADS",
-    client: "StillRing",
-    sector: "Paid media · 8-figure",
-    situation: "Platform-reported ROAS was healthy but the brand was not profitable at scale.",
-    changed: "Restructured campaigns around how the Meta algorithm allocates spend and reads creative signals, killed the prospecting sets that never paid back, and rebuilt retargeting around margin.",
-    result: "ROAS 1.8x → 4.2x, −31% CAC held through two seasonal spikes",
-  },
-  {
-    tag: "03 // CREATORS",
-    client: "DTC Beauty",
-    sector: "$9M/yr",
-    situation: "Creator spend was capped at four assets a month by cost and by waiting on creators to answer messages.",
-    changed: "Sourced a roster on engagement quality rather than follower count, wrote and directed every script in house, and cleared paid usage rights up front so the footage could run as ad creative.",
-    result: "3.2× return on creator spend, −38% CAC vs studio creative",
-  },
-  {
-    tag: "04 // FOUNDER-LED",
-    client: "DTC Supplements",
-    sector: "$6M/yr",
-    situation: "The founder was the most trusted voice the brand had, and the least used one — nothing shipped without a studio day.",
-    changed: "One scripted shoot a month, cut into shorts, reels, YouTube edits and two podcast episodes. Paid cutdowns come from the same footage.",
-    result: "120+ assets a quarter, 48-hour shoot-to-publish",
-  },
-  {
-    tag: "05 // CLIPPING",
-    client: "DTC Home",
-    sector: "Launch window",
-    situation: "A launch with a two-week window and one hero asset carrying the whole thing.",
-    changed: "Ran a high-volume clipping engine across the window — dozens of cut-downs a week from long-form, a founder podcast and creator footage — on a calendar agreed before launch day.",
-    result: "60+ clips a month, 3.8× reach vs long-form alone",
-  },
-  {
-    tag: "06 // CREATIVE",
-    client: "DTC Fashion",
-    sector: "$12M/yr",
-    situation: "Six-week production cycles meant the account was testing last quarter's ideas.",
-    changed: "Moved to 48-hour production and testing cycles, with hooks varied independently of body so a losing visual treatment was never mistaken for a losing idea.",
-    result: "48-hour concept-to-cut, 30 angles tested, 3.4× CTR lift",
-  },
-  {
-    tag: "07 // OPTIMIZATION",
-    client: "DTC Jewellery",
-    sector: "8-figure",
-    situation: "High ROAS masked cash burn from returns and discount dependency.",
-    changed: "Switched the optimisation target from ROAS to contribution, removed two permanent discount codes and re-cut the creative to sell on product rather than price.",
-    result: "+22pts contribution margin, −38% wasted spend",
-  },
-  {
-    tag: "08 // ITERATION",
-    client: "Multi-brand portfolio",
-    sector: "Ecommerce",
-    situation: "Nine brands managed with inconsistent process and no shared learning.",
-    changed: "Standardised creative testing, attribution and reporting across the portfolio, with one written decision rule: scale at threshold, kill below it, no debates.",
-    result: "34% average ROAS lift, 48-hour cycles across nine brands",
-  },
-];
+/* The eight studies themselves live in `@/data/caseStudies`, not here. They used to be an array
+   declared below in this file, which meant the page rendered one copy of the numbers and the
+   structured data had nothing to read — `/work` was the only commercial route on the site emitting
+   no schema beyond a breadcrumb, on the content most worth quoting. `caseStudyListSchema()` now
+   turns the same array into an `ItemList` of `CreativeWork` nodes carrying the sector, the change
+   and the outcome, so a language model can lift a number without opening the page. */
 
 export default function WorkPage() {
   return (
     <PageShell active="/work">
-      <JsonLd data={breadcrumbSchema([{ name: "Case studies", path: "/work" }])} />
+      <JsonLd
+        data={[
+          breadcrumbSchema([{ name: "Case studies", path: "/work" }]),
+          caseStudyListSchema(CASE_STUDIES),
+        ]}
+      />
 
       <div className="flinza-pagehead">
         <p className="flinza-pagehead-overline">
@@ -134,7 +80,7 @@ export default function WorkPage() {
       </div>
 
       <div className="flinza-grid" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
-        {STUDIES.map((study) => {
+        {CASE_STUDIES.map((study) => {
           const quote = caseStudyTestimonials[study.tag];
           return (
             <article key={study.tag} className="flinza-tile" style={{ padding: "clamp(20px, 3vw, 32px)" }}>
