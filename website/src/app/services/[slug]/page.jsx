@@ -25,7 +25,7 @@ import PageShell from "@/components/PageShell";
 import FaqList from "@/components/FaqList";
 import CamoCtaButton from "@/components/CamoCtaButton";
 import { servicePages, getServicePage, proofForPage } from "@/data/services";
-import { breadcrumbSchema, faqSchema, serviceSchema, absolute } from "@/data/seo";
+import { breadcrumbSchema, faqSchema, serviceSchema, absolute, socialMeta } from "@/data/seo";
 
 export function generateStaticParams() {
   return servicePages.map((page) => ({ slug: page.slug }));
@@ -42,17 +42,11 @@ export function generateMetadata({ params }) {
     description: page.metaDescription,
     keywords: page.keywords,
     alternates: { canonical: path },
-    openGraph: {
+    ...socialMeta({
       title: page.metaTitle,
       description: page.metaDescription,
       url: path,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: page.metaTitle,
-      description: page.metaDescription,
-    },
+    }),
   };
 }
 

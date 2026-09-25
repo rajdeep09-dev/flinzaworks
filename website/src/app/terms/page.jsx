@@ -12,25 +12,19 @@
 
 import JsonLd from '@/components/JsonLd';
 import PageShell from '@/components/PageShell';
-import { breadcrumbSchema, SITE_EMAIL } from '@/data/seo';
+import { breadcrumbSchema, SITE_EMAIL, socialMeta } from '@/data/seo';
 
 export const metadata = {
   title: 'Terms of Service',
   description:
     'Terms of use for the Flinza Works website: acceptable use, intellectual property, submissions, liability limits and governing law. Client engagements are governed separately.',
   alternates: { canonical: '/terms' },
-  openGraph: {
+  ...socialMeta({
     title: 'Terms of use | Flinza Works',
     description:
       'Terms covering use of this website. Client engagements are governed by a separately signed agreement.',
     url: '/terms',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Terms of use | Flinza Works',
-    description: 'Terms covering use of this website.',
-  },
+  }),
 };
 
 export default function TermsPage() {

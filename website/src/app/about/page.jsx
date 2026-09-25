@@ -14,26 +14,19 @@ import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
 import { ABOUT_NUMBERS, POSITIONING, TAGLINE, MARKETS } from "@/data/stats";
-import { breadcrumbSchema, SITE_URL } from "@/data/seo";
+import { breadcrumbSchema, SITE_URL, socialMeta } from "@/data/seo";
 
 export const metadata = {
   title: "About — A Growth Team, Not an Order-Taker",
   description:
     "Flinza Works is a senior performance team for ecommerce brands: profit-first media buying, 48-hour creative testing and creator partnerships. Meet the team behind your account.",
   alternates: { canonical: "/about" },
-  openGraph: {
+  ...socialMeta({
     title: "About Flinza Works — a growth team, not an order-taker",
     description:
       "Four operating principles, the people who touch your account, and the numbers we are willing to be held to.",
     url: "/about",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "About Flinza Works — a growth team, not an order-taker",
-    description:
-      "Profit is the metric, testing runs on 48-hour cycles, the brief gets challenged, and you own everything.",
-  },
+  }),
 };
 
 /*

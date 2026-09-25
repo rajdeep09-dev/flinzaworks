@@ -19,26 +19,19 @@ import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
 import { insights, insightCategories } from "@/data/insights";
-import { breadcrumbSchema, absolute, SITE_URL } from "@/data/seo";
+import { breadcrumbSchema, absolute, SITE_URL, socialMeta } from "@/data/seo";
 
 export const metadata = {
   title: "Insights — Meta Ads, Creative & Creator Growth",
   description:
     "Notes from inside live ecommerce accounts: profit-first Meta ads, 48-hour creative testing, briefing creators so content converts, and clipping strategy for launches.",
   alternates: { canonical: "/insights" },
-  openGraph: {
+  ...socialMeta({
     title: "Insights — notes from inside live ecommerce accounts | Flinza Works",
     description:
       "Profit-first Meta ads, creative testing cycles, creator-led growth and clipping. Written for operators rather than for search engines.",
     url: "/insights",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Insights — notes from inside live ecommerce accounts | Flinza Works",
-    description:
-      "Meta ads, creative testing, creator-led growth and clipping, written by the team running the accounts.",
-  },
+  }),
 };
 
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {

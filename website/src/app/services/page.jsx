@@ -20,26 +20,19 @@ import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
 import { SERVICES } from "@/data/services";
-import { breadcrumbSchema, howToSchema, serviceListSchema } from "@/data/seo";
+import { breadcrumbSchema, howToSchema, serviceListSchema, socialMeta } from "@/data/seo";
 
 export const metadata = {
   title: "Services — Ecommerce Growth, Engineered for Profit",
   description:
     "Meta ads, 48-hour creative testing, creator-led and founder-led content, launch clipping and profit-first optimisation for ecommerce brands spending $50K+ a month. See what each one is.",
   alternates: { canonical: "/services" },
-  openGraph: {
+  ...socialMeta({
     title: "Services — growth engineered for profit | Flinza Works",
     description:
       "Eight offers, each with what it is and who it is for: revenue audits, Meta ads, creators, founder content, clipping, conversion video, optimisation and iteration.",
     url: "/services",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Services — growth engineered for profit | Flinza Works",
-    description:
-      "Revenue audits, Meta ads, creator-led and founder-led content, launch clipping, conversion video and profit-first optimisation.",
-  },
+  }),
 };
 
 /* The engagement process, as steps. It is rendered as a numbered block on the page AND mirrored
@@ -111,9 +104,12 @@ export default function ServicesPage() {
               {service.number}
             </span>
             <div>
-              <h3 style={{ fontSize: "clamp(20px, 2.4vw, 28px)", fontFamily: "var(--font-display)", fontWeight: 400 }}>
+              {/* An <h2>: these eight sit directly under the page's <h1>, so they are top-level
+                  sections, not sub-sections. The declarations `.flinza-tile h3` used to supply are
+                  restated inline, so the rendered type is unchanged. */}
+              <h2 style={{ fontSize: "clamp(20px, 2.4vw, 28px)", fontFamily: "var(--font-display)", fontWeight: 400, margin: "0 0 10px", letterSpacing: "-0.02em", color: "var(--ink)" }}>
                 {service.title}
-              </h3>
+              </h2>
               <span
                 style={{
                   display: "inline-block",

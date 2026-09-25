@@ -19,7 +19,7 @@ import path from 'node:path';
 import JsonLd from '@/components/JsonLd';
 import HomeClient from './HomeClient';
 import { faqItems } from '@/data/faqs';
-import { faqSchema, breadcrumbSchema } from '@/data/seo';
+import { faqSchema, breadcrumbSchema, socialMeta } from '@/data/seo';
 
 /*
  * The hero visual, and how a photograph takes it over without a code change.
@@ -77,19 +77,12 @@ export const metadata = {
   description:
     'Flinza Works is an ecommerce growth agency for DTC brands spending $50K+ a month: Meta ads, creative testing, creator and founder content. Book a call.',
   alternates: { canonical: '/' },
-  openGraph: {
+  ...socialMeta({
     title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
     description:
       'Meta ads, 48-hour creative testing, creator and founder content, and launch clipping for ecommerce brands spending $50K+ a month. Optimised for profit.',
     url: '/',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
-    description:
-      'Meta ads, 48-hour creative testing, creator and founder content and launch clipping for ecommerce brands spending $50K+ a month.',
-  },
+  }),
 };
 
 export default function HomePage() {

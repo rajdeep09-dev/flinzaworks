@@ -15,26 +15,19 @@
 import JsonLd from '@/components/JsonLd';
 import CareersClient from './CareersClient';
 import { roles } from '@/data/roles';
-import { breadcrumbSchema, jobPostingSchema } from '@/data/seo';
+import { breadcrumbSchema, jobPostingSchema, socialMeta } from '@/data/seo';
 
 export const metadata = {
   title: 'Careers — Join the Talent Pool',
   description:
     'Open roles at Flinza Works: paid media, creative strategy, creator partnerships, analytics and clipping. Remote-first, or join the talent pool in 30 seconds.',
   alternates: { canonical: '/careers' },
-  openGraph: {
+  ...socialMeta({
     title: 'Careers at Flinza Works — join the talent pool',
     description:
       'Paid media, creative strategy, creator partnerships and clipping. Remote-first, no account-manager relay, and a reply within three business days.',
     url: '/careers',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Careers at Flinza Works — join the talent pool',
-    description:
-      'Paid media, creative strategy, creator partnerships and clipping. Remote-first, and we read every application ourselves.',
-  },
+  }),
 };
 
 export default function CareersPage() {

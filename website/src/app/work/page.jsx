@@ -21,26 +21,19 @@ import PageShell from "@/components/PageShell";
 import { caseStudyTestimonials } from "@/data/testimonials";
 import { CASE_STUDIES } from "@/data/caseStudies";
 import CamoCtaButton from "@/components/CamoCtaButton";
-import { breadcrumbSchema, caseStudyListSchema } from "@/data/seo";
+import { breadcrumbSchema, caseStudyListSchema, socialMeta } from "@/data/seo";
 
 export const metadata = {
   title: "Case Studies — Ecommerce Growth Results",
   description:
     "Eight written ecommerce engagements: the situation, what we changed and the outcome. Real numbers, including the tests that failed. Meta ads, creative, creators and clipping.",
   alternates: { canonical: "/work" },
-  openGraph: {
+  ...socialMeta({
     title: "Case studies — verified results, not promises | Flinza Works",
     description:
       "Eight engagements written up honestly: what the situation was, what we changed and what it produced. Where a metric is contribution margin, that is what it says.",
     url: "/work",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Case studies — verified results, not promises | Flinza Works",
-    description:
-      "Eight ecommerce engagements written up honestly, with the situation, the change and the outcome.",
-  },
+  }),
 };
 
 /* The eight studies themselves live in `@/data/caseStudies`, not here. They used to be an array
@@ -85,9 +78,14 @@ export default function WorkPage() {
           return (
             <article key={study.tag} className="flinza-tile" style={{ padding: "clamp(20px, 3vw, 32px)" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "baseline", marginBottom: 16 }}>
-                <h3 style={{ margin: 0, fontSize: "clamp(21px, 2.6vw, 30px)", fontFamily: "var(--font-display)", fontWeight: 400, letterSpacing: "-0.02em" }}>
+                {/* An <h2>, not an <h3>. This heading sits directly under the page's <h1>, and an
+                    h1 → h3 jump breaks the outline a screen reader navigates by (and the outline
+                    a crawler reads). The declarations that `.flinza-tile h3` used to contribute —
+                    the 10px margin, the tracking and the ink colour — are restated inline so the
+                    rendered type is identical; nothing in this page's appearance changes. */}
+                <h2 style={{ margin: "0 0 10px", fontSize: "clamp(21px, 2.6vw, 30px)", fontFamily: "var(--font-display)", fontWeight: 400, letterSpacing: "-0.02em", color: "var(--ink)" }}>
                   {study.client}
-                </h3>
+                </h2>
                 <span className="flinza-tile-num" style={{ margin: 0 }}>{study.sector}</span>
               </div>
 

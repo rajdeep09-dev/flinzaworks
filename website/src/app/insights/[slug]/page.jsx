@@ -25,7 +25,7 @@ import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
 import { insights, getInsight } from "@/data/insights";
 import { servicePages } from "@/data/services";
-import { articleSchema, breadcrumbSchema, absolute } from "@/data/seo";
+import { articleSchema, breadcrumbSchema, absolute, socialMeta } from "@/data/seo";
 
 export function generateStaticParams() {
   return insights.map((post) => ({ slug: post.slug }));
@@ -45,7 +45,11 @@ export function generateMetadata({ params }) {
     description: post.description,
     keywords: post.keywords,
     alternates: { canonical: path },
-    openGraph: {
+    /* An article card, not a website card: `type: 'article'` plus the two dates is what tells a
+       social platform (and a news reader) that the card has a timeline. The image, the site name
+       and the locale ride along in `socialMeta` — without it this page, like every other inner
+       page, published as a bare text link. */
+    ...socialMeta({
       title: post.title,
       description: post.description,
       url: path,
@@ -53,12 +57,7 @@ export function generateMetadata({ params }) {
       publishedTime: post.date,
       modifiedTime: post.updated || post.date,
       authors: ["Flinza Works"],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: post.title,
-      description: post.description,
-    },
+    }),
   };
 }
 

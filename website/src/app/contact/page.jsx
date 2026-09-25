@@ -7,26 +7,19 @@
 
 import JsonLd from '@/components/JsonLd';
 import ContactClient from './ContactClient';
-import { breadcrumbSchema, serviceSchema } from '@/data/seo';
+import { breadcrumbSchema, serviceSchema, socialMeta } from '@/data/seo';
 
 export const metadata = {
   title: 'Contact — Book a Discovery Call',
   description:
     'Book a 30-minute discovery call with Flinza Works. We audit your funnel, creative and attribution, then return a fixed quote within 48 hours. No hourly billing.',
   alternates: { canonical: '/contact' },
-  openGraph: {
+  ...socialMeta({
     title: 'Contact Flinza Works — book a discovery call',
     description:
       'Tell us where growth stalled. A 30-minute call, an honest answer, and a scoped plan within 48 hours.',
     url: '/contact',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Contact Flinza Works — book a discovery call',
-    description:
-      'Tell us where growth stalled. A 30-minute call, an honest answer, and a scoped plan within 48 hours.',
-  },
+  }),
 };
 
 export default function ContactPage() {

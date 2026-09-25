@@ -19,25 +19,20 @@
 import JsonLd from '@/components/JsonLd';
 import PageShell from '@/components/PageShell';
 import CamoCtaButton from '@/components/CamoCtaButton';
-import { breadcrumbSchema, profilePageSchema, DEVELOPER } from '@/data/seo';
+import { breadcrumbSchema, profilePageSchema, DEVELOPER, socialMeta } from '@/data/seo';
 
 export const metadata = {
   title: 'Colophon — Rajdeep Debnath',
   description:
     'This website was designed, built and maintained by Rajdeep Debnath — Next.js, React and Framer Motion — for Flinza Works, an ecommerce growth agency.',
   alternates: { canonical: DEVELOPER.path },
-  openGraph: {
+  ...socialMeta({
     title: 'Colophon — Rajdeep Debnath designed and built the Flinza Works website',
     description:
       'Design, front-end engineering and performance work on flinzaworks.com, by Rajdeep Debnath.',
     url: DEVELOPER.path,
     type: 'profile',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Colophon — Rajdeep Debnath',
-    description: 'Who designed and built the Flinza Works website.',
-  },
+  }),
 };
 
 const STACK = [

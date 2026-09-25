@@ -69,6 +69,61 @@ export function absolute(path = '/') {
  * constant exists so a page can point at a specific image when it has a better one. */
 export const OG_IMAGE = `${SITE_URL}/opengraph-image`;
 
+/* The alt text on that card. Wording is the same sentence the card itself renders, so the image
+ * and its description cannot describe two different companies. */
+export const OG_ALT = 'Flinza Works — ecommerce growth agency, built for profit not vanity metrics';
+
+/**
+ * The complete `openGraph` + `twitter` pair for a route.
+ *
+ * ── Why every page has to call this, and why it exists at all ──
+ *
+ * App Router merges `metadata` SHALLOWLY, and `openGraph` / `twitter` are replaced rather than
+ * merged: a page that declares its own `openGraph` inherits nothing from the layout's. That is
+ * silent, it is not an error, and it is the single most expensive thing on this site that nobody
+ * could see:
+ *
+ *   · `og:site_name` and `og:locale` are declared in the root layout and were emitted on NO route
+ *     — not one, including the homepage, which also declares its own. `og:site_name` is what tells
+ *     Facebook, LinkedIn and X which brand a card belongs to, and it is the entity signal a
+ *     Knowledge-Graph-style reader uses to tie a shared link back to the company.
+ *   · `og:image` / `twitter:image` were emitted on the HOMEPAGE ONLY. Every inner page — /services,
+ *     /work, /about, /contact and all five service pages and five articles — rendered as a
+ *     text-only card the moment anyone pasted it into Slack, LinkedIn, X, iMessage or Discord.
+ *     That is the difference between a link that gets clicked and one that does not, on the exact
+ *     links an agency is most often sent.
+ *
+ * The Next file convention in `app/opengraph-image.jsx` cannot rescue this: it is resolved per
+ * segment and then dropped by the page-level object, which is exactly why only `/` — the segment
+ * that owns the file — kept it.
+ *
+ * So the social card is BUILT, not inherited. One function, called by every route, means the next
+ * page added to this site gets a complete card by default instead of discovering in a Slack
+ * preview that it has no image. `...rest` passes through the per-route extras (an article's
+ * publishedTime, a profile page's type); `images` is spread last so nothing can accidentally drop
+ * the picture again.
+ */
+export function socialMeta({ title, description, url, type = 'website', ...rest } = {}) {
+  return {
+    openGraph: {
+      type,
+      url: absolute(url || '/'),
+      title,
+      description,
+      siteName: SITE_NAME,
+      locale: 'en_US',
+      ...rest,
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: OG_ALT }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [OG_IMAGE],
+    },
+  };
+}
+
 /* ── Who built the site ──
  *
  * A separate entity from the agency, and it has to be, because they are two different facts. A

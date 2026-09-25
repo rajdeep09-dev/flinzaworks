@@ -10,26 +10,19 @@ import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import FaqList from "@/components/FaqList";
 import CamoCtaButton from "@/components/CamoCtaButton";
-import { breadcrumbSchema, faqSchema, serviceSchema } from "@/data/seo";
+import { breadcrumbSchema, faqSchema, serviceSchema, socialMeta } from "@/data/seo";
 
 export const metadata = {
   title: "Creator-Led Content & Influencer Marketing",
   description:
     "Creator-led content for ecommerce brands: we bring the best creators to promote your product, handle scripting and editing end to end, and judge every deal on cost per customer.",
   alternates: { canonical: "/influencer-marketing" },
-  openGraph: {
+  ...socialMeta({
     title: "Creator-Led Content That Pays for Itself | Flinza Works",
     description:
       "Vetted creators, negotiated usage rights, creator footage licensed into paid, and a cost per acquired customer for every partnership.",
     url: "/influencer-marketing",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Creator-Led Content That Pays for Itself | Flinza Works",
-    description:
-      "We bring the best creators in your niche to promote your product — scripting, briefing and editing handled end to end by us.",
-  },
+  }),
 };
 
 /*

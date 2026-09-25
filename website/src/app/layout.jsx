@@ -8,7 +8,7 @@ import './polish.css';
 import RouteTransition from '@/components/RouteTransition';
 import SectionReveal from '@/components/SectionReveal';
 import JsonLd from '@/components/JsonLd';
-import { rootSchema, SITE_URL, SITE_NAME, DEVELOPER } from '@/data/seo';
+import { rootSchema, SITE_URL, SITE_NAME, DEVELOPER, socialMeta } from '@/data/seo';
 import { ONE_LINER } from '@/data/stats';
 
 /*
@@ -28,6 +28,14 @@ import { ONE_LINER } from '@/data/stats';
  * branded card at /opengraph-image, and the file convention wires it up across every route
  * automatically, including twitter:image. Declaring an image here as well would duplicate it.
  */
+/* The site-level social card, built once. Every page calls `socialMeta()` for its own; this is
+ * the fallback for the few that declare nothing, and the shape they are all copying. */
+const SOCIAL = socialMeta({
+  title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
+  description: ONE_LINER,
+  url: '/',
+});
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -60,21 +68,13 @@ export const metadata = {
     'performance marketing agency',
   ],
   alternates: { canonical: '/' },
-  openGraph: {
-    type: 'website',
-    siteName: SITE_NAME,
-    locale: 'en_US',
-    url: '/',
-    title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
-    description: ONE_LINER,
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@flinzaworks',
-    creator: '@flinzaworks',
-    title: 'Ecommerce Growth Agency for DTC Brands | Flinza Works',
-    description: ONE_LINER,
-  },
+  /* `socialMeta()` rather than a hand-written openGraph/twitter pair. App Router REPLACES these two
+     objects on a page that declares its own, so anything declared here is inherited by no route at
+     all — which is how `og:site_name` ended up emitted on zero of the twenty-two. The card is now
+     built per route by one function every page calls, and this is the fallback for the ones that
+     do not. */
+  openGraph: SOCIAL.openGraph,
+  twitter: { ...SOCIAL.twitter, site: '@flinzaworks', creator: '@flinzaworks' },
   robots: {
     index: true,
     follow: true,
