@@ -1,31 +1,55 @@
 /* ════════════════════════════════════════════════════════════════════════
- * HERO — the flinzaworks.in composition, on this site's palette
+ * HERO — the flinzaworks.in composition, rebuilt
  * ════════════════════════════════════════════════════════════════════════
  *
  * This file is imported AFTER overrides.css and re-specifies every hero rule it
  * needs, so it wins the cascade by order alone — no !important anywhere. The
  * hero rules that remain in overrides.css are superseded, not fought.
  *
- * The reference geometry (flinzaworks.in), adapted:
+ * The reference (flinzaworks.in), reproduced rather than adapted:
  *
- *   top rule      brand label left · understated note right · call pill top-right
- *   middle        the claim, alone, with air on both sides
- *   bottom edge   small paragraph + "Scroll Down ↓" bottom-left,
- *                 the numbers in ONE row bottom-right
+ *   ground       a violet bloom — lavender at the crown, indigo at the foot
+ *   visual       the blurred figure, DEAD CENTRE, standing behind the type
+ *   middle       the brand at full width: one word, as a line of glass, with
+ *                two cyan rules standing at the rail either side of it
+ *   top rule     lockup + navigation left · metal mark centre · contact pill right
+ *   bottom edge  the paragraph + "Scroll down ↓" bottom-left, the four figures
+ *                in ONE row bottom-right, and nothing between them but air
  *
- * What changed against the previous composition, and why: the stats were a 2×2
- * block with uppercase micro-labels, which reads as a dashboard; the reference
- * runs them as one quiet row with sentence-case labels. The paragraph used to
- * hang off the claim; in the reference the bottom-left is its own small object,
- * with the scroll cue under it. The claim moves up into the middle of the frame
- * — the bottom edge is left to the small text and the numbers, which is where
- * the reference puts its weight.
+ * Why the earlier, paler composition went: it put a sentence in the middle of
+ * the frame and asked the type to share space with the figure, so the loudest
+ * thing on the first screen was a paragraph at 4vw. The reference asks for the
+ * opposite economy — one enormous word, and every other string reduced to the
+ * edges. The claim did not go with it: it is the h1, and it now sits UNDER the
+ * wordmark as the one line that says what the company sells, which is a
+ * better answer to a stranger than either the bare name or the bare claim.
+ *
+ * Mobile is a different composition and not a scaled one — see §MOBILE below.
  * ══════════════════════════════════════════════════════════════════════ */
 
 .flinza-hero-stage {
   position: relative;
   display: flex;
   min-height: 100svh;
+  /* The ground the whole first screen is painted on: lavender at the crown, a
+   * white-hot core behind the type, violet through the middle, indigo at the
+   * foot. Every other layer in here is either a light source over this or a
+   * multiply against it, so this one declaration is the whole palette.
+   *
+   * `isolation: isolate` makes the stage a blending boundary, which is what
+   * lets the photograph multiply against THIS gradient and nothing behind the
+   * hero — see `.flinza-hero-photo`. */
+  isolation: isolate;
+  background:
+    radial-gradient(
+      118% 76% at 50% -10%,
+      rgba(228, 219, 255, 0.98) 0%,
+      rgba(170, 133, 250, 0.7) 30%,
+      rgba(120, 74, 224, 0) 64%
+    ),
+    radial-gradient(78% 44% at 50% 31%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 66%),
+    radial-gradient(126% 64% at 50% 54%, rgba(96, 52, 208, 0.5) 0%, rgba(96, 52, 208, 0) 72%),
+    linear-gradient(178deg, #b8a3ff 0%, #8b64f0 22%, #5b34c3 52%, #2a1170 100%);
   /* The stage's INLINE padding is dropped. It used to carry a `clamp(20px, 5vw, 64px)`
    * gutter, which stacked with `--flinza-rail` on `.flinza-hero-inner` and put the hero's
    * text 194px from the edge on a desktop — 64px of anonymous gutter that no other band on
@@ -68,63 +92,50 @@
   background-repeat: no-repeat;
 }
 
+/* The vector figure — a fallback for a build with no photograph, and only a
+ * fallback. It carries its own silhouette, so the two must never be on screen
+ * together; HomeClient adds `--off` the moment a photograph resolves, which is
+ * the one condition under which stacking them would read as a double exposure.
+ * Screen-blended, because everything it draws is light: it adds a haze to the
+ * violet rather than greying it out. */
 .flinza-hero-visual {
   background-image: url("/images/hero-glow.svg");
-  background-position: 50% 100%;
+  background-position: 50% 42%;
   background-size: cover;
-  /* Same box as the photograph below — if the two layers ever disagree, the vector peeks
-   * out from behind the photo's edge as a dark sliver (exactly the far-left strip in the
-   * screenshots). One shared offset, one shared dissolve. */
-  /* FULL BLEED — no offset box. An element narrower than the viewport hands the
-   * photograph a hard vertical edge, and that edge was the vertical seam down the
-   * left of every screenshot: the layer simply stopped at 18% and the bare stage
-   * showed through. A full-bleed `cover` layer cannot do that — panning a cover
-   * background only changes WHICH slice is cropped, never whether an edge is
-   * inside the frame. */
-  inset: 0;
-  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 86%);
-  mask-image: linear-gradient(to bottom, #000 58%, transparent 86%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 62%, transparent 94%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 62%, transparent 94%);
+}
+.flinza-hero-visual--off {
+  display: none;
 }
 
-/* The real photograph (28 kB WebP), resolved at build time. The figure sits RIGHT of centre
- * (56%) like the reference composition — text owns the left half at every width because both
- * sides scale with the viewport, not with hardcoded pixel caps. 40% vertical keeps the head
- * in frame on tall screens.
+/* The real photograph (28 kB WebP), resolved at build time, and the single
+ * decision that makes the violet hero work: MULTIPLY.
  *
- * The mask is the first half of the hero-to-page dissolve: the photo fades out
- * over its last quarter, so the figure never meets the section below on a hard
- * edge — it thins into the paper. */
+ * The file is a blurred figure on a near-white field. Laid over a violet ground
+ * it used to need a mask on all four sides to hide its own paper. Multiplying it
+ * instead means the paper is arithmetic rather than artwork — white × anything
+ * is anything, so the field vanishes into the gradient and only the mass of the
+ * figure survives, at whatever size the frame happens to be. No mask can do
+ * that: a mask has to be tuned to one aspect ratio, and this hero is a
+ * different composition on a phone.
+ *
+ * The figure is dead centre in the source frame (its dark core sits at 45–52% of
+ * the 1632px width), so `50% 50%` is the pan that puts it behind the wordmark —
+ * which is where the reference stands it. */
 .flinza-hero-photo {
-  /* The background-POSITION is percentage-of-overflow, which collapses when the image fits
-   * exactly — so the offset lives on the ELEMENT: the box is 118% wide, pushed 18% right.
-   * The figure (centre of the photo) lands at ~59% of the viewport at every size, purely
-   * proportional — no pixel caps, adapts to any screen. */
   position: absolute;
   inset: 0;
-  /* The figure is dead centre in the source frame — measured from the file itself,
-   * the dark core of the silhouette sits at 45–52% of the 1632px width — so the pan
-   * is what places it. `cover` pans linearly across exactly the horizontal overflow,
-   * so 15% lands the figure at ~62% of the viewport on every desktop aspect, and
-   * because the layer is full-bleed there is no edge anywhere to leave behind. */
-  background-position: 15% 50%;
+  background-position: 50% 46%;
   background-size: cover;
-  /* The dissolve completes at 82% of the hero's height — the figure thins to mist from the
-   * waist down, so the bottom UI row (which spans the full width) reads on paper, and the
-   * image's own bottom edge can never surface as a line. */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 66%,
-    rgba(0, 0, 0, 0.6) 82%,
-    rgba(0, 0, 0, 0) 95%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 66%,
-    rgba(0, 0, 0, 0.6) 82%,
-    rgba(0, 0, 0, 0) 95%
-  );
+  mix-blend-mode: multiply;
+  /* Kept for one reason: the very bottom of the source file is a little denser
+   * than the gradient beneath it, and without this the hem of the frame can
+   * surface as a hairline where the hero meets the page. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 88%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 88%, rgba(0, 0, 0, 0) 100%);
 }
 
 /* The second half of the dissolve: a fog band pinned to the hero's foot. Its
@@ -146,25 +157,31 @@
  * photograph's own mask (nothing solid past 95%) and the scrim's floor wash. Both are
  * static, both are free per frame, and neither can produce an edge. */
 
-/* The cyan under-glow — the colour half of the blue-to-noise handoff. A restrained radial
- * of the brand aqua under the figure, breathing on opacity only (compositor-safe), feeding
- * the same accent the Selected Work overline ticks with. */
+/* The halo — the thing that makes the wordmark read as glass rather than as
+ * gradient text. In the reference there is a bright bloom sitting directly
+ * behind the letters and the figure shows through them; screen-blended, it only
+ * ever ADDS light, so it can never muddy the violet the way a normal layer
+ * would. It breathes on opacity alone (compositor-safe) and is centred on the
+ * wordmark's band rather than on the viewport, so it travels with the type on
+ * every breakpoint. */
 .flinza-hero-bloom {
   position: absolute;
   left: 50%;
-  bottom: -14%;
-  width: min(74vw, 920px);
-  height: clamp(180px, 34vh, 340px);
-  transform: translateX(-50%);
+  top: 33%;
+  width: min(128vw, 1520px);
+  height: clamp(230px, 50vh, 620px);
+  transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
+  mix-blend-mode: screen;
   background: radial-gradient(
-    50% 62% at 50% 66%,
-    rgba(46, 147, 172, 0.3) 0%,
-    rgba(46, 147, 172, 0.12) 46%,
-    rgba(46, 147, 172, 0) 74%
+    50% 50% at 50% 50%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(216, 238, 255, 0.5) 26%,
+    rgba(96, 214, 240, 0.2) 48%,
+    rgba(96, 214, 240, 0) 74%
   );
-  filter: blur(10px);
+  filter: blur(16px);
   animation: flinza-hero-breathe 12s ease-in-out infinite;
 }
 @keyframes flinza-hero-breathe {
@@ -194,38 +211,27 @@
   }
 }
 
-/* The vector underneath is a fallback for builds without the photograph, and
- * it must keep its bottom anchoring — its figure is drawn against the bottom
- * edge. The single-selector form above would re-anchor it. */
-.flinza-hero-visual {
-  background-position: 15% 100%;
-}
+/* The vector fallback needs no anchoring override of its own: the rule above
+ * already centres it on the wordmark's band, which is where its figure is
+ * drawn. */
 
-/* Portrait phones: the same two layers, zoomed and anchored low, so the figure's
- * mass reads behind the lower third of the column instead of behind the type.
- * `auto 132%` is what makes this possible — a plain `cover` on a portrait element
- * has no vertical overflow at all, so the figure could never be moved down without
- * also moving the layout. The zoom gives the pan a vertical axis to work on. */
-@media (max-width: 700px) {
+/* Phones: the figure is scaled up and lifted, so its mass sits BEHIND the wordmark
+ * rather than below it. `auto 168%` is what makes that possible — on a portrait box a
+ * plain `cover` has no vertical overflow, so the figure could never be moved up
+ * without moving the layout with it. The zoom gives the pan an axis to work on. */
+@media (max-width: 760px) {
   .flinza-hero-visual,
   .flinza-hero-photo {
-    background-size: auto 132%;
-    background-position: 50% 40%;
+    background-size: auto 168%;
+    background-position: 50% 18%;
   }
 }
 
-/* Portrait phones: the figure reads behind the lower half of the frame, with the upper half
- * kept as quiet sky for the message. `cover` on a 16:10-ish source crops from the top, so
- * anchoring at 58% keeps the head in frame and the mass low. */
+/* ── The chrome row on phones: three items, one optical line ──
+ * The mark's inline 68px box made the row feel lopsided against a 44px pill — the lockup
+ * sat on its own line-height while the pill centred on the mark's box. With the mark at
+ * 46px all three heights are near-equal and the grid's centering aligns them for real. */
 @media (max-width: 700px) {
-  /* The figure's placement is set in the block above; the veil is the vertical one in the
-   * ≤900px block below. One definition each — the scrim that used to be duplicated here was
-   * being overridden by that block anyway, so it was never doing anything. */
-
-  /* ── The chrome row on phones: three items, one optical line ──
-   * The mark's inline 68px box made the row feel lopsided against a 44px pill — the lockup
-   * sat on its own line-height while the pill centred on the mark's box. With the mark at
-   * 46px all three heights are near-equal and the grid's centering aligns them for real. */
   .flinza-logo-btn.flinza-mark-stack,
   .flinza-logo-btn .flinza-mark-still {
     width: 46px !important;
@@ -242,44 +248,28 @@
   }
 }
 
-/* Two painted washes, no filter: a top wash so the header's dark type never
- * sits on the figure, and a light floor so the bottom edge has something to
- * stand on. */
+/* Two painted washes, no filter. The top of this hero is BRIGHT — the reference's own
+ * top band is near-white lavender and its navigation is dark on it — so the chrome row
+ * keeps dark type and needs no veil. What this layer is here for is the two edges:
+ * a hand-off at the foot, and a seat for the white bottom row. */
 .flinza-hero-scrim {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    /* 1 · the top wash — the lockup, the two notes and the metal mark sit on paper. */
-    linear-gradient(
-      to bottom,
-      rgba(247, 251, 252, 0.94) 0%,
-      rgba(247, 251, 252, 0.5) 15%,
-      rgba(247, 251, 252, 0) 34%
-    ),
-    /* 2 · THE VEIL. This is the piece that finally lets left-aligned type live beside a
-       centre-right figure, and it is DIRECTIONAL on purpose: one horizontal gradient
-       across the whole frame, so there is no box, no card and no rectangle for the eye
-       to catch — the photograph's own light simply grows toward the left edge and is
-       gone by 68%, which leaves the figure's entire right side crisp. (The old
-       approach — a radial sized behind the <h1> — was the hard-edged white band the
-       QA report kept flagging.) */
-    linear-gradient(
-      90deg,
-      rgba(247, 251, 252, 0.97) 0%,
-      rgba(247, 251, 252, 0.9) 28%,
-      rgba(247, 251, 252, 0.52) 44%,
-      rgba(247, 251, 252, 0.16) 56%,
-      rgba(247, 251, 252, 0) 68%
-    ),
-    /* 3 · the floor — full-width contrast for the bottom row, feathered away. */
+    /* 1 · the hand-off. 3% of the frame, so it lives entirely inside the stage's bottom
+       padding: the saturated hero meets the white page below it without a hard line, and
+       the bottom row — which sits above 84% — can never be washed by it. */
     linear-gradient(
       to top,
-      rgba(247, 251, 252, 0.6) 0%,
-      rgba(247, 251, 252, 0.24) 20%,
-      rgba(247, 251, 252, 0) 44%
-    );
+      #fbfcfd 0%,
+      rgba(251, 252, 253, 0.92) 1.3%,
+      rgba(251, 252, 253, 0) 3.1%
+    ),
+    /* 2 · the seat. A soft indigo under both bottom objects, which is what the reference
+       does at its own foot and what keeps white type off the brightest violet. */
+    radial-gradient(128% 54% at 50% 118%, rgba(21, 6, 62, 0.78) 0%, rgba(21, 6, 62, 0) 66%);
 }
 
 /* ══ THE RAIL ═══════════════════════════════════════════════════════════
@@ -340,47 +330,23 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: clamp(32px, 8vh, 96px);
+  /* `flex-start`, not `space-between`: the wordmark's own margin-top is what puts it in the
+   * reference's band, and space-between would then also be distributing the leftover air
+   * above it. The air in this composition belongs UNDER the word, not above it. */
+  justify-content: flex-start;
 }
 
 /* ── The top rule ──
  *
- * The brand label and the call pill no longer live inside the hero — they are
- * in the fixed chrome row, vertically centred on the metal mark, which is the
- * alignment the client asked for ("flinza and our logo and the get contact
- * button should be aligned with the metallic logo"). The head group carries
- * only the positioning note. */
-
-/* The head group is a ROW now: the positioning note hangs left, a quiet work teaser hangs
- * right — the reference's diagonal balance, and the right half of the frame stops being
- * empty air. */
-.flinza-hero-head {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 32px;
-}
-.flinza-hero-note--right {
-  text-align: right;
-  /* Flush to the rail's RIGHT edge (the head group is space-between), sized to a two-line
-   * measure so the right column of the hero carries real text and not a stub. */
-  max-width: 30ch;
-  /* It's an <a>: kill the default underline — the underline running into the figure's head
-   * read as a stray rule in the composition. Hover/focus still answer. */
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-.flinza-hero-note--right:hover,
-.flinza-hero-note--right:focus-visible {
-  color: rgba(9, 9, 11, 0.78);
-}
-.flinza-hero-note--right:focus-visible {
-  outline: 1.5px solid var(--aqua-deep);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
+ * The reference's top row is a navigation and nothing else — a lockup on the left, links in
+ * the middle, one pill on the right — and that is now the whole of it. The two quiet notes
+ * this used to hang under it (the positioning line, a work teaser) are gone: on this ground
+ * they would be small grey type on mid-violet, which is the one place on the screen where
+ * neither white nor ink clears 4.5:1. The positioning sentence still ships — in the h1's
+ * claim, in the bottom-left paragraph, in the Organization schema and on /about.
+ *
+ * The brand label and the call pill are in the fixed chrome row, vertically centred on the
+ * metal mark, which is the alignment the client asked for. */
 
 .flinza-hero-brand {
   margin: 0;
@@ -414,7 +380,10 @@
   font-size: 12.5px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: rgba(9, 9, 11, 0.62);
+  /* 0.72, not the 0.62 this wore on paper: the hero's top band is bright lavender (#b39dfd
+     under the lockup), and 0.62 measures 4.08:1 there — a miss. 0.72 is the same value the
+     September audit pass settled on for its deep-teal labels, and it measures 5.24:1. */
+  color: rgba(9, 9, 11, 0.72);
   text-decoration: none;
   transition: color 0.25s ease;
 }
@@ -449,11 +418,11 @@
   }
 }
 
-/* The call pill, top-right — the reference's "Contact Us ↗", kept compact. On hover it takes
- * the camo treatment: the same pre-mixed surface the CamoCtaButton paints, cross-faded in by a
- * pseudo-element (background-image cannot transition, opacity can). A hover-time WebGL shader
- * would cost a context per pointer-enter; this is one composited fade and it reads as the same
- * brand surface. */
+/* The call pill, top-right — the reference's "Contact Us ↗", which is a SOLID white pill
+ * with dark type on exactly this bright top band. On hover it takes the camo treatment: the
+ * same pre-mixed surface the CamoCtaButton paints, cross-faded in by a pseudo-element
+ * (background-image cannot transition, opacity can). A hover-time WebGL shader would cost a
+ * context per pointer-enter; this is one composited fade and it reads as the same surface. */
 .flinza-hero-call {
   position: relative;
   isolation: isolate;
@@ -463,9 +432,9 @@
   gap: 7px;
   min-height: 44px;
   padding: 10px 20px;
-  border: 1px solid rgba(9, 9, 11, 0.26);
+  border: 1px solid rgba(9, 9, 11, 0.14);
   border-radius: 999px;
-  background: rgba(247, 251, 252, 0.4);
+  background: rgba(255, 255, 255, 0.92);
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
@@ -509,135 +478,88 @@
   transform: translate3d(1px, -1px, 0);
 }
 
-/* The client's own line, right-aligned under the top rule — small on purpose.
- * The reference runs three quiet texts and none of them is bigger than ~13px;
- * this is the first of the three. */
-.flinza-hero-note {
-  margin: 0 0 clamp(8px, 1.4vh, 16px);
-  /* 38ch reads as three editorial lines instead of five narrow ones — the note is a
-   * real sentence and was breaking the way a sidebar breaks. */
-  max-width: 38ch;
-  align-self: flex-start;
-  text-align: left;
-  font-family: var(--font-display);
-  font-size: clamp(11px, 0.85vw, 13px);
-  font-style: italic;
-  line-height: 1.7;
-  color: rgba(9, 9, 11, 0.46);
-}
-
-/* ── The message block: eyebrow · claim · support · secondary action ── */
-
-.flinza-hero-message {
+/* ── The middle of the frame ──
+ *
+ * The word, the claim, and the one line that says who it is for. Centred, because that is
+ * where the reference has it and because the figure behind it is centred too — a
+ * left-aligned stack over a centred figure is precisely what the previous composition was,
+ * and the two were always fighting for the middle of the screen.
+ *
+ * The eyebrow ("DTC GROWTH / CREATIVE + PERFORMANCE") is gone from the hero, and that is a
+ * contrast decision rather than an editorial one: it is 12px tracked type, and the only
+ * part of this ground that is neither bright enough for ink nor deep enough for white is
+ * exactly where the wordmark's shoulder sits. It still ships — in the claim, in the
+ * bottom-left paragraph, on /services and in the schema. */
+.flinza-hero-markwrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  /* A TYPE MEASURE, not a slice of the viewport. The old `width: min(100%, 52%)` was a
-   * percentage of whatever the rail happened to be, so the block grew with the frame and
-   * the claim's right edge moved further right on every monitor — a number pretending to be
-   * a layout. 44rem is 704px: comfortably wider than the claim at its 74px ceiling (~550px)
-   * and than the 46ch support line, and narrow enough that the claim never reaches the
-   * figure's dark core on any screen. It is pinned to the rail's LEFT edge, which is the
-   * whole point — the box stops, the alignment does not depend on it. */
-  max-inline-size: min(100%, 44rem);
-}
-
-/* Mobile: the claim reads against quiet sky at the TOP of the frame. */
-@media (max-width: 700px) {
-  .flinza-hero-claim {
-    font-size: clamp(34px, 11vw, 44px);
-  }
-  .flinza-hero-note {
-    display: none;
-  }
-  .flinza-hero-head {
-    display: none;
-  }
-}
-
-/* The eyebrow — small, tracked, high contrast, opened by the same aqua tick the Selected
- * Work overline uses, so the promise and the proof below the fold read as one system. */
-.flinza-hero-eyebrow {
-  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 clamp(14px, 2.2vh, 24px);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(9, 9, 11, 0.78);
-}
-.flinza-hero-eyebrow::before {
-  content: "";
-  width: 26px;
-  height: 1.5px;
-  background: var(--aqua-deep);
-}
-.flinza-hero-eyebrow span {
-  color: rgba(9, 9, 11, 0.34);
+  /* Puts the wordmark at 24–45% of the frame's height, which is the reference's band
+   * (25–46%), measured off the stage's own top padding — so the frame decides where it
+   * lands, not a number typed in next to it. */
+  margin-top: clamp(64px, 18vh, 250px);
 }
 
 /* The supporting line — one sentence under the claim, in a readable measure. The services
  * list lives here; the method paragraph lives at the bottom edge; nothing is said twice. */
 .flinza-hero-support {
-  margin: clamp(16px, 2.6vh, 26px) 0 0;
-  max-width: 46ch;
+  margin: clamp(16px, 2.8vh, 30px) 0 0;
+  max-width: 52ch;
+  text-align: center;
   font-family: var(--font-ui);
-  font-size: clamp(14px, 1.15vw, 16px);
+  font-size: clamp(14px, 1.2vw, 17px);
   font-weight: 400;
-  line-height: 1.65;
-  color: rgba(9, 9, 11, 0.62);
-}
-@media (max-width: 700px) {
-  .flinza-hero-support {
-    max-width: 30ch;
-  }
+  line-height: 1.62;
+  color: rgba(255, 255, 255, 0.88);
+  /* The one shadow on this hero. Deep violet under white type at 12–17px is a 9:1 ground
+   * with no shadow needed — but the photograph multiplies over it, and a figure that
+   * happens to pass behind the sentence would otherwise be a texture in the middle of a
+   * word. */
+  text-shadow: 0 1px 18px rgba(21, 6, 62, 0.45);
 }
 
-/* The secondary action — a text link, deliberately not a second pill. The underline sweeps
- * in from the left; the arrow dips. Full 44px target. */
+/* The hero's only body action, and it is a PHONE action: the desktop frame is the
+ * reference's — word, paragraph, figures, one pill in the corner — and adding a button to
+ * the middle of it would put the third competing action back. A phone has no corner to put
+ * a pill in and one thumb, so there the same link becomes the hero's primary target: a
+ * full-width 52px button. `display: none` here is deliberate, and §MOBILE turns it on. */
 .flinza-hero-explore {
   position: relative;
-  display: inline-flex;
+  display: none;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px 2px;
-  margin-top: clamp(4px, 1vh, 10px);
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 22px;
+  margin-top: clamp(16px, 3vh, 26px);
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #15063e;
   font-family: var(--font-ui);
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   letter-spacing: 0.01em;
-  color: var(--ink);
   text-decoration: none;
-  transition: color 0.25s ease;
-}
-.flinza-hero-explore::after {
-  content: "";
-  position: absolute;
-  left: 2px;
-  right: 2px;
-  bottom: 8px;
-  height: 1px;
-  background: var(--aqua-deep);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 14px 34px -18px rgba(21, 6, 62, 0.8);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
 }
 .flinza-hero-explore:hover,
 .flinza-hero-explore:focus-visible {
-  color: var(--aqua-deep);
-}
-.flinza-hero-explore:hover::after,
-.flinza-hero-explore:focus-visible::after {
-  transform: scaleX(1);
+  background: #ffffff;
+  color: #15063e;
+  transform: translateY(-2px);
 }
 .flinza-hero-explore:focus-visible {
-  outline: 1.5px solid var(--aqua-deep);
+  outline: 2px solid #7ee4f8;
   outline-offset: 3px;
-  border-radius: 4px;
+}
+/* The underline is gone with the text link it belonged to: the phone button is filled, and
+ * a hairline inside a pill is a second edge on top of the first. */
+.flinza-hero-explore::after {
+  display: none;
 }
 .flinza-hero-explore span {
   display: inline-flex;
@@ -667,124 +589,166 @@
   transform: translateY(3px);
 }
 
-/* ── The claim, in the middle of the frame ── */
-
-/* The claim — the redesign brief asks for clearly stronger scale; the client cut the 88px
- * shout, so the ceiling rises to 74px, not 112. Tighter leading (0.96) gives the two lines
- * the editorial set the brief describes while the break stays owned by the composition. */
-.flinza-hero-claim {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 400;
-  /* Tracks the rail, and stops well short of the figure. The ceiling is the client's: he cut
-   * the 88px shout, so the top of the range is 74px and not 112. The 4vw ramp is deliberate
-   * rather than maximal — at 4.4vw the claim's right edge reached 45% of a 1101px viewport,
-   * which is exactly where the figure's dark core starts. Measured against the shipped rail
-   * (130px gutter), 4vw leaves a clear gap to the silhouette at every width from 1101 up. */
-  font-size: clamp(38px, 4vw, 74px);
-  line-height: 0.96;
-  letter-spacing: -0.034em;
-  color: var(--ink);
+/* ── The wordmark ──
+ *
+ * The whole centre of the frame is one line: the brand, as large as the frame allows, in the
+ * same liquid glass as the reference. Its size is ONE custom property, because the two zoom
+ * regimes on this site have to be answered separately — a desktop renders at
+ * `html { zoom: 0.75 }`, where one viewport unit paints at 0.75 of a screen percent, so a
+ * ramp that is right on a tablet is a third too large on a desktop. Nothing else on the hero
+ * needs to know that, which is why the ramp lives here and nowhere else.
+ *
+ * The ceilings are where the word stops growing with the screen and holds a size instead.
+ * They come from the reference's own proportion — the word is 55–62% of the width from a
+ * 1280 laptop up to roughly a 2800px monitor — and past that a six-letter word at 62% of a
+ * 5K panel stops being a wordmark and starts being a texture. */
+:root {
+  --flinza-mark-size: clamp(56px, 17vw, 180px);
 }
-.flinza-hero-claim span,
-.flinza-hero-claim em {
-  display: block;
-}
-.flinza-hero-claim em {
-  font-style: italic;
-  color: var(--aqua-deep);
-}
-
-/* The claim sits over the figure's torso on mid-width screens, and the italic teal loses
- * the figure without help. The previous fix here — a sized radial behind the h1 — was the
- * "washed-out horizontal band" the QA report flagged: with ellipse radii larger than half
- * the box on both axes, the gradient was CLIPPED by the h1's box into a hard-edged stripe
- * across the silhouette. closest-side guarantees the ellipse lands entirely inside the box
- * and reaches zero before any edge — a feathered wash with no rectangle geometry anywhere,
- * kept soft by the blur. */
-.flinza-hero-claim {
-  position: relative;
-}
-/* The text-protection veil is GONE. With the claim locked to the 680px left rail it sits on
- * pale sky at every width — the veil was only rendering as the whitish box over the figure's
- * head, which is exactly what the screenshots kept showing. */
-.flinza-hero-claim::before {
-  display: none;
-}
-.flinza-hero-claim::before {
-  content: "";
-  position: absolute;
-  inset: -0.7em -1.4em;
-  z-index: -1;
-  background: radial-gradient(
-    closest-side,
-    rgba(247, 251, 252, 0.8) 0%,
-    rgba(247, 251, 252, 0.48) 58%,
-    rgba(247, 251, 252, 0) 100%
-  );
-  filter: blur(10px);
-}
-
-/* ── The bottom edge ── */
-
-.flinza-hero-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  /* If a window is ever too narrow to hold the copy and four figures side by side, the
-   * figures drop to their own line and stay on the right — instead of being clipped off
-   * the right edge, which is what the screenshot showed ("MANAG…"). */
-  flex-wrap: wrap;
-  gap: clamp(24px, 3vw, 56px) clamp(28px, 4vw, 72px);
-  /* One locked system (QA: copy + metrics "read as separate annotations"). A hairline
-   * connects both zones so the eye reads them as one rule, not two floaters. */
-  position: relative;
-  padding-top: 22px;
-  /* Same proportional rule as the message block: the copy column takes 56% max, the stats
-   * take the remaining 44%-ish — at no width do the numbers slide left under the figure's
-   * coat (the "$500K+ on the coat" problem). The figure dissolves to mist by 82% height;
-   * the bottom row sits below that line on paper. */
-  width: 100%;
-}
-/* The numbers take the right edge and nothing else: auto basis, pushed to the far side of
- * the row so the LAST label's right edge is the container's right edge — which is what
- * makes "the right column reaches the right side" true at every width rather than at the
- * one width it was tuned on. */
-@media (min-width: 901px) {
-  .flinza-hero-bottom .flinza-hero-stats {
-    margin-left: auto;
+@media (min-width: 1024px) and (pointer: fine) {
+  :root {
+    --flinza-mark-size: clamp(72px, 20.5vw, 480px);
   }
 }
-.flinza-hero-bottom .flinza-hero-stats {
-  flex: 0 1 auto;
-}
-.flinza-hero-bottom::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  /* The rule spans the full rail now — gutter to gutter — so it feathers out at BOTH ends
-   * instead of fading to nothing under the figures on the right, which is where the second
-   * column actually lives. One continuous hairline, held by the two columns at its ends. */
-  background: linear-gradient(
-    90deg,
-    rgba(23, 132, 155, 0) 0%,
-    rgba(23, 132, 155, 0.34) 10%,
-    rgba(23, 132, 155, 0.34) 90%,
-    rgba(23, 132, 155, 0) 100%
-  );
+
+.flinza-hero-claim {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: var(--flinza-mark-size);
+  /* Stated rather than inherited: overrides.css sets `color: var(--ink)` on this element, and
+   * this file's rule is that every property the design depends on is declared here. */
+  color: #ffffff;
 }
 
+/* The two rules the reference stands either side of the word. Pinned to this element's own
+ * box rather than to the type, so they hold their distance from the rail at every width
+ * instead of chasing the wordmark as it grows. */
+.flinza-hero-mark {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.flinza-hero-mark::before,
+.flinza-hero-mark::after {
+  content: "";
+  position: absolute;
+  top: 3%;
+  bottom: 3%;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    rgba(120, 224, 244, 0) 0%,
+    rgba(126, 228, 248, 0.95) 22%,
+    rgba(126, 228, 248, 0.95) 78%,
+    rgba(120, 224, 244, 0) 100%
+  );
+}
+.flinza-hero-mark::before {
+  left: 0;
+}
+.flinza-hero-mark::after {
+  right: 0;
+}
+
+/* The glass. Every stop is light on purpose: the reference's wordmark is glass over a DARK
+ * figure, and a gradient with a dark end would lose the glass and its contrast at once.
+ *
+ * The stops are also the floor of a measurement, not a taste call. 200px type needs 3:1, and
+ * the word sits on the frame's mid violet — #7750de under its leading edge and #643dcc under
+ * its trailing one. The darkest stop here, #a3caff, measures 3.12:1 on the first and 4.04:1
+ * on the second; the lilac that closes the sweep, #cfc9ff, measures 3.37:1 and 4.37:1. The
+ * obvious deeper versions of both — #7fb4ff and #9f8cff, which are what this file started
+ * with — measure 2.48:1 and 1.92:1, i.e. invisible. */
+.flinza-hero-wordmark {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 1em;
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  background: linear-gradient(
+    102deg,
+    #a3caff 0%,
+    #d6e9ff 24%,
+    #ffffff 46%,
+    #bde9ff 68%,
+    #cfc9ff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 12px 38px rgba(21, 6, 62, 0.45));
+}
+
+/* The claim — the h1's actual sentence, and the only text on this hero that says what the
+ * company sells. It sits UNDER the word rather than beside it, in the reference's own
+ * display serif, centred, and it is the reason the giant word above it is marked
+ * `aria-hidden`: the accessible name of this heading is a sentence, not a logo. */
+.flinza-hero-claim em {
+  display: block;
+  margin-top: clamp(18px, 3.4vh, 44px);
+  max-inline-size: 26ch;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 3.4vw, 54px);
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  color: #ffffff;
+  text-shadow: 0 2px 28px rgba(21, 6, 62, 0.55);
+}
+
+/* ── The bottom edge ──
+ *
+ * The reference's foot: the paragraph on the left, the figures on the right, and a quantity
+ * of empty violet between them that is doing real work. The hairline that used to join the two
+ * is gone — in the reference these are two objects at the two ends of one frame, and drawing a
+ * rule between them is what turned them into "a system" with a heading above it.
+ *
+ * `margin-top: auto` is what puts this row on the floor of the frame and leaves the air in the
+ * middle, so the space scales with the viewport instead of being measured once. */
+
+.flinza-hero-bottom {
+  /* A grid, not a wrapping flex row, for one reason: the scroll cue belongs UNDER the
+   * bottom-left paragraph and NOT under the figures, and in a two-item flex row there is no
+   * way to say that. Two rows on the left, one figure spanning both on the right. The phone
+   * tier collapses this to a single column in §MOBILE, where the cue belongs last. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "copy stats"
+    "scroll stats";
+  align-items: end;
+  column-gap: clamp(28px, 4vw, 72px);
+  row-gap: 0;
+  margin-top: auto;
+  width: 100%;
+}
 .flinza-hero-copy {
+  grid-area: copy;
   min-width: 0;
   /* 40ch, up from 30ch. At 30ch this paragraph was a 225px ribbon stacked into five short
    * lines in the corner of a 1600px screen — the other half of "hardcoded". It now holds its
    * two sentences in three lines and still hangs on the rail's left edge. */
   max-inline-size: 40ch;
-  /* Sit ON the rule, in the quietest text-safe zone — padding pulls the copy clear of it. */
-  padding-top: 2px;
+}
+.flinza-hero-bottom .flinza-hero-stats {
+  grid-area: stats;
+  justify-self: end;
+}
+/* The numbers take the right edge and nothing else, and only on the width where this row
+ * still holds a 40ch paragraph beside four figures — below that the row stacks and the
+ * `auto` basis would leave the figures a third of a phone's width. */
+@media (min-width: 901px) {
+  .flinza-hero-bottom .flinza-hero-stats {
+    margin-left: auto;
+  }
 }
 
 /* The second small text — the narrow bottom-left column from the reference, at its size:
@@ -795,13 +759,15 @@
   font-size: clamp(13px, 1.05vw, 15px);
   font-weight: 400;
   line-height: 1.7;
-  color: rgba(9, 9, 11, 0.62);
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 16px rgba(21, 6, 62, 0.5);
 }
 
 /* The third small text — the reference's "Scroll Down ↓" is sentence case at ~13px with no
  * tracking; the uppercase micro-caps version read like a different design system. The arrow
  * nudges on the compositor; the label never moves. */
 .flinza-hero-scroll {
+  grid-area: scroll;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -821,18 +787,19 @@
    * this file said. Every property the design depends on is now stated here, so an earlier
    * stylesheet cannot leave a stray one behind — that is the whole rule for this file. */
   text-transform: none;
-  color: rgba(9, 9, 11, 0.62);
+  color: rgba(255, 255, 255, 0.86);
   text-decoration: none;
+  text-shadow: 0 1px 16px rgba(21, 6, 62, 0.5);
   transition: color 0.25s ease;
 }
 .flinza-hero-scroll:focus-visible {
-  outline: 1.5px solid var(--aqua-deep);
+  outline: 1.5px solid #7ee4f8;
   outline-offset: 3px;
   border-radius: 4px;
 }
 .flinza-hero-scroll:hover,
 .flinza-hero-scroll:focus-visible {
-  color: var(--aqua-deep);
+  color: #7ee4f8;
 }
 .flinza-hero-scroll span {
   display: inline-flex;
@@ -860,8 +827,8 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, auto);
-  /* Left-packed like everything else on the rail — the right-packed row let the last label
-   * run off the viewport edge and under the figure's haze. */
+  /* Left-packed inside its own auto-width grid, and the grid itself is pushed to the rail's
+   * right edge above — so the last label's right edge IS the content edge, at every width. */
   justify-content: flex-start;
   gap: clamp(20px, 2.6vw, 52px);
 }
@@ -877,9 +844,10 @@
   font-size: clamp(23px, 2.3vw, 32px);
   line-height: 1;
   letter-spacing: -0.01em;
-  color: var(--ink);
+  color: #ffffff;
   font-variant-numeric: tabular-nums;
   display: inline-block;
+  text-shadow: 0 2px 20px rgba(21, 6, 62, 0.5);
   /* The brief's "metric value lift: 2px on hover/focus" — transform-only. */
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -895,19 +863,20 @@
   font-size: clamp(11.5px, 0.95vw, 14px);
   font-weight: 400;
   letter-spacing: 0;
-  color: rgba(9, 9, 11, 0.64);
+  color: rgba(255, 255, 255, 0.8);
   white-space: normal;
   /* Same reason as the scroll cue above: the legacy duplicate set `uppercase` and this file did
    * not, so the labels under the four figures have been rendering as tracked 9.5px capitals. */
   text-transform: none;
-  max-width: 13ch;
+  max-width: 14ch;
   line-height: 1.35;
+  text-shadow: 0 1px 14px rgba(21, 6, 62, 0.55);
 }
 
 /* ── The entrance ──
- * Runs once, on first paint — pure CSS, so nothing waits on a script. The claim reveals with
- * a mask over ~620ms; eyebrow, support and the secondary action follow; the bottom edge lands
- * ~150ms after the claim completes. Reduced-motion gets the finished composition instantly. */
+ * Runs once, on first paint — pure CSS, so nothing waits on a script. The wordmark wipes in
+ * behind a mask over ~660ms and the rest of the frame rises in behind it. Reduced-motion gets
+ * the finished composition instantly. */
 @keyframes flinza-hero-mask {
   from {
     clip-path: inset(0 0 102% 0);
@@ -928,175 +897,220 @@
     transform: translateY(0);
   }
 }
-.flinza-hero-eyebrow {
-  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
 .flinza-hero-claim {
-  animation: flinza-hero-mask 0.62s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+  animation: flinza-hero-mask 0.66s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .flinza-hero-support {
-  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
 }
 .flinza-hero-explore {
-  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
-}
-.flinza-hero-note {
-  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+  animation: flinza-hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 .flinza-hero-bottom {
-  animation: flinza-hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.76s both;
+  animation: flinza-hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
 }
 
-/* ── Narrow screens ──
- *
- * The reference is a desktop composition; on a phone the same elements stack in
- * the order they read: top rule, claim, paragraph, scroll cue, numbers. The
- * numbers return to a 2×2 under 760px — four across a 360px screen is a label
- * abbreviation exercise, not a stat row.
- *
- * The floor scrim is lifted on narrow screens because `cover` on a 16:9 photo
- * crops to the figure's torso on a 390px phone, and dark type on a dark mass is
- * unreadable at any weight. */
-
+/* ── TABLET ──
+ * Still the desktop composition — the word stays one centred line, the foot stays two objects
+ * at two ends of a frame. The only thing that has to change is the foot: a 40ch paragraph and
+ * four figures no longer fit on one line at 800px, so the row stacks and each object keeps
+ * its own alignment inside its own row rather than being re-ordered. */
 @media (max-width: 900px) {
   .flinza-hero-bottom {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 34px;
+    align-items: stretch;
+    gap: 30px;
   }
-  .flinza-hero-note {
-    max-width: 100%;
-    align-self: flex-start;
-    text-align: left;
-    font-size: 12px;
+  .flinza-hero-copy {
+    max-inline-size: 52ch;
   }
-
-  /* Tablet and phone: the column and the figure share the same space, so the veil has to
-   * be VERTICAL rather than directional — paper from the top through the text zone, clearing
-   * in the lower third where the figure is allowed to be itself, with a floor under the
-   * bottom row. Every stop is a gradient, so there is still no box anywhere. */
-  .flinza-hero-scrim {
-    background:
-      linear-gradient(
-        to bottom,
-        rgba(247, 251, 252, 0.96) 0%,
-        rgba(247, 251, 252, 0.88) 24%,
-        rgba(247, 251, 252, 0.62) 44%,
-        rgba(247, 251, 252, 0.2) 60%,
-        rgba(247, 251, 252, 0) 74%
-      ),
-      linear-gradient(
-        to top,
-        rgba(247, 251, 252, 0.92) 0%,
-        rgba(247, 251, 252, 0.6) 20%,
-        rgba(247, 251, 252, 0.18) 44%,
-        rgba(247, 251, 252, 0) 64%
-      );
+  .flinza-hero-stats {
+    justify-self: stretch;
+    justify-content: space-between;
+  }
+  .flinza-hero-markwrap {
+    margin-top: clamp(48px, 12vh, 140px);
   }
 }
 
+/* ══ MOBILE ═══════════════════════════════════════════════════════════
+ *
+ * A different composition, not a smaller one.
+ *
+ * The desktop frame is built out of four things that each want horizontal room: a wordmark
+ * at 57% of the width, a centred claim, a 40ch paragraph, and four figures on one line.
+ * Squeezing that into 390px is how heroes end up with nine pixels of type, so the phone
+ * drops the desktop's shape and rebuilds the same message in the order a thumb and a 667px
+ * screen actually want it:
+ *
+ *   1  the word, wider than the rail, with the two rules standing on the real sides of the
+ *      device — the one thing from the reference that gets MORE extreme as the screen
+ *      gets smaller, because the word is the only element with nothing to lose
+ *   2  the claim, LEFT-aligned. A centred line under a full-bleed word reads as a subtitle;
+ *      a left-aligned one reads as the headline, and the left edge is where a phone's eye
+ *      and thumb already are
+ *   3  the support line, still left-aligned
+ *   4  the bottom-left paragraph, then a real 52px button — the desktop frame has a corner
+ *      for its pill and a phone has no corner
+ *   5  the four figures as ONE framed card, 2×2: four across a 390px screen is a
+ *      label-abbreviation exercise, and a card is a thing a phone can do that a 1300px row
+ *      cannot
+ *   6  the scroll cue, last, under the card
+ */
 @media (max-width: 760px) {
+  :root {
+    --flinza-mark-size: clamp(60px, 20vw, 150px);
+  }
+  .flinza-hero-mark {
+    /* Out past the rail by exactly the rail, so the two rules stand on the true sides of the
+     * device. The word inside is centred, so escaping the rail moves the rules and not
+     * the word — which is the whole reason it can be done with a negative margin. */
+    margin-inline: calc(var(--flinza-rail) * -1) calc(var(--flinza-rail-end) * -1);
+  }
+  .flinza-hero-markwrap {
+    align-items: flex-start;
+    text-align: left;
+    margin-top: clamp(34px, 6.5vh, 84px);
+  }
+  .flinza-hero-claim {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .flinza-hero-claim em {
+    margin-top: 20px;
+    max-inline-size: 21ch;
+    font-size: clamp(26px, 7.6vw, 40px);
+    line-height: 1.06;
+  }
+  .flinza-hero-support {
+    margin-top: 16px;
+    max-width: 34ch;
+    text-align: left;
+    font-size: 14.5px;
+  }
+  .flinza-hero-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 26px;
+    margin-top: auto;
+    padding-top: 44px;
+  }
+  .flinza-hero-copy {
+    max-inline-size: 100%;
+  }
+  .flinza-hero-explore {
+    display: inline-flex;
+  }
+  .flinza-hero-interest {
+    max-inline-size: 36ch;
+    font-size: 14px;
+    line-height: 1.62;
+  }
+  .flinza-hero-scroll {
+    margin: 0 -10px;
+    align-self: flex-start;
+  }
+  /* The card. A hairline and a light fill rather than a `backdrop-filter` on a full-width
+   * band: this element is deliberately a box, and it is small enough that the blur costs
+   * nothing — but a framed card is also the one place on this hero where an edge is what
+   * the design wants, so nothing has to be masked to hide it. */
   .flinza-hero-stats {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-content: stretch;
-    gap: 18px 24px;
+    gap: 20px 26px;
+    padding: 22px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.09);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  .flinza-hero-stats strong {
+    font-size: 27px;
   }
   .flinza-hero-stats span {
-    white-space: normal;
-  }
-}
-
-/* The positioning note comes off the phone's first screen — it is a second
- * paragraph of persuasion and the hero has room for one. It stays in the HTML
- * for crawlers. */
-@media (max-width: 600px) {
-  .flinza-hero-note {
-    display: none;
+    font-size: 12.5px;
+    max-width: 16ch;
   }
 }
 
 /* ── The narrowest phones ──
- * An iPhone in portrait reports ~745px of small viewport once the toolbars are
- * counted (an SE ~553px). The rhythm is tightened, not the content cut. */
-
+ * An iPhone in portrait reports ~745px of small viewport once the toolbars are counted (an SE
+ * ~553px). The rhythm is tightened, not the content cut: the word loses a little of its bleed
+ * and the frame tightens around the chrome, but every string on the phone is the same string
+ * the desktop shows. */
 @media (max-width: 480px) {
   .flinza-hero-stage {
-    padding-top: calc(clamp(76px, 11vh, 108px) + env(safe-area-inset-top, 0px));
-    padding-bottom: calc(clamp(26px, 4vh, 44px) + env(safe-area-inset-bottom, 0px));
+    padding-top: calc(clamp(70px, 10vh, 100px) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(clamp(24px, 4vh, 42px) + env(safe-area-inset-bottom, 0px));
   }
-  .flinza-hero-inner {
-    gap: 20px;
+  :root {
+    --flinza-mark-size: clamp(56px, 21vw, 132px);
   }
-  .flinza-hero-claim {
-    font-size: clamp(28px, 8.2vw, 38px);
+  .flinza-hero-markwrap {
+    margin-top: clamp(28px, 5vh, 64px);
   }
-  .flinza-hero-eyebrow {
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
-    gap: 9px;
-  }
-  .flinza-hero-eyebrow::before {
-    width: 18px;
+  .flinza-hero-claim em {
+    margin-top: 16px;
+    font-size: clamp(25px, 8.2vw, 36px);
   }
   .flinza-hero-support {
+    font-size: 14px;
+    max-width: 32ch;
+  }
+  .flinza-hero-bottom {
+    padding-top: 34px;
+    gap: 22px;
+  }
+  .flinza-hero-interest {
     font-size: 13.5px;
-    max-width: 100%;
   }
   .flinza-hero-explore {
-    font-size: 13px;
-  }
-  .flinza-hero-interest {
-    font-size: 13px;
-    line-height: 1.62;
-    max-width: 100%;
-  }
-  .flinza-hero-interest {
-    font-size: 13px;
-    line-height: 1.62;
-  }
-  .flinza-hero-scroll {
-    margin-top: 12px;
-    font-size: 12px;
+    font-size: 14.5px;
+    min-height: 50px;
   }
   .flinza-hero-stats {
-    gap: 14px 18px;
+    gap: 18px 20px;
+    padding: 20px 20px;
   }
   .flinza-hero-stats strong {
-    font-size: 22px;
+    font-size: 25px;
   }
   .flinza-hero-stats span {
     font-size: 12px;
   }
+  .flinza-hero-scroll {
+    font-size: 12.5px;
+  }
 }
 
-/* On a short landscape window the copy and the numbers go back side by side —
- * vertical space is the scarce thing there, not horizontal. */
-@media (max-height: 560px) and (min-width: 760px) {
-  .flinza-hero-bottom {
-    flex-direction: row;
-    align-items: flex-end;
+/* On a short landscape window vertical space is the scarce thing, not horizontal: the word
+ * drops its band and the foot tightens. The base grid is already side-by-side, so all this
+ * has to do is take the air back out. */
+@media (max-height: 620px) and (min-width: 761px) {
+  .flinza-hero-markwrap {
+    margin-top: clamp(24px, 6vh, 80px);
   }
   .flinza-hero-stats {
-    display: flex;
-    gap: clamp(20px, 3vw, 40px);
+    gap: clamp(16px, 2vw, 34px);
+  }
+  .flinza-hero-stats span {
+    max-width: 12ch;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .flinza-hero-scroll span,
-  .flinza-hero-eyebrow,
   .flinza-hero-claim,
   .flinza-hero-support,
   .flinza-hero-explore,
-  .flinza-hero-note,
   .flinza-hero-bottom,
   .flinza-hero-visual,
   .flinza-hero-photo,
   .flinza-hero-bloom {
     animation: none;
   }
-  .flinza-hero-explore::after,
   .flinza-hero-nav a::after {
     transition: none;
   }

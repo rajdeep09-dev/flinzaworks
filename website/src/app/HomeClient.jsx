@@ -12,7 +12,7 @@ import { faqItems } from '@/data/faqs';
  * the same single source. */
 /* The hero's numbers and the positioning line, from the one file that also feeds the About page
    and the Organization JSON-LD — so the same figure is stated the same way everywhere. */
-import { STATS, POSITIONING } from '@/data/stats';
+import { STATS } from '@/data/stats';
 import { carouselProjects } from '@/data/projects';
 
 /* The first case study's headline result — shown beside the ring before anyone touches it, so the
@@ -354,38 +354,39 @@ export default function Page({ heroPhoto = null }) {
       </header>
 
       {/* ════════════════════════════════════════════════════════════
-           HERO — a message, in the AIDA order
+           HERO — the flinzaworks.in composition
       ════════════════════════════════════════════════════════════ */}
-      {/* The old hero was the fluid carousel with one line of copy under it: a very good-looking way
-          of not saying what the company sells. The client's note was exact — "the hero sections must
-          have a message, it looks kinda cool but you very much cannot tell tf we do" — so this one
-          answers four questions in order:
+      {/* The client's instruction on this one was not to make it better, it was to make it the
+          reference: the text placement and the text size, and the purple with them. So this is
+          that composition rather than an argument with it —
 
-            ATTENTION  a full-bleed visual — a figure standing in a white bloom — with the brand as
-                       a quiet label in the corner rather than a giant wordmark across the middle;
-            INTEREST   the claim, and who it is for, in one sentence;
+            ATTENTION  the brand, one word, as large as the frame allows, with the figure
+                       standing dead centre behind it and two cyan rules at the rail;
+            INTEREST   the claim, as the h1's own sentence, directly under the word;
             DESIRE     the four figures, worded exactly as they are on /about and in the schema;
-            ACTION     one CTA into the booking flow, one secondary into the work.
+            ACTION     the contact pill in the corner, and on a phone a real 52px button.
 
-          The composition is the one the client sent from flinzaworks.in, rebuilt on this site's own
-          palette: he asked for that hero's shape and was explicit that the colour had to stay
-          Flinza, so the bloom is the brand aqua and the brand blue, not the reference's purple. The
-          visual itself is one self-hosted SVG (public/images/hero-glow.svg) with the blur baked in,
-          which is why a full-screen blurred image costs nothing per frame.
+          What is NOT here any more: the two quiet notes that used to sit under the top rule. On
+          this ground they would be the only small text in the one band that is neither bright
+          enough for ink nor deep enough for white. POSITIONING still ships — in the claim, in
+          the bottom-left paragraph, in the Organization schema and on /about — and it stays in
+          the module imports so the schema and this page cannot drift apart.
 
-          It is plain markup and one painted layer with no WebGL anywhere in it, which also makes it
-          the fastest thing on the page — the carousel that used to sit here now mounts below the
-          fold under its own heading, where it can be looked at on purpose. */}
+          The wordmark is `aria-hidden` on purpose. The accessible name of this h1 is a sentence
+          about ecommerce growth, not a logo, and that is also the version a crawler gets.
+
+          Phones get a different composition, not a narrower one — see §MOBILE in hero.css. */}
       <section id="hero" className="flinza-hero-stage">
-        {/* The visual. One self-hosted SVG — a white bloom over a cloudy aqua haze, with a blurred
-            figure rising through it. 4 kB, sharp at every DPR, and the blur is baked into the file
-            so the compositor rasterises it once instead of blurring a full-viewport layer every
-            frame.
+        {/* The figure. `heroPhoto` is the real photograph, resolved on the server at build time
+            (see app/page.jsx); it MULTIPLIES against the violet ground, which is what lets its
+            own near-white field disappear without a mask tuned to one aspect ratio.
 
-            `heroPhoto` is the optional real photograph, resolved on the server at build time (see
-            app/page.jsx). It is layered ABOVE the vector and below the scrim, so supplying it needs
-            no edit here and removing it falls back to the vector rather than to nothing. */}
-        <div className="flinza-hero-visual" aria-hidden="true" />
+            Without it the layer below takes over. Both are never on screen together — each
+            carries its own silhouette — so the photograph's arrival switches the vector off. */}
+        <div
+          className={`flinza-hero-visual${heroPhoto ? ' flinza-hero-visual--off' : ''}`}
+          aria-hidden="true"
+        />
         {heroPhoto ? (
           <div
             className="flinza-hero-photo"
@@ -393,79 +394,49 @@ export default function Page({ heroPhoto = null }) {
             style={{ backgroundImage: `url("${heroPhoto}")` }}
           />
         ) : null}
-        {/* The dissolve is carried by three static layers and no blur plate: the photo's own
-            mask thins the figure into the paper, the scrim's floor wash lifts the bottom of
-            the frame, and the bloom below feeds the brand aqua into the seam. There is
-            deliberately no `backdrop-filter` band here — see the note in hero.css. */}
+        {/* The halo behind the word, and the two washes that seat the bottom row and hand the
+            foot of the frame to the white page below it. Four static layers, no blur plate,
+            no WebGL — see the note in hero.css. */}
         <div className="flinza-hero-bloom" aria-hidden="true" />
         <div className="flinza-hero-scrim" aria-hidden="true" />
 
         <div className="flinza-hero-inner">
-          {/* The client's own line, top-right — the first of the hero's three small texts. The
-              brand label and the call pill live in the fixed chrome row above (aligned with the
-              metal mark), so the head group carries only this. */}
-          <div className="flinza-hero-head">
-            <p className="flinza-hero-note">{POSITIONING}</p>
-            {/* The right-side quiet text: the reference balances its small texts diagonally, so
-                the empty right half of the frame carries a work teaser — what the agency does,
-                pointed at the Selected Work section below the fold. */}
-            <a className="flinza-hero-note flinza-hero-note--right" href="#work">
-              Selected work, real numbers —
-              eight accounts, rebuilt for profit.
-            </a>
-          </div>
-
-          {/* The message block — eyebrow, claim, one supporting line, and the secondary action.
-              It owns the middle of the frame with air on both sides; the bottom edge is left to
-              the small text and the numbers, which is where the reference keeps its weight. The
-              two claim lines are separate blocks so the break belongs to the composition rather
-              than to whatever width the viewport happens to be. */}
-          <div className="flinza-hero-message">
-            <p className="flinza-hero-eyebrow">
-              DTC Growth <span aria-hidden="true">/</span> Creative + Performance
-            </p>
+          {/* The middle of the frame. The word, the claim it belongs to, and the one line that
+              says who it is for. */}
+          <div className="flinza-hero-markwrap">
             <h1 className="flinza-hero-claim">
-              <span>Ecommerce growth,</span>
-              <em>engineered for profit.</em>
+              <span className="flinza-hero-mark" aria-hidden="true">
+                <span className="flinza-hero-wordmark">Flinza</span>
+              </span>
+              <em>Ecommerce growth, engineered for profit.</em>
             </h1>
             <p className="flinza-hero-support">
               Meta ads, creator-led and founder-led content for DTC brands spending $50K+ a
               month.
             </p>
-            <a className="flinza-hero-explore" href="#work">
-              Explore selected work
-              <span aria-hidden="true">
-                <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
-                  <path
-                    d="M6 1.9v7.4M2.8 6.2 6 9.7l3.2-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </a>
           </div>
 
+          {/* The foot. The paragraph on the left, the figures on the right, and the scroll cue
+              under the paragraph — a grid, because in a two-item row there is no way to say
+              "under the left one and not the right one". On a phone this collapses to one
+              column and the cue moves to the end. */}
           <div className="flinza-hero-bottom">
             <div className="flinza-hero-copy">
               {/* One understated line. The long version of this paragraph lives on /services and
                   /about, where there is room for it; a hero that explains everything explains
-                  nothing. The CTA is no longer here either — it is in the corner of the frame, and
-                  the header carries the camo button on every route. */}
-              {/* The bottom-left block of the redesigned hero: who this is for and how it works,
-                  in two sentences, then the scroll cue. (The supporting line under the claim
-                  carries the services; this one carries the method — no duplicated sentence.) */}
+                  nothing. */}
               <p className="flinza-hero-interest">
                 A data-driven growth agency for ecommerce brands spending $50K+ a month —
                 48-hour creative testing, profit-first paid media and the creators to match.
                 Built to find what converts, and to scale it fast.
               </p>
 
-              <a className="flinza-hero-scroll" href="#work">
-                See how we work
+              {/* The hero's only body action, and it is a PHONE action: the desktop frame puts
+                  its one offer in the corner, and a phone has no corner. `display: none` on
+                  everything wider than 760px — the desktop frame does not want a third
+                  competing action in the middle of it. */}
+              <a className="flinza-hero-explore" href="#work">
+                Explore selected work
                 <span aria-hidden="true">
                   <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
                     <path
@@ -489,6 +460,22 @@ export default function Page({ heroPhoto = null }) {
                 </li>
               ))}
             </ul>
+
+            <a className="flinza-hero-scroll" href="#work">
+              Scroll down
+              <span aria-hidden="true">
+                <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
+                  <path
+                    d="M6 1.9v7.4M2.8 6.2 6 9.7l3.2-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </a>
           </div>
         </div>
       </section>
@@ -679,8 +666,8 @@ export default function Page({ heroPhoto = null }) {
           </div>
         </div>
 
-        {/* The statement — POSITIONING is the sentence reused verbatim on /about and in the
-            schema, and the market list is the same MARKETS column the client reference runs. */}
+        {/* The statement — the same sentence POSITIONING carries on /about and in the schema,
+            and the market list is the same MARKETS column the client reference runs. */}
         <div className="flinza-proof-statement">
           <ul className="flinza-proof-meta">
             {['Since 2019', 'USA', 'Europe', 'UK', 'Middle East'].map((line) => (

@@ -309,35 +309,31 @@ body:has(.flinza-carousel-lock.is-focused) {
   overflow: clip;
 }
 
-/* ══ 12. The hero: a message, and nothing in it waits on a script ═══════════
+/* ══ 12. The hero: the reference composition, and nothing in it waits on a script ══════
  * The old hero was the fluid carousel. It is a beautiful object and it was doing the wrong job:
  * the first screen had no statement of what the company sells, which is the one thing a first
- * screen is for. The carousel has moved below the fold (section 13) and this replaces it, in the
- * AIDA order the client asked for — attention, interest, desire, action.
+ * screen is for. The carousel moved below the fold (section 13).
  *
- * Two things this block has to get right on this site specifically:
+ * What the hero IS now — the flinzaworks.in frame the client sent, reproduced rather than
+ * adapted: a violet ground, the blurred figure dead centre, the brand as one line of glass across
+ * the middle with the claim under it, and the paragraph and the four figures at the two ends of
+ * the foot. The full composition, and every rule the design depends on, is in hero.css; this
+ * block owns only the frame that file cannot express — the safe-area padding.
+ *
+ * Two things it has to get right on this site specifically:
  *
  *   · HEIGHT. The desktop layout runs under `html { zoom: 0.75 }` (globals.css, desktop and fine
- *     pointers only), so a viewport unit and a real screen stop agreeing — which is why the old
- *     hero was 133.333vh: 133.333 × 0.75 = 100. The same convention is mirrored here, and only
- *     under the same media query that sets the zoom, so a phone gets a plain 100svh.
+ *     pointers only), so a viewport unit and a real screen stop agreeing — which is why the hero
+ *     is 133.333vh: 133.333 × 0.75 = 100. The same convention is mirrored here, and only under
+ *     the same media query that sets the zoom, so a phone gets a plain 100svh.
  *
- *   · TYPE. There is deliberately NO giant wordmark on the first screen any more. That was the
- *     client's instruction, and he was right: a first screen whose loudest element is the company's
- *     own name tells a stranger nothing. The h1 is now the claim, set in the site's display serif,
- *     and the brand is a quiet letter-spaced label at the top of the frame instead.
+ *   · PADDING. `viewportFit: 'cover'` is set in the root layout, so the page deliberately extends
+ *     under the notch and the home indicator and anything at the edge of a hero has to inset
+ *     itself. It matters most in LANDSCAPE on a notched iPhone, where the left and right insets
+ *     are ~44px and a 20px gutter would put the wordmark's first letter under the cutout.
  *
- *   · THE VISUAL. The reference hero the client sent was a blurred figure standing in a white
- *     bloom. That is reproduced by `public/images/hero-glow.svg` — vector, ~4 kB, sharp at every
- *     DPR, with the blur baked in by feGaussianBlur so the compositor rasterises it once instead of
- *     re-evaluating a CSS `filter: blur()` on a full-viewport layer every frame. The palette is the
- *     site's own aqua and the brand's blue, not the purple of the reference: the client asked for
- *     that hero's shape and was explicit that the colour had to stay Flinza. The client's own
- *     photograph wins over it automatically if one is dropped in as public/images/
- *     hero-silhouette.{png,jpg,webp} — app/page.jsx resolves that at build time.
- *
- * Nothing in here is a shader or a canvas: it is text, one SVG and two painted gradients, so it is
- * on screen in the first frame and the h1 is the page's LCP.
+ * Nothing in the hero is a shader or a canvas: it is text, one photograph and four painted
+ * gradients, so it is on screen in the first frame and the h1 is the page's LCP.
  */
 .flinza-hero-stage {
   position: relative;
@@ -347,15 +343,12 @@ body:has(.flinza-carousel-lock.is-focused) {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* Safe areas on all four sides, because `viewportFit: 'cover'` is set in the root layout — the
-   * page deliberately extends under the notch and the home indicator, so anything at the edge of a
-   * hero has to inset itself. It matters most in LANDSCAPE on a notched iPhone, where the left and
-   * right insets are ~44px and a 20px gutter would put the claim's first word under the cutout. */
-  padding:
+  /* The vertical safe-area frame only — the inline inset is `--flinza-rail`, in hero.css, shared
+   * with the pinned chrome row so the two cannot drift apart. It matters most in LANDSCAPE on a
+   * notched iPhone, where the left and right insets are ~44px. */
+  padding-block:
     calc(clamp(104px, 14vh, 168px) + env(safe-area-inset-top, 0px))
-    calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-right, 0px))
-    calc(clamp(40px, 6vh, 78px) + env(safe-area-inset-bottom, 0px))
-    calc(clamp(20px, 5vw, 64px) + env(safe-area-inset-left, 0px));
+    calc(clamp(40px, 6vh, 78px) + env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
   overflow: clip;
   background: transparent;

@@ -93,3 +93,34 @@ body {
     transform: none;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * THE HERO, RECONCILED WITH THE SEPTEMBER AUDIT PASS
+ * ════════════════════════════════════════════════════════════════════════
+ * The hero moved to the flinzaworks.in composition: a violet ground, the figure dead centre,
+ * the brand as one line of glass across the middle, and the claim under it. hero.css owns
+ * that composition. hero.css ALSO owns, further down, the accessibility pass that was
+ * appended to it in September — and three of that pass's rules were written for a hero on
+ * white paper, so on the new ground they are the wrong colour AND the wrong fix:
+ *
+ *   · the pass lifted `.flinza-hero-stats span` and `.flinza-hero-scroll` to 0.62 black to
+ *     clear 4.5:1 against #fbfcfd. On this ground those two are white, which measures 12.3:1
+ *     and 8.0:1 against the deepest violet in the frame. Near-black here would be about
+ *     1.2:1 — invisible, not "muted".
+ *   · the pass set a 2px #0f6f86 focus ring on the hero's two links. That ring sits 3px
+ *     OUTSIDE a white button, so it lands on the violet, and deep teal on that violet is not
+ *     a focus indicator anybody can see.
+ *
+ * Both rules stay where they are, untouched and still correct for every other route on the
+ * site. This file is imported last, so this is the only place left that can answer them — and
+ * the only place that should, because these two are about one element's ground, not about a
+ * site-wide standard. */
+.flinza-hero-stats span,
+.flinza-hero-scroll {
+  color: rgba(255, 255, 255, 0.86);
+}
+.flinza-hero-scroll:focus-visible,
+.flinza-hero-explore:focus-visible {
+  outline: 2px solid #7ee4f8;
+  outline-offset: 3px;
+}
