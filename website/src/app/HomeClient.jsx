@@ -31,83 +31,80 @@ import FaqList from '@/components/FaqList';
    on every route. */
 import SiteFooter from '@/components/SiteFooter';
 
-const EtherealShadow = dynamic(
-  () => import('@/components/EtherealShadow'),
+/* Every client-only component on this page is loaded exactly one way: never during SSR, and
+ * never with a fallback frame while its chunk arrives. That was nine copies of the same eight
+ * lines, which is nine places for the policy to drift. */
+const dynamicClient = (path) => dynamic(() => import(path), { ssr: false, loading: () => null });
+
+const EtherealShadow = dynamicClient('@/components/EtherealShadow');
+
+const LiquidGlassCarousel = dynamicClient('@/components/LiquidGlassCarousel');
+
+const LiquidMetal = dynamicClient('@/components/LiquidMetal');
+
+
+const TableOfContent = dynamicClient('@/components/TableOfContent');
+
+
+const WhatsApAudioPlayer = dynamicClient('@/components/WhatsappAudioPlayer');
+
+const FramerStory = dynamicClient('@/components/FramerStory');
+
+
+
+const ServicesShowcase = dynamicClient('@/components/ServicesShowcase');
+
+const DiaFooter = dynamicClient('@/components/DiaFooter');
+
+
+
+const ContactButton = dynamicClient('@/components/ContactButton');
+
+/* The three WhatsApp voice notes. They were three near-identical copies of one card — the same
+ * glass, the same quote block, the same metric pill, seventy-six lines each — so a change to any
+ * of those had to be made three times and could be missed in one of them. Only the fields below
+ * ever differed, so they are all that is left here.
+ *
+ * Two are anonymised with a monogram: no invented name, no borrowed face, and no portrait that
+ * appears beside two different companies. The third is the one client we are allowed to name.
+ * `wideMeta` is the only presentational difference between them — the longest sector line carries
+ * a class that lets it wrap on a narrow phone. */
+const VOICE_NOTES = [
   {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-const LiquidGlassCarousel = dynamic(
-  () => import('@/components/LiquidGlassCarousel'),
+    monogram: 'DH',
+    role: 'Founder',
+    sector: 'DTC home & interiors',
+    audio: '/audio/testimonial_sarah.m4a',
+    audioFallback: '/audio/testimonial_sarah.mp3',
+    timestamp: '11:42 AM',
+    quote:
+      '“Finally, an agency that moves fast. Weekly optimization calls, real-time Slack access, and they actually challenge our assumptions instead of just executing orders.”',
+    metric: '⚡ Weekly Optimization Calls',
+  },
   {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-const LiquidMetal = dynamic(
-  () => import('@/components/LiquidMetal'),
+    monogram: 'DA',
+    role: 'Growth Lead',
+    sector: 'DTC apparel brand',
+    audio: '/audio/testimonial_marcus.m4a',
+    audioFallback: '/audio/testimonial_marcus.mp3',
+    timestamp: '4:18 PM',
+    quote:
+      "“Not order takers. They pushed back on our creative direction, tested their hypothesis, and proved us wrong. Revenue up 89% in 12 weeks.”",
+    metric: '📈 +89% Revenue in 12 Weeks',
+  },
   {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-
-const TableOfContent = dynamic(
-  () => import('@/components/TableOfContent'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-
-const WhatsApAudioPlayer = dynamic(
-  () => import('@/components/WhatsappAudioPlayer'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-const FramerStory = dynamic(
-  () => import('@/components/FramerStory'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-
-
-const ServicesShowcase = dynamic(
-  () => import('@/components/ServicesShowcase'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-const DiaFooter = dynamic(
-  () => import('@/components/DiaFooter'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
-
-
-
-const ContactButton = dynamic(
-  () => import('@/components/ContactButton'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+    monogram: 'SR',
+    role: 'Founder',
+    sector: 'Supplements · 8-figure DTC',
+    wideMeta: true,
+    audio: '/audio/testimonial_elena.m4a',
+    audioFallback: '/audio/testimonial_elena.mp3',
+    timestamp: 'Yesterday',
+    quote:
+      "“We burned $40K on pretty ads that didn't convert. These guys tested 30 angles in two weeks and found our winner. ROAS went from 1.8x to 4.2x.”",
+    metric: '🚀 ROAS 1.8x → 4.2x',
+  },
+];
 
 // ── Smoothness hooks (shell-only; no visual code changes) ──
 //
@@ -232,7 +229,7 @@ export default function Page({ heroPhoto = null }) {
       style={{
         width: '100%',
         minHeight: '100vh',
-        backgroundColor: '#fbfcfd',
+        backgroundColor: '#f7f4ff',
         color: '#09090b',
         position: 'relative',
         margin: 0,
@@ -252,12 +249,12 @@ export default function Page({ heroPhoto = null }) {
         }}
       >
         <EtherealShadow
-          color1="rgba(246, 251, 252, 0.95)"
-          color2="#7FD1DE"
-          color3="#2E93AC"
-          shadowOpacity={0.38}
+          color1="rgba(240, 236, 255, 0.95)"
+          color2="#A78BFA"
+          color3="#4A25AE"
+          shadowOpacity={0.24}
           animation={{ preview: false, scale: 0, speed: 0, duration: 8 }}
-          noise={{ opacity: 0.38, scale: 0.85 }}
+          noise={{ opacity: 0.3, scale: 0.85 }}
         />
       </div>
 
@@ -546,7 +543,7 @@ export default function Page({ heroPhoto = null }) {
           blur={0}
           glow={3.8}
           blueRing={5.2}
-          blueColor="#3FB9CE"
+          blueColor="#7C5CF0"
           shimmer={true}
           rimWave={0.6}
           entryAnimation={true}
@@ -736,25 +733,25 @@ export default function Page({ heroPhoto = null }) {
             padding: '6px 16px',
             borderRadius: 999,
             backgroundColor: 'rgba(255, 255, 255, 0.75)',
-            border: '1px solid rgba(23, 132, 155, 0.25)',
+            border: '1px solid rgba(91, 52, 195, 0.25)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.08)',
+            boxShadow: '0 4px 20px rgba(91, 52, 195, 0.08)',
             marginBottom: 20,
           }}>
             <span style={{
               width: 6,
               height: 6,
               borderRadius: '50%',
-              backgroundColor: '#17849B',
-              boxShadow: '0 0 8px #17849B',
+              backgroundColor: '#5B34C3',
+              boxShadow: '0 0 8px #5B34C3',
             }} />
             <span style={{
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#4b5563',
+              color: '#3f3f46',
             }}>
               Services • What We Do
             </span>
@@ -777,7 +774,7 @@ export default function Page({ heroPhoto = null }) {
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
-            color: '#52525b',
+            color: '#3f3f46',
             lineHeight: 1.6,
             margin: 0,
             fontWeight: 400,
@@ -833,26 +830,26 @@ export default function Page({ heroPhoto = null }) {
             gap: 8,
             padding: '6px 16px',
             borderRadius: 999,
-            backgroundColor: 'rgba(23, 132, 155, 0.1)',
-            border: '1px solid rgba(23, 132, 155, 0.32)',
+            backgroundColor: 'rgba(91, 52, 195, 0.1)',
+            border: '1px solid rgba(91, 52, 195, 0.32)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.1)',
+            boxShadow: '0 4px 20px rgba(91, 52, 195, 0.1)',
             marginBottom: 18,
           }}>
             <span style={{
               width: 8,
               height: 8,
               borderRadius: '50%',
-              backgroundColor: '#17849B',
-              boxShadow: '0 0 10px #17849B',
+              backgroundColor: '#5B34C3',
+              boxShadow: '0 0 10px #5B34C3',
             }} />
             <span style={{
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#0F6F86',
+              color: '#3A1C8C',
             }}>
               Unfiltered Feedback • WhatsApp Voice Notes
             </span>
@@ -871,7 +868,7 @@ export default function Page({ heroPhoto = null }) {
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
-            color: '#52525b',
+            color: '#3f3f46',
             lineHeight: 1.6,
             margin: 0,
             fontWeight: 400,
@@ -912,12 +909,12 @@ export default function Page({ heroPhoto = null }) {
               stories={founderStories}
               aspect="9:16"
               background="transparent"
-              nameSeenText="#52525b"
+              nameSeenText="#3f3f46"
               nameUnseenText="#09090b"
-              ringSeen="linear-gradient(135deg,#0A3E4C,#17849B)"
-              ringUnseenA="#17849B"
-              ringUnseenB="#3FB9CE"
-              ringUnseenC="#7FD1DE"
+              ringSeen="linear-gradient(135deg,#2A1170,#5B34C3)"
+              ringUnseenA="#5B34C3"
+              ringUnseenB="#7C5CF0"
+              ringUnseenC="#A78BFA"
               thumbSize={76}
               thumbGap={20}
               storyCardRadius={22}
@@ -938,237 +935,95 @@ export default function Page({ heroPhoto = null }) {
           gap: 24,
           boxSizing: 'border-box',
         }}>
-          {/* Voice note 1 — an anonymised client, monogram avatar. No invented name, no borrowed
-              face, and no portrait that appears beside two different companies. */}
-          <div className="flinza-glass-card flinza-voices-card" style={{
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
-            backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
-            borderRadius: 26,
-            border: '1px solid rgba(255, 255, 255, 0.6)',
-            padding: '26px 22px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
-            boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
-            boxSizing: 'border-box',
-          }}>
-            {/* Header: User Info + Stars */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="flinza-voice-monogram" aria-hidden="true">DH</span>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
-                      Founder
+          {/* The three voice notes, from VOICE_NOTES — see the note on that list. */}
+          {VOICE_NOTES.map((note) => (
+            <div
+              key={note.monogram}
+              className="flinza-glass-card flinza-voices-card"
+              style={{
+                background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(240,236,255,0.55) 45%, rgba(236,231,255,0.45) 100%)',
+                backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+                WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
+                borderRadius: 26,
+                border: '1px solid rgba(255, 255, 255, 0.6)',
+                padding: '26px 22px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 18,
+                boxShadow: '0 18px 44px -18px rgba(42, 17, 112, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
+                boxSizing: 'border-box',
+              }}
+            >
+              {/* Header: User Info + Stars */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span className="flinza-voice-monogram" aria-hidden="true">{note.monogram}</span>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
+                        {note.role}
+                      </span>
+                      <span style={{ color: '#5B34C3', fontSize: 13 }} title="Verified client">✓</span>
+                    </div>
+                    <span
+                      style={{ fontSize: 13, color: '#3f3f46', fontWeight: 500 }}
+                      className={note.wideMeta ? 'flinza-voice-meta-line' : undefined}
+                    >
+                      {note.sector}
                     </span>
-                    <span style={{ color: '#17849B', fontSize: 13 }} title="Verified client">✓</span>
                   </div>
-                  <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }}>
-                    DTC home &amp; interiors
-                  </span>
+                </div>
+                <span style={{ fontSize: 14, color: '#f59e0b', letterSpacing: '0.1em' }}>★★★★★</span>
+              </div>
+
+              {/* Real Framer WhatsApp Audio Player */}
+              <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(244,241,255,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(42,17,112,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+                <div className="flinza-mount-gate" style={{ width: '100%' }}>
+                  {testimonialsInView ? (
+                    <WhatsApAudioPlayer
+                      audioFile={note.audio}
+                      audioFallback={note.audioFallback}
+                      userName={note.role}
+                      userImageFile=""
+                      timestamp={note.timestamp}
+                      isOwn={false}
+                      accentColor="#5B34C3"
+                    />
+                  ) : null}
                 </div>
               </div>
-              <span style={{ fontSize: 14, color: '#f59e0b', letterSpacing: '0.1em' }}>★★★★★</span>
-            </div>
 
-            {/* Real Framer WhatsApp Audio Player */}
-            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%' }}>
-              {testimonialsInView ? <WhatsApAudioPlayer
-                audioFile="/audio/testimonial_sarah.m4a"
-                audioFallback="/audio/testimonial_sarah.mp3"
-                userName="Founder"
-                userImageFile=""
-                timestamp="11:42 AM"
-                isOwn={false}
-                accentColor="#17849B"
-              /> : null}</div>
-            </div>
-
-            {/* Transcript Snippet */}
-            <p className="flinza-voices-quote" style={{
-              fontSize: 14.5,
-              lineHeight: 1.6,
-              color: '#3f3f46',
-              margin: '0 0 -8px',
-              backgroundColor: 'rgba(23, 132, 155, 0.1)',
-              padding: '14px 16px',
-              borderRadius: '16px 16px 16px 4px',
-              borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
-            }}>
-              “Finally, an agency that moves fast. Weekly optimization calls, real-time Slack access, and they actually challenge our assumptions instead of just executing orders.”
-            </p>
-
-            {/* Metric Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
-              <span style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#F7FBFC',
-                backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
-                padding: '4px 12px',
-                borderRadius: 999,
+              {/* Transcript Snippet */}
+              <p className="flinza-voices-quote" style={{
+                fontSize: 14.5,
+                lineHeight: 1.6,
+                color: '#3f3f46',
+                margin: '0 0 -8px',
+                backgroundColor: 'rgba(91, 52, 195, 0.1)',
+                padding: '14px 16px',
+                borderRadius: '16px 16px 16px 4px',
+                borderLeft: '2.5px solid rgba(91, 52, 195, 0.5)',
               }}>
-                ⚡ Weekly Optimization Calls
-              </span>
-              <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
-            </div>
-          </div>
+                {note.quote}
+              </p>
 
-          {/* Voice note 2 */}
-          <div className="flinza-glass-card flinza-voices-card" style={{
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
-            backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
-            borderRadius: 26,
-            border: '1px solid rgba(255, 255, 255, 0.6)',
-            padding: '26px 22px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
-            boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
-            boxSizing: 'border-box',
-          }}>
-            {/* Header: User Info + Stars */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="flinza-voice-monogram" aria-hidden="true">DA</span>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
-                      Growth Lead
-                    </span>
-                    <span style={{ color: '#17849B', fontSize: 13 }} title="Verified client">✓</span>
-                  </div>
-                  <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }}>
-                    DTC apparel brand
-                  </span>
-                </div>
+              {/* Metric Tag */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#F6F3FF',
+                  backgroundImage: 'linear-gradient(120deg, #5B34C3 0%, #7C5CF0 100%)',
+                  padding: '4px 12px',
+                  borderRadius: 999,
+                }}>
+                  {note.metric}
+                </span>
+                <span style={{ fontSize: 12, color: '#3f3f46' }}>WhatsApp Voice Note <span style={{ color: '#5B34C3', fontWeight: 700 }}>✓✓</span></span>
               </div>
-              <span style={{ fontSize: 14, color: '#f59e0b', letterSpacing: '0.1em' }}>★★★★★</span>
             </div>
+          ))}
 
-            {/* Real Framer WhatsApp Audio Player */}
-            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%' }}>
-              {testimonialsInView ? <WhatsApAudioPlayer
-                audioFile="/audio/testimonial_marcus.m4a"
-                audioFallback="/audio/testimonial_marcus.mp3"
-                userName="Growth Lead"
-                userImageFile=""
-                timestamp="4:18 PM"
-                isOwn={false}
-                accentColor="#17849B"
-              /> : null}</div>
-            </div>
-
-            {/* Transcript Snippet */}
-            <p className="flinza-voices-quote" style={{
-              fontSize: 14.5,
-              lineHeight: 1.6,
-              color: '#3f3f46',
-              margin: '0 0 -8px',
-              backgroundColor: 'rgba(23, 132, 155, 0.1)',
-              padding: '14px 16px',
-              borderRadius: '16px 16px 16px 4px',
-              borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
-            }}>
-              “Not order takers. They pushed back on our creative direction, tested their hypothesis, and proved us wrong. Revenue up 89% in 12 weeks.”
-            </p>
-
-            {/* Metric Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
-              <span style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#F7FBFC',
-                backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
-                padding: '4px 12px',
-                borderRadius: 999,
-              }}>
-                📈 +89% Revenue in 12 Weeks
-              </span>
-              <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
-            </div>
-          </div>
-
-          {/* Voice note 3 — the one client we are allowed to name */}
-          <div className="flinza-glass-card flinza-voices-card" style={{
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
-            backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
-            WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
-            borderRadius: 26,
-            border: '1px solid rgba(255, 255, 255, 0.6)',
-            padding: '26px 22px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
-            boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
-            boxSizing: 'border-box',
-          }}>
-            {/* Header: User Info + Stars */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="flinza-voice-monogram" aria-hidden="true">SR</span>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
-                      Founder
-                    </span>
-                    <span style={{ color: '#17849B', fontSize: 13 }} title="Verified client">✓</span>
-                  </div>
-                  <span style={{ fontSize: 13, color: '#71717a', fontWeight: 500 }} className="flinza-voice-meta-line">
-                    Supplements · 8-figure DTC
-                  </span>
-                </div>
-              </div>
-              <span style={{ fontSize: 14, color: '#f59e0b', letterSpacing: '0.1em' }}>★★★★★</span>
-            </div>
-
-            {/* Real Framer WhatsApp Audio Player */}
-            <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(240,250,252,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
-              <div className="flinza-mount-gate" style={{ width: '100%' }}>
-              {testimonialsInView ?                <WhatsApAudioPlayer
-                  audioFile="/audio/testimonial_elena.m4a"
-                  audioFallback="/audio/testimonial_elena.mp3"
-                  userName="Founder"
-                  userImageFile=""
-                  timestamp="Yesterday"
-                isOwn={false}
-                accentColor="#17849B"
-              /> : null}</div>
-            </div>
-
-            {/* Transcript Snippet */}
-            <p className="flinza-voices-quote" style={{
-              fontSize: 14.5,
-              lineHeight: 1.6,
-              color: '#3f3f46',
-              margin: '0 0 -8px',
-              backgroundColor: 'rgba(23, 132, 155, 0.1)',
-              padding: '14px 16px',
-              borderRadius: '16px 16px 16px 4px',
-              borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
-            }}>
-              “We burned $40K on pretty ads that didn't convert. These guys tested 30 angles in two weeks and found our winner. ROAS went from 1.8x to 4.2x.”
-            </p>
-
-            {/* Metric Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 0 }}>
-              <span style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: '#F7FBFC',
-                backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
-                padding: '4px 12px',
-                borderRadius: 999,
-              }}>
-                🚀 ROAS 1.8x → 4.2x
-              </span>
-              <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1200,14 +1055,14 @@ export default function Page({ heroPhoto = null }) {
             padding: '6px 18px',
             borderRadius: 999,
             background: 'rgba(255,255,255,0.72)',
-            border: '1px solid rgba(23,132,155,0.22)',
+            border: '1px solid rgba(91,52,195,0.22)',
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
-            boxShadow: '0 4px 20px rgba(23,132,155,0.08)',
+            boxShadow: '0 4px 20px rgba(91,52,195,0.08)',
             marginBottom: 20,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#17849B', boxShadow: '0 0 8px #17849B' }} />
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#4b5563' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#5B34C3', boxShadow: '0 0 8px #5B34C3' }} />
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#3f3f46' }}>
               FAQ • Everything You Need to Know
             </span>
           </div>
@@ -1226,7 +1081,7 @@ export default function Page({ heroPhoto = null }) {
               ]}
             />
           </h2>
-          <p style={{ fontSize: 'clamp(16px,1.8vw,19px)', color: '#52525b', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontSize: 'clamp(16px,1.8vw,19px)', color: '#3f3f46', lineHeight: 1.6, margin: 0 }}>
             Everything you need to know about working with Flinza, our process, pricing, and what makes us different.
           </p>
         </div>
@@ -1297,16 +1152,16 @@ export default function Page({ heroPhoto = null }) {
           cardTitleColor="rgba(9,9,11,0.6)"
           cardEmailColor="rgb(9,9,11)"
           cardEmailLabelColor="rgba(9,9,11,0.62)"
-          cardBGColor="rgba(255,255,255,0.16)"
+          cardBGColor="rgba(255,255,255,0.92)"
           cardBGBlurDefault={26}
           cardBorder={{ borderColor: 'rgba(255,255,255,0.55)', borderStyle: 'solid', borderWidth: 1 }}
           buttonBGColorDefault="rgb(255,255,255)"
           buttonColorDefault="rgb(9,9,11)"
-          buttonHoverBGColorHover="rgb(224,242,246)"
+          buttonHoverBGColorHover="rgb(232,226,255)"
           buttonHoverColorHover="rgb(9,9,11)"
           iconDefaultIconColor="rgb(9,9,11)"
-          iconHoverIconColor="rgb(14,124,147)"
-          buttonHoverBorder={{ borderColor: 'rgb(23,132,155)', borderStyle: 'solid', borderWidth: 1 }}
+          iconHoverIconColor="rgb(42,17,112)"
+          buttonHoverBorder={{ borderColor: 'rgb(91,52,195)', borderStyle: 'solid', borderWidth: 1 }}
         />
         </div>
         <p className="flinza-cta-alt">
@@ -1346,7 +1201,7 @@ export default function Page({ heroPhoto = null }) {
               blur={22}
               intensity={105}
               opacity={0.95}
-              colors={['#EAF7F9', '#9ADCE8', '#56C1D3', '#2E93AC', '#17849B', '#0A3E4C']}
+              colors={['#F1EDFF', '#C9BCFF', '#8E6BF0', '#4A25AE', '#3A1C8C', '#2A1170']}
               reveal="scroll"
               ariaLabel="Flinza gradient glow"
               style={{ width: '100%', height: '100%' }}
