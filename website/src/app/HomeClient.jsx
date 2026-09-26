@@ -229,7 +229,7 @@ export default function Page({ heroPhoto = null }) {
       style={{
         width: '100%',
         minHeight: '100vh',
-        backgroundColor: '#f7f4ff',
+        backgroundColor: '#fbfcfd',
         color: '#09090b',
         position: 'relative',
         margin: 0,
@@ -249,9 +249,9 @@ export default function Page({ heroPhoto = null }) {
         }}
       >
         <EtherealShadow
-          color1="rgba(240, 236, 255, 0.95)"
-          color2="#A78BFA"
-          color3="#4A25AE"
+          color1="rgba(246, 251, 252, 0.95)"
+          color2="#7FD1DE"
+          color3="#2E93AC"
           shadowOpacity={0.24}
           animation={{ preview: false, scale: 0, speed: 0, duration: 8 }}
           noise={{ opacity: 0.3, scale: 0.85 }}
@@ -543,7 +543,7 @@ export default function Page({ heroPhoto = null }) {
           blur={0}
           glow={3.8}
           blueRing={5.2}
-          blueColor="#7C5CF0"
+          blueColor="#3FB9CE"
           shimmer={true}
           rimWave={0.6}
           entryAnimation={true}
@@ -733,25 +733,25 @@ export default function Page({ heroPhoto = null }) {
             padding: '6px 16px',
             borderRadius: 999,
             backgroundColor: 'rgba(255, 255, 255, 0.75)',
-            border: '1px solid rgba(91, 52, 195, 0.25)',
+            border: '1px solid rgba(23, 132, 155, 0.25)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(91, 52, 195, 0.08)',
+            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.08)',
             marginBottom: 20,
           }}>
             <span style={{
               width: 6,
               height: 6,
               borderRadius: '50%',
-              backgroundColor: '#5B34C3',
-              boxShadow: '0 0 8px #5B34C3',
+              backgroundColor: '#17849B',
+              boxShadow: '0 0 8px #17849B',
             }} />
             <span style={{
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#3f3f46',
+              color: '#52525b',
             }}>
               Services • What We Do
             </span>
@@ -774,7 +774,7 @@ export default function Page({ heroPhoto = null }) {
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
-            color: '#3f3f46',
+            color: '#52525b',
             lineHeight: 1.6,
             margin: 0,
             fontWeight: 400,
@@ -830,26 +830,26 @@ export default function Page({ heroPhoto = null }) {
             gap: 8,
             padding: '6px 16px',
             borderRadius: 999,
-            backgroundColor: 'rgba(91, 52, 195, 0.1)',
-            border: '1px solid rgba(91, 52, 195, 0.32)',
+            backgroundColor: 'rgba(23, 132, 155, 0.1)',
+            border: '1px solid rgba(23, 132, 155, 0.32)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 20px rgba(91, 52, 195, 0.1)',
+            boxShadow: '0 4px 20px rgba(23, 132, 155, 0.1)',
             marginBottom: 18,
           }}>
             <span style={{
               width: 8,
               height: 8,
               borderRadius: '50%',
-              backgroundColor: '#5B34C3',
-              boxShadow: '0 0 10px #5B34C3',
+              backgroundColor: '#17849B',
+              boxShadow: '0 0 10px #17849B',
             }} />
             <span style={{
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#3A1C8C',
+              color: '#0F6F86',
             }}>
               Unfiltered Feedback • WhatsApp Voice Notes
             </span>
@@ -868,7 +868,7 @@ export default function Page({ heroPhoto = null }) {
           </h2>
           <p style={{
             fontSize: 'clamp(16px, 1.8vw, 19px)',
-            color: '#3f3f46',
+            color: '#52525b',
             lineHeight: 1.6,
             margin: 0,
             fontWeight: 400,
@@ -909,12 +909,12 @@ export default function Page({ heroPhoto = null }) {
               stories={founderStories}
               aspect="9:16"
               background="transparent"
-              nameSeenText="#3f3f46"
+              nameSeenText="#52525b"
               nameUnseenText="#09090b"
-              ringSeen="linear-gradient(135deg,#2A1170,#5B34C3)"
-              ringUnseenA="#5B34C3"
-              ringUnseenB="#7C5CF0"
-              ringUnseenC="#A78BFA"
+              ringSeen="linear-gradient(135deg,#0A3E4C,#17849B)"
+              ringUnseenA="#17849B"
+              ringUnseenB="#3FB9CE"
+              ringUnseenC="#7FD1DE"
               thumbSize={76}
               thumbGap={20}
               storyCardRadius={22}
@@ -941,7 +941,7 @@ export default function Page({ heroPhoto = null }) {
               key={note.monogram}
               className="flinza-glass-card flinza-voices-card"
               style={{
-                background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(240,236,255,0.55) 45%, rgba(236,231,255,0.45) 100%)',
+                background: 'linear-gradient(150deg, rgba(255,255,255,0.78) 0%, rgba(238,250,245,0.55) 45%, rgba(224,244,235,0.45) 100%)',
                 backdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
                 WebkitBackdropFilter: 'blur(14px) saturate(150%) brightness(1.04)',
                 borderRadius: 26,
@@ -950,7 +950,7 @@ export default function Page({ heroPhoto = null }) {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 18,
-                boxShadow: '0 18px 44px -18px rgba(42, 17, 112, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
+                boxShadow: '0 18px 44px -18px rgba(14, 124, 147, 0.16), inset 0 1.5px 2px rgba(255,255,255,0.85)',
                 boxSizing: 'border-box',
               }}
             >
@@ -963,10 +963,10 @@ export default function Page({ heroPhoto = null }) {
                       <span style={{ fontFamily: "'Nohemi', sans-serif", fontWeight: 700, fontSize: 16, color: '#09090b' }}>
                         {note.role}
                       </span>
-                      <span style={{ color: '#5B34C3', fontSize: 13 }} title="Verified client">✓</span>
+                      <span style={{ color: '#17849B', fontSize: 13 }} title="Verified client">✓</span>
                     </div>
                     <span
-                      style={{ fontSize: 13, color: '#3f3f46', fontWeight: 500 }}
+                      style={{ fontSize: 13, color: '#52525b', fontWeight: 500 }}
                       className={note.wideMeta ? 'flinza-voice-meta-line' : undefined}
                     >
                       {note.sector}
@@ -977,7 +977,7 @@ export default function Page({ heroPhoto = null }) {
               </div>
 
               {/* Real Framer WhatsApp Audio Player */}
-              <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(244,241,255,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(42,17,112,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
+              <div className="flinza-voices-player-row" style={{ width: '100%', padding: '12px 10px', borderRadius: 18, background: 'linear-gradient(152deg, rgba(255,255,255,0.74) 0%, rgba(244,241,255,0.44) 100%)', border: '1px solid rgba(255,255,255,0.62)', backdropFilter: 'blur(16px) saturate(155%)', WebkitBackdropFilter: 'blur(16px) saturate(155%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -18px rgba(14,124,147,0.35)', boxSizing: 'border-box', display: 'flex', justifyContent: 'center' }}>
                 <div className="flinza-mount-gate" style={{ width: '100%' }}>
                   {testimonialsInView ? (
                     <WhatsApAudioPlayer
@@ -987,7 +987,7 @@ export default function Page({ heroPhoto = null }) {
                       userImageFile=""
                       timestamp={note.timestamp}
                       isOwn={false}
-                      accentColor="#5B34C3"
+                      accentColor="#17849B"
                     />
                   ) : null}
                 </div>
@@ -997,12 +997,12 @@ export default function Page({ heroPhoto = null }) {
               <p className="flinza-voices-quote" style={{
                 fontSize: 14.5,
                 lineHeight: 1.6,
-                color: '#3f3f46',
+                color: '#52525b',
                 margin: '0 0 -8px',
-                backgroundColor: 'rgba(91, 52, 195, 0.1)',
+                backgroundColor: 'rgba(23, 132, 155, 0.1)',
                 padding: '14px 16px',
                 borderRadius: '16px 16px 16px 4px',
-                borderLeft: '2.5px solid rgba(91, 52, 195, 0.5)',
+                borderLeft: '2.5px solid rgba(23, 132, 155, 0.5)',
               }}>
                 {note.quote}
               </p>
@@ -1012,14 +1012,14 @@ export default function Page({ heroPhoto = null }) {
                 <span style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: '#F6F3FF',
-                  backgroundImage: 'linear-gradient(120deg, #5B34C3 0%, #7C5CF0 100%)',
+                  color: '#F7FBFC',
+                  backgroundImage: 'linear-gradient(120deg, #17849B 0%, #3FB9CE 100%)',
                   padding: '4px 12px',
                   borderRadius: 999,
                 }}>
                   {note.metric}
                 </span>
-                <span style={{ fontSize: 12, color: '#3f3f46' }}>WhatsApp Voice Note <span style={{ color: '#5B34C3', fontWeight: 700 }}>✓✓</span></span>
+                <span style={{ fontSize: 12, color: '#52525b' }}>WhatsApp Voice Note <span style={{ color: '#17849B', fontWeight: 700 }}>✓✓</span></span>
               </div>
             </div>
           ))}
@@ -1055,14 +1055,14 @@ export default function Page({ heroPhoto = null }) {
             padding: '6px 18px',
             borderRadius: 999,
             background: 'rgba(255,255,255,0.72)',
-            border: '1px solid rgba(91,52,195,0.22)',
+            border: '1px solid rgba(23,132,155,0.22)',
             backdropFilter: 'blur(14px)',
             WebkitBackdropFilter: 'blur(14px)',
-            boxShadow: '0 4px 20px rgba(91,52,195,0.08)',
+            boxShadow: '0 4px 20px rgba(23,132,155,0.08)',
             marginBottom: 20,
           }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#5B34C3', boxShadow: '0 0 8px #5B34C3' }} />
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#3f3f46' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#17849B', boxShadow: '0 0 8px #17849B' }} />
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#52525b' }}>
               FAQ • Everything You Need to Know
             </span>
           </div>
@@ -1081,7 +1081,7 @@ export default function Page({ heroPhoto = null }) {
               ]}
             />
           </h2>
-          <p style={{ fontSize: 'clamp(16px,1.8vw,19px)', color: '#3f3f46', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontSize: 'clamp(16px,1.8vw,19px)', color: '#52525b', lineHeight: 1.6, margin: 0 }}>
             Everything you need to know about working with Flinza, our process, pricing, and what makes us different.
           </p>
         </div>
@@ -1152,16 +1152,16 @@ export default function Page({ heroPhoto = null }) {
           cardTitleColor="rgba(9,9,11,0.6)"
           cardEmailColor="rgb(9,9,11)"
           cardEmailLabelColor="rgba(9,9,11,0.62)"
-          cardBGColor="rgba(255,255,255,0.92)"
+          cardBGColor="rgba(255,255,255,0.16)"
           cardBGBlurDefault={26}
           cardBorder={{ borderColor: 'rgba(255,255,255,0.55)', borderStyle: 'solid', borderWidth: 1 }}
           buttonBGColorDefault="rgb(255,255,255)"
           buttonColorDefault="rgb(9,9,11)"
-          buttonHoverBGColorHover="rgb(232,226,255)"
+          buttonHoverBGColorHover="rgb(224,242,246)"
           buttonHoverColorHover="rgb(9,9,11)"
           iconDefaultIconColor="rgb(9,9,11)"
-          iconHoverIconColor="rgb(42,17,112)"
-          buttonHoverBorder={{ borderColor: 'rgb(91,52,195)', borderStyle: 'solid', borderWidth: 1 }}
+          iconHoverIconColor="rgb(14,124,147)"
+          buttonHoverBorder={{ borderColor: 'rgb(23,132,155)', borderStyle: 'solid', borderWidth: 1 }}
         />
         </div>
         <p className="flinza-cta-alt">
@@ -1201,7 +1201,7 @@ export default function Page({ heroPhoto = null }) {
               blur={22}
               intensity={105}
               opacity={0.95}
-              colors={['#F1EDFF', '#C9BCFF', '#8E6BF0', '#4A25AE', '#3A1C8C', '#2A1170']}
+              colors={['#EAF7F9', '#9ADCE8', '#56C1D3', '#2E93AC', '#17849B', '#0A3E4C']}
               reveal="scroll"
               ariaLabel="Flinza gradient glow"
               style={{ width: '100%', height: '100%' }}

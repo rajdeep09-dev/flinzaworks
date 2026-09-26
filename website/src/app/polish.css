@@ -6,6 +6,7 @@
  * 2. FAQ bleed-through killed       — collapsed answers painted during fast scroll.
  * 3. Fast-scroll white glitch       — the bare page background flashing on flings.
  * 4. Hover polish                   — the lift/scale language for the cards and post media.
+ * 5. The hero's palette             — the reference's composition, the site's own colour.
  */
 
 /* ── 1. Story avatars centred ───────────────────────────────────────────────
@@ -39,13 +40,13 @@
 
 /* ── 3. The fast-scroll white glitch ───────────────────────────────────────
  * On a fling the compositor outruns the fixed .flinza-ground layer for a frame
- * or two and the page's bare background shows through — the page's own paper,
- * near-white against the noisy gradient. Painting html/body with the ground's
- * own mid tone means the revealed frame is the same colour family as the
- * ground, so the flicker reads as texture, not a white flash. */
+ * or two and the page's bare background shows through — #fbfcfd, near-white
+ * against the noisy gradient. Painting html/body with the ground's own mid
+ * tone means the revealed frame is the same colour family as the ground, so
+ * the flicker reads as texture, not a white flash. */
 html,
 body {
-  background-color: #e6e0fa;
+  background-color: #e8f1f4;
 }
 
 /* ── 4. Hover polish — the "spicy" pass ────────────────────────────────────
@@ -63,9 +64,9 @@ body {
   .flinza-glass-card:hover {
     transform: translateY(-4px);
     box-shadow:
-      0 24px 48px -28px rgba(42, 17, 112, 0.34),
+      0 24px 48px -28px rgba(14, 124, 147, 0.4),
       0 4px 18px -10px rgba(9, 9, 11, 0.1);
-    border-color: rgba(124, 92, 240, 0.5);
+    border-color: rgba(63, 185, 206, 0.45);
   }
   .flinza-glass-card .flinza-voices-player-row {
     transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -95,293 +96,259 @@ body {
 }
 
 /* ════════════════════════════════════════════════════════════════════════
- * THE HERO, RECONCILED WITH THE SEPTEMBER AUDIT PASS
+ * THE HERO: THE REFERENCE'S COMPOSITION, THE SITE'S OWN COLOUR
  * ════════════════════════════════════════════════════════════════════════
- * The hero moved to the flinzaworks.in composition: a violet ground, the figure dead centre,
- * the brand as one line of glass across the middle, and the claim under it. hero.css owns
- * that composition. hero.css ALSO owns, further down, the accessibility pass that was
- * appended to it in September — and three of that pass's rules were written for a hero on
- * white paper, so on the new ground they are the wrong colour AND the wrong fix:
+ * The instruction, after the violet landed: keep the reference's PLACEMENT and
+ * SCALE, undo its colour. The reference (flinzaworks.in) is a violet bloom with
+ * the brand set in liquid glass across the middle of the frame. What was asked
+ * for is the arrangement — the giant centred word, the locked chrome row, the
+ * copy and the figures on the floor — painted in the colours this site has
+ * always been painted in: aqua and ink on paper.
  *
- *   · the pass lifted `.flinza-hero-stats span` and `.flinza-hero-scroll` to 0.62 black to
- *     clear 4.5:1 against #fbfcfd. On this ground those two are white, which measures 12.3:1
- *     and 8.0:1 against the deepest violet in the frame. Near-black here would be about
- *     1.2:1 — invisible, not "muted".
- *   · the pass set a 2px #0f6f86 focus ring on the hero's two links. That ring sits 3px
- *     OUTSIDE a white button, so it lands on the violet, and deep teal on that violet is not
- *     a focus indicator anybody can see.
+ * So this block changes colour values and NOTHING else. Every measurement of
+ * geometry in hero.css is untouched: the mark ramp, the markwrap's offset, the
+ * two-column foot grid, the phone tier. `scripts/verify_hero.py` still reports
+ * the word at 57.5% of a desktop frame and the phone composition as a separate
+ * layout — because none of that is here.
  *
- * Both rules stay where they are, untouched and still correct for every other route on the
- * site. This file is imported last, so this is the only place left that can answer them — and
- * the only place that should, because these two are about one element's ground, not about a
- * site-wide standard. */
-.flinza-hero-stats span,
-.flinza-hero-scroll {
-  color: rgba(255, 255, 255, 0.86);
-}
-/* The hero's two BODY links sit on the deep foot of the ground, where a dark ring
- * would be invisible; cyan measures 6.6:1 to 10.2:1 across the violet there.
- *
- * The header's nav is deliberately NOT in that group. It sits on the hero's CROWN,
- * which is the light lavender end of the same gradient — cyan on #b8a3ff measures
- * 1.48:1 and is not a focus indicator at all. Its ring is hero.css's own
- * `var(--aqua-deep)`, which the re-point below turns into #3a1c8c: 5.64:1 on the
- * crown. Two rings, two grounds, one rule each. */
-.flinza-hero-scroll:focus-visible,
-.flinza-hero-explore:focus-visible {
-  outline: 2px solid #7ee4f8;
-  outline-offset: 3px;
-}
-
-/* ════════════════════════════════════════════════════════════════════════
- * THE PAGE BELOW THE FOLD, IN THE HERO'S VIOLET
- * ════════════════════════════════════════════════════════════════════════
- * The hero moved to the client's violet reference. Everything under it did not:
- * the fixed ground behind the whole page was still the old aqua wash, the
- * accent token was still deep teal, and the page ended on an aqua footer glow.
- * So the first screen and the rest of the page were two different products.
- *
- * The fix is a re-point, not a redesign. The site's own violet ground is
- * already three values — a lavender crown, a violet middle and an indigo foot
- * (hero.css) — and this block reuses them literally, so the page below the fold
- * is lit by the same light as the frame above it:
- *
- *      #b8a3ff  crown, the top of the hero ground
- *      #5b34c3  middle, and the page's accent
- *      #2a1170  foot, and the closing band's ground
- *
- * Scope: `.flinza-home-main` and nothing else. --aqua, --aqua-deep and
- * --aqua-soft are the site's accent tokens (globals.css), and redefining them on
- * the home page recolours every one of its thirty-odd consumers in one rule —
- * the section labels, the TOC rail, the statement's italic, the FAQ group
- * titles, the proof cards' index and result, the CTA's arrows. No other route
- * moves: the same tokens still mean teal on /work, /services and /about, and
- * they are the right teal there because those pages are still built on it.
- *
- * WHY #3a1c8c for the accent and not the hero's own #5b34c3: the accent is used
- * for 12px text on the lightest-violet the ground ever reaches — the wash
- * composited at its full strength over the page's paper. #5b34c3 measures
- * 3.46:1 there and fails; #3a1c8c measures 5.46:1 and passes. The brighter
- * violet stays for the things that are not text: rules, dots, the carousel ring.
+ * ── Why it lives in this file ──
+ * hero.css owns the composition and is 74 KB, past the editor's window, so it
+ * cannot be re-declared in place. This file is imported last, which makes it
+ * the only sheet left that can outrank the violet — and the only one that
+ * should: these values are about ONE element's ground, not a site-wide
+ * standard. Nothing in here reaches beyond `.flinza-hero-*`, so the other
+ * fourteen routes are untouched.
  */
-.flinza-home-main {
-  --aqua: #4a25ae;
-  --aqua-deep: #3a1c8c;
-  --aqua-soft: rgba(91, 52, 195, 0.14);
+
+/* ── The ground ──────────────────────────────────────────────────────────
+ * A transparent frame again, over the page's own paper (#fbfcfd on
+ * `.flinza-home-main`) and the fixed aqua wash behind it — which is what this
+ * hero sat on before the reference arrived. `isolation: auto` releases the
+ * blending boundary the violet ground needed; the photograph below stops
+ * multiplying and goes back to compositing its own near-white field into the
+ * paper, which is why it needs no mask on four sides. */
+.flinza-hero-stage {
+  isolation: auto;
+  background-image: none;
 }
 
-/* The hero's own hand-off. Its bottom 3% fades to the page paper it was written
- * for, #fbfcfd, and the band below it now opens on #f7f4ff — two near-whites that
- * are not the same near-white, which is exactly the kind of seam the bridge
- * below exists to prevent. The seat (the indigo under the bottom row) is
- * restated unchanged, because it is what keeps white type off the brightest
- * violet and it is not a colour the page moved. */
+/* The photograph: unmasked horizontally, feathered only where it dissolves
+ * into the paper at the foot.
+ *
+ * `background-position` and `background-size` are deliberately NOT restated.
+ * hero.css already pans it to 50% 46% for the desktop frame and §MOBILE
+ * re-crops it to `auto 168%` / `50% 18%` on a phone, so the figure's mass sits
+ * behind the word instead of below it. Both are composition. Naming either one
+ * here would flatten the phone's crop back to the desktop's. */
+.flinza-hero-photo {
+  mix-blend-mode: normal;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 62%,
+    rgba(0, 0, 0, 0.55) 84%,
+    rgba(0, 0, 0, 0) 97%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 62%,
+    rgba(0, 0, 0, 0.55) 84%,
+    rgba(0, 0, 0, 0) 97%
+  );
+}
+
+/* The vector fallback is drawn light-on-transparent for a dark ground; on paper
+ * it composites normally. Its own pan is left alone — 50% 42% already stands
+ * its figure where the composition wants it, on a phone and on a desktop. */
+.flinza-hero-visual {
+  mix-blend-mode: normal;
+}
+
+/* The bloom returns to being what it was on this site: a restrained radial of
+ * the brand aqua under the figure, breathing on opacity, feeding the same accent
+ * the Selected Work overline ticks with. It sat at the foot to under-glow the
+ * figure and it sits there again — a halo behind the word would fight 200px ink
+ * type on paper instead of carrying it. */
+.flinza-hero-bloom {
+  top: auto;
+  bottom: -14%;
+  width: min(74vw, 920px);
+  height: clamp(180px, 34vh, 340px);
+  transform: translateX(-50%);
+  mix-blend-mode: normal;
+  background: radial-gradient(
+    50% 62% at 50% 66%,
+    rgba(46, 147, 172, 0.3) 0%,
+    rgba(46, 147, 172, 0.12) 46%,
+    rgba(46, 147, 172, 0) 74%
+  );
+  filter: blur(10px);
+}
+
+/* ── The scrim ───────────────────────────────────────────────────────────
+ * Two of the three washes are the originals: the top one so the header's dark
+ * type never sits on the figure, the floor one so the bottom row has something
+ * to stand on.
+ *
+ * The middle one is new, and it is a PLACEMENT decision rather than a new
+ * colour. The old sheet's third wash was a hard left-to-right veil: it bleached
+ * the left half of the frame so left-aligned type could live beside a
+ * centre-right figure. This hero no longer has left-aligned type — it has a
+ * word 57.5% of the width sitting dead centre, directly on top of the figure's
+ * dark core. So the veil is re-aimed at the centre and widened to cover the
+ * word, the claim and the support line beneath it.
+ *
+ * It is the page's own paper. It holds a near-flat 0.86–0.90 across the whole
+ * type block rather than feathering early, and that number is a floor, not a
+ * taste call: with the figure modelled at its darkest the ink needs 0.42 of
+ * paper behind it to clear 3:1, and `--aqua-deep` needs about 0.80 to clear
+ * 4.5:1 at the em's 22px phone size. Anything softer and the word's own top
+ * edge fails. The figure still shows — above the word, at the sides and through
+ * the foot, where the top and floor washes have it — but behind the letters it
+ * is a whisper, not a mass. On paper that is the only way a 200px word and a
+ * teal italic both read, and it is what the reference gets from its glass.
+ *
+ * `closest-side` is not used — the ellipse is sized larger than the word on
+ * purpose so its own box has no geometry anywhere near the type, which is the
+ * failure the old `::before` radial on the h1 was written to avoid. */
 .flinza-hero-scrim {
   background:
+    radial-gradient(
+      78% 46% at 50% 44%,
+      rgba(247, 251, 252, 0.9) 0%,
+      rgba(247, 251, 252, 0.86) 52%,
+      rgba(247, 251, 252, 0) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(247, 251, 252, 0.94) 0%,
+      rgba(247, 251, 252, 0.5) 15%,
+      rgba(247, 251, 252, 0) 34%
+    ),
     linear-gradient(
       to top,
-      #f7f4ff 0%,
-      rgba(247, 244, 255, 0.92) 1.3%,
-      rgba(247, 244, 255, 0) 3.1%
-    ),
-    radial-gradient(128% 54% at 50% 118%, rgba(21, 6, 62, 0.78) 0%, rgba(21, 6, 62, 0) 66%);
+      rgba(247, 251, 252, 0.6) 0%,
+      rgba(247, 251, 252, 0.24) 20%,
+      rgba(247, 251, 252, 0) 44%
+    );
 }
 
-/* The seam under the hero. overrides.css bridges the hero's foot into this band
- * with a strip of the OLD paper (#f7fbfc, an aqua white) fading downward. The
- * hero no longer ends on that colour, so the bridge is re-cut in the page's own
- * paper — at the boundary both sides are one colour and nothing shows. */
-.flinza-work-band::before {
+/* ── The word ────────────────────────────────────────────────────────────
+ * Flat ink, at the reference's size. The glass treatment was a gradient clip
+ * with a transparent text fill — it needed a dark ground to be legible, and
+ * there isn't one any more. What carries the word now is the same thing that
+ * carried the old claim: weight, tracking and scale against quiet paper. */
+.flinza-hero-wordmark {
+  color: var(--ink);
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  filter: none;
+}
+
+/* The two rules the reference stands either side of the word, in the site's own
+ * aqua. They are decoration inside an aria-hidden element, so the bar is the
+ * 3:1 non-text floor, not 4.5:1 — #0f6f86 measures 5.2:1 on the paper, which
+ * clears both. */
+.flinza-hero-mark::before,
+.flinza-hero-mark::after {
   background: linear-gradient(
     to bottom,
-    rgba(247, 244, 255, 1) 0%,
-    rgba(247, 244, 255, 0.72) 34%,
-    rgba(247, 244, 255, 0.28) 66%,
-    rgba(247, 244, 255, 0) 100%
+    rgba(63, 185, 206, 0) 0%,
+    rgba(15, 111, 134, 0.9) 22%,
+    rgba(15, 111, 134, 0.9) 78%,
+    rgba(63, 185, 206, 0) 100%
   );
 }
 
-/* ── The proof statement gets the hero's halo ─────────────────────────────
- * The middle of the page is the one place the composition can come back. The
- * band is `position: relative`, which is a stacking context, so this
- * pseudo-element's negative z-index stays inside the band and the caption text
- * above it is unaffected. It is the same white/cyan bloom the wordmark sits in,
- * at a third of the strength, and it is the only thing between the reader and
- * a flat field of copy. */
-.flinza-proof-band::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 26%;
-  width: min(112vw, 1180px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  z-index: -1;
-  pointer-events: none;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.62) 0%,
-    rgba(214, 233, 255, 0.26) 34%,
-    rgba(167, 139, 250, 0.1) 58%,
-    transparent 72%
-  );
-  mix-blend-mode: screen;
-  animation: flinza-proof-bloom 14s ease-in-out infinite alternate;
+/* ── The sentence under the word, and the two small texts ────────────────
+ * The h1's accessible name is a sentence, not a logo, and it is set in the
+ * display serif the site already uses for emphasis — in the accent, the way the
+ * old claim's italic was. Every shadow comes off with the violet: they existed
+ * to hold white type off a bright ground, and there is no bright ground. */
+.flinza-hero-claim {
+  color: var(--ink);
 }
-
-@keyframes flinza-proof-bloom {
-  from {
-    opacity: 0.55;
-    transform: translate(-50%, -50%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.04);
-  }
+.flinza-hero-claim em {
+  /* One step deeper than --aqua-deep, and the reason is a measurement. The em is
+   * 22px on a phone — normal text, so 4.5:1 — and it now sits on paper veiled
+   * over the figure rather than on bare paper. #0f6f86 clears 5.5:1 on paper but
+   * only 3.9:1 on that ground, which is a fail. #0a5c70 is the same hue, one
+   * step down, and measures 5.3:1 there and 7.3:1 on paper. */
+  color: #0a5c70;
+  text-shadow: none;
 }
-
-/* The marquee is the band's top rule, and it is the first hairline a reader
- * meets below the hero. Teal-to-black reads as a seam against violet paper.
- *
- * The greys here were re-picked by measurement, not by eye. The old aqua page
- * carried them as alpha blacks over near-white paper, which is a different
- * problem once the paper is violet: the same 0.52 black that measured 5.2:1 on
- * #fbfcfd measures 2.92:1 on the darkest pixel the wash reaches (#bcaee3, the
- * full-strength wash over the page's own paper). These are the three steps that
- * clear 4.5:1 at that pixel and still read as one hierarchy underneath the ink. */
-.flinza-proof-marquee {
-  border-color: rgba(58, 28, 140, 0.16);
+.flinza-hero-support {
+  /* 0.68, not the site's usual 0.62, and the ground is the reason: this line is the one
+   * small text that sits INSIDE the wordmark veil, where the worst pixel is #d7dadb
+   * rather than paper. 0.62 measures 4.16:1 there and fails; 0.68 measures 5.20:1. */
+  color: rgba(9, 9, 11, 0.68);
+  text-shadow: none;
 }
-.flinza-proof-track li {
-  color: #3f3568;
+.flinza-hero-interest {
+  /* At the foot the veil is gone and the ground is bare paper, so this one keeps the
+   * site's own quiet-text value — 5.62:1. */
+  color: rgba(9, 9, 11, 0.62);
+  text-shadow: none;
 }
-.flinza-proof-track li + li {
-  border-left-color: rgba(58, 28, 140, 0.14);
+.flinza-hero-scroll {
+  color: rgba(9, 9, 11, 0.66);
+  text-shadow: none;
 }
-.flinza-proof-meta li {
-  color: #453d6e;
-}
-.flinza-proof-statement h2 span {
-  color: #423a6b;
-}
-
-/* The client cards: the same white glass, but framed in the page's own violet
- * so a row of four does not read as a row of grey boxes on a lavender field. */
-.flinza-proof-card {
-  background: linear-gradient(140deg, rgba(255, 255, 255, 0.86), rgba(240, 236, 255, 0.58));
-  border-color: rgba(58, 28, 140, 0.1);
-}
-.flinza-proof-card:hover,
-.flinza-proof-card:focus-visible {
-  border-color: rgba(91, 52, 195, 0.4);
-  box-shadow: 0 18px 44px rgba(42, 17, 112, 0.12);
-}
-.flinza-proof-card::after {
-  background: linear-gradient(90deg, var(--aqua-deep), rgba(91, 52, 195, 0));
-}
-.flinza-proof-role {
-  color: #453d6e;
-}
-.flinza-proof-head p {
-  color: #453d6e;
-}
-.flinza-proof-head p a {
+.flinza-hero-scroll:hover,
+.flinza-hero-scroll:focus-visible {
   color: var(--aqua-deep);
-  border-bottom-color: rgba(58, 28, 140, 0.32);
+}
+.flinza-hero-stats strong {
+  color: var(--ink);
+  text-shadow: none;
+}
+.flinza-hero-stats span {
+  color: rgba(9, 9, 11, 0.64);
+  text-shadow: none;
 }
 
-/* The work band's own hairline and its two small labels. */
-.flinza-work-status {
-  border-top-color: rgba(58, 28, 140, 0.12);
-}
-.flinza-work-counter-sep {
-  color: #453d6e;
-}
-.flinza-work-hint {
-  color: #453d6e;
-}
-
-/* The three small index numerals — the FAQ question number, the proof card's index
- * and the service card's number. The September audit set them to 0.56 black to
- * clear 4.5:1 against #fbfcfd; on violet paper the same 0.56 measures 3.95:1 at
- * the wash's full strength. They are 11px, so they need the full 4.5:1, and
- * #453d6e gives 5.84:1 — the same quiet label the rest of the page now uses. */
-.flinza-faqrow-num,
-.flinza-proof-index,
-.flinza-svc-num {
-  color: #453d6e;
-}
-
-/* ── The closing band ─────────────────────────────────────────────────────
- * The last thing on the page is an invitation, and the page's last real image
- * is a violet footer glow — so the scene that asks for the call is given the
- * hero's own ground rather than the same pale paper everything else sits on.
- * White at 14.87:1, the lavender accent at 8.58:1, the dimmed runs at 8.14:1 or
- * better: every pair here clears WCAG AA with room.
- *
- * `width: auto` plus negative margins is the same trick the hero uses above
- * (overrides.css §22): the band is a child of `.flinza-home-main`, which carries
- * a 130px lane for the table-of-contents rail, and a full-bleed band cannot be
- * inset. It is pulled back out to the viewport so it reads as one ground
- * running the length of the page, not a card floating in a margin. */
-.flinza-cta-scene {
-  isolation: isolate;
-  margin-block: clamp(40px, 7vh, 88px);
-  background:
-    radial-gradient(120% 78% at 50% 0%, rgba(184, 163, 255, 0.4) 0%, transparent 62%),
-    radial-gradient(96% 64% at 50% 108%, rgba(126, 228, 248, 0.16) 0%, transparent 58%),
-    linear-gradient(172deg, #4a25ae 0%, #3a1c8c 46%, #2a1170 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-@media (min-width: 1101px) {
-  .flinza-cta-scene {
-    width: auto;
-    margin-inline: -130px;
-  }
-}
-.flinza-cta-headline {
-  color: #ffffff;
-  text-shadow: 0 2px 30px rgba(21, 6, 62, 0.45);
-}
-.flinza-cta-headline em {
-  color: #c9bcff;
-}
-.flinza-cta-lede {
-  color: rgba(255, 255, 255, 0.86);
-}
-.flinza-cta-steps {
-  color: rgba(255, 255, 255, 0.8);
-}
-.flinza-cta-steps i {
-  color: #c9bcff;
-}
-.flinza-cta-alt {
-  color: rgba(255, 255, 255, 0.78);
-}
-.flinza-cta-alt a {
-  color: #ffffff;
-  border-bottom-color: rgba(201, 188, 255, 0.5);
-}
-.flinza-cta-alt a:hover,
-.flinza-cta-alt a:focus-visible {
-  color: #c9bcff;
-  border-bottom-color: currentColor;
-}
-
-/* The ContactButton is white-on-white, which is right on this ground and would
- * have been invisible on paper. Its focus ring is the hero's cyan for the same
- * reason the hero's own is: a dark ring on violet is not a focus indicator. */
-.flinza-cta-actions a:focus-visible,
-.flinza-cta-actions button:focus-visible {
-  outline: 2px solid #7ee4f8;
+/* The focus ring is the site's own standard again — a 2px deep-teal ring with a
+ * 3px offset, which is what the September audit set for every link on the site
+ * and what this hero's two body links now sit on a ground that can take it. */
+.flinza-hero-scroll:focus-visible,
+.flinza-hero-explore:focus-visible {
+  outline: 2px solid var(--aqua-deep);
   outline-offset: 3px;
 }
 
-/* ── The proof band's bloom is decoration; it does not move for a reader who
- * has asked for none. ── */
-@media (prefers-reduced-motion: reduce) {
-  .flinza-proof-band::after {
-    animation: none;
+/* ── The phone's primary action ──────────────────────────────────────────
+ * On a desktop this link is `display: none` — the reference's frame has one
+ * pill in the corner and nothing in the middle. §MOBILE turns it into the
+ * hero's main target, so it has to be a real button on paper: the ink fill the
+ * site's own primary actions use, paper-coloured type, and the accent reserved
+ * for focus. */
+.flinza-hero-explore {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fbfcfd;
+  box-shadow: 0 14px 34px -18px rgba(9, 40, 50, 0.55);
+}
+.flinza-hero-explore:hover,
+.flinza-hero-explore:focus-visible {
+  background: #17171a;
+  color: #fbfcfd;
+}
+
+/* ── The phone's figure card ─────────────────────────────────────────────
+ * §MOBILE frames the four figures in a card. On the violet ground that card was
+ * white-alpha — a pane of glass over a dark field. On paper it has to be the
+ * other way round, or it is a white rectangle with no edge: a hairline in the
+ * site's own deep teal at 12%, a 72% paper fill, and the inset highlight every
+ * other glass card on this page carries. */
+@media (max-width: 760px) {
+  .flinza-hero-stats {
+    border-color: rgba(9, 40, 50, 0.12);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 18px 40px -30px rgba(9, 40, 50, 0.5);
   }
 }
