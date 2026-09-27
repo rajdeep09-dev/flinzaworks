@@ -13,7 +13,7 @@ import CamoCtaButton from "@/components/CamoCtaButton";
 import { breadcrumbSchema, faqSchema, serviceSchema, socialMeta } from "@/data/seo";
 
 export const metadata = {
-  title: "Creator & Influencer Marketing for Ecommerce",
+  title: "Creator & Influencer Marketing",
   description:
     "Creator-led content for ecommerce brands: we source the right creators, handle scripting and editing end to end, and judge every deal on cost per customer.",
   alternates: { canonical: "/influencer-marketing" },

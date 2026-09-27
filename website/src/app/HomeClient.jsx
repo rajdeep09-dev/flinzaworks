@@ -12,7 +12,7 @@ import { faqItems } from '@/data/faqs';
  * the same single source. */
 /* The hero's numbers and the positioning line, from the one file that also feeds the About page
    and the Organization JSON-LD — so the same figure is stated the same way everywhere. */
-import { STATS } from '@/data/stats';
+import { STATS, POSITIONING } from '@/data/stats';
 import { carouselProjects } from '@/data/projects';
 
 /* The first case study's headline result — shown beside the ring before anyone touches it, so the
@@ -375,13 +375,10 @@ export default function Page({ heroPhoto = null }) {
           Phones get a different composition, not a narrower one — see §MOBILE in hero.css. */}
       <section id="hero" className="flinza-hero-stage">
         {/* The figure. `heroPhoto` is the real photograph, resolved on the server at build time
-            (see app/page.jsx); it MULTIPLIES against the violet ground, which is what lets its
-            own near-white field disappear without a mask tuned to one aspect ratio.
-
-            Without it the layer below takes over. Both are never on screen together — each
-            carries its own silhouette — so the photograph's arrival switches the vector off. */}
+            (see app/page.jsx). It is layered ABOVE the vector and below the scrim, so supplying
+            it needs no edit here and removing it falls back to the vector rather than to nothing. */}
         <div
-          className={`flinza-hero-visual${heroPhoto ? ' flinza-hero-visual--off' : ''}`}
+          className="flinza-hero-visual"
           aria-hidden="true"
         />
         {heroPhoto ? (
@@ -398,25 +395,52 @@ export default function Page({ heroPhoto = null }) {
         <div className="flinza-hero-scrim" aria-hidden="true" />
 
         <div className="flinza-hero-inner">
-          {/* The middle of the frame. The word, the claim it belongs to, and the one line that
-              says who it is for. */}
-          <div className="flinza-hero-markwrap">
+          {/* The middle of the frame. Back to the sentence: the client's own line top-left, a
+              work teaser top-right, and the claim as a real h1 in the middle with its eyebrow,
+              its supporting line and its one action. There is no wordmark here any more — the
+              giant FLINZA was a two-commit experiment (bf9c1d7) and it is gone, along with the
+              scrim, the bloom and the wordmark rules that existed only to make it legible. */}
+          <div className="flinza-hero-head">
+            <p className="flinza-hero-note">{POSITIONING}</p>
+            <a className="flinza-hero-note flinza-hero-note--right" href="#work">
+              Selected work, real numbers — eight accounts, rebuilt for profit.
+            </a>
+          </div>
+
+          <div className="flinza-hero-message">
+            <p className="flinza-hero-eyebrow">
+              DTC Growth <span aria-hidden="true">/</span> Creative + Performance
+            </p>
             <h1 className="flinza-hero-claim">
-              <span className="flinza-hero-mark" aria-hidden="true">
-                <span className="flinza-hero-wordmark">Flinza</span>
-              </span>
-              <em>Ecommerce growth, engineered for profit.</em>
+              <span>Ecommerce growth,</span>
+              <em>engineered for profit.</em>
             </h1>
             <p className="flinza-hero-support">
               Meta ads, creator-led and founder-led content for DTC brands spending $50K+ a
               month.
             </p>
+            <a className="flinza-hero-explore" href="#work">
+              Explore selected work
+              <span aria-hidden="true">
+                <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
+                  <path
+                    d="M6 1.9v7.4M2.8 6.2 6 9.7l3.2-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </a>
           </div>
 
-          {/* The foot. The paragraph on the left, the figures on the right, and the scroll cue
-              under the paragraph — a grid, because in a two-item row there is no way to say
-              "under the left one and not the right one". On a phone this collapses to one
-              column and the cue moves to the end. */}
+          {/* The foot. The paragraph on the left, the four figures on the right, and the scroll
+              cue directly under the paragraph — inside the copy column, not after the figures,
+              because in a two-item row there is no way to say "under the left one and not the
+              right one" any other way. On a phone this collapses to one column and the figures
+              return to a 2x2. */}
           <div className="flinza-hero-bottom">
             <div className="flinza-hero-copy">
               {/* One understated line. The long version of this paragraph lives on /services and
@@ -428,12 +452,8 @@ export default function Page({ heroPhoto = null }) {
                 Built to find what converts, and to scale it fast.
               </p>
 
-              {/* The hero's only body action, and it is a PHONE action: the desktop frame puts
-                  its one offer in the corner, and a phone has no corner. `display: none` on
-                  everything wider than 760px — the desktop frame does not want a third
-                  competing action in the middle of it. */}
-              <a className="flinza-hero-explore" href="#work">
-                Explore selected work
+              <a className="flinza-hero-scroll" href="#work">
+                Scroll down
                 <span aria-hidden="true">
                   <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
                     <path
@@ -457,22 +477,6 @@ export default function Page({ heroPhoto = null }) {
                 </li>
               ))}
             </ul>
-
-            <a className="flinza-hero-scroll" href="#work">
-              Scroll down
-              <span aria-hidden="true">
-                <svg viewBox="0 0 12 12" width="12" height="12" focusable="false">
-                  <path
-                    d="M6 1.9v7.4M2.8 6.2 6 9.7l3.2-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </a>
           </div>
         </div>
       </section>
