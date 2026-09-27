@@ -43,7 +43,7 @@ export const metadata = {
     template: '%s | Flinza Works',
   },
   description:
-    'Flinza Works is an ecommerce growth agency for DTC brands spending $50K+ a month: Meta ads, 48-hour creative testing, creator and founder content, launch clipping.',
+    'Flinza Works is an ecommerce growth agency for DTC brands spending $50K+ a month: Meta ads, 48-hour creative testing, creator content and launch clipping.',
   applicationName: SITE_NAME,
   /* Two authors, in the order the field means: the company the site belongs to, then the person who
      designed and built it. `<meta name="author">` is a weak ranking signal and a strong entity one

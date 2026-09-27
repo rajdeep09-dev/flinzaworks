@@ -28,6 +28,7 @@ import { SERVICES, servicePages } from '@/data/services';
 import { CASE_STUDIES } from '@/data/caseStudies';
 import { insights } from '@/data/insights';
 import { SITE_NAME, SITE_URL, SITE_EMAIL, SOCIALS, DEVELOPER, CONTENT_UPDATED } from '@/data/seo';
+import { TEAM } from '@/data/team';
 
 export const dynamic = 'force-static';
 
@@ -75,7 +76,27 @@ function build() {
   out.push(`Founded: ${FOUNDED}`);
   out.push(`Markets served: ${MARKETS.join(', ')}`);
   out.push(`Profiles: ${SOCIALS.join(' · ')}`);
+  out.push(`Short index of the site: ${SITE_URL}/llms.txt`);
   out.push('');
+
+  out.push('## Who runs the company');
+  out.push('');
+  out.push(
+    'The people who touch a client account, in the order they are given on /about. The same four ' +
+      'are declared as `Person` nodes in this site\'s structured data, with the founder and ' +
+      'employees of the organization pointing back at them.',
+  );
+  out.push('');
+  for (const person of TEAM) {
+    out.push(
+      `### ${person.name}${person.founder ? ' — founder' : ''} (${person.role})`,
+      '',
+      person.bio,
+      '',
+      `Expertise: ${person.focus.join('; ')}.`,
+      '',
+    );
+  }
 
   out.push('## Key numbers');
   out.push('');
@@ -149,9 +170,10 @@ function build() {
   out.push('');
   out.push(
     `The ${SITE_URL.replace(/^https?:\/\//, '')} website was designed, built and is maintained by ` +
-      `${DEVELOPER.name} (${DEVELOPER.jobTitle}, Instagram ${DEVELOPER.instagramHandle}). He is not ` +
-      `a member of the ${SITE_NAME} growth team and is not the company's founder; he built the site. ` +
-      `Credits page: ${SITE_URL}${DEVELOPER.path}`,
+      `${DEVELOPER.name} (${DEVELOPER.jobTitle}, Instagram ${DEVELOPER.instagramHandle}). He built ` +
+      `the site. He is not a member of the ${SITE_NAME} growth team and not the company's founder — ` +
+      `the founder is ${TEAM.find((person) => person.founder)?.name || 'named above'}. Credits page: ` +
+      `${SITE_URL}${DEVELOPER.path}`,
   );
   out.push('');
 

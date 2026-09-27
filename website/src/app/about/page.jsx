@@ -13,13 +13,14 @@ import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import PageShell from "@/components/PageShell";
 import CamoCtaButton from "@/components/CamoCtaButton";
-import { ABOUT_NUMBERS, POSITIONING, TAGLINE, MARKETS } from "@/data/stats";
-import { breadcrumbSchema, SITE_URL, socialMeta } from "@/data/seo";
+import { ABOUT_NUMBERS, POSITIONING, TAGLINE, MARKETS, FOUNDED } from "@/data/stats";
+import { TEAM } from "@/data/team";
+import { breadcrumbSchema, SITE_URL, socialMeta, teamSchema } from "@/data/seo";
 
 export const metadata = {
   title: "About — A Growth Team, Not an Order-Taker",
   description:
-    "Flinza Works is a senior performance team for ecommerce brands: profit-first media buying, 48-hour creative testing and creator partnerships. Meet the team behind your account.",
+    "A senior ecommerce performance team: profit-first media buying, 48-hour creative testing and creator partnerships. Meet the people behind your account.",
   alternates: { canonical: "/about" },
   ...socialMeta({
     title: "About Flinza Works — a growth team, not an order-taker",
@@ -58,13 +59,6 @@ const PRINCIPLES = [
   },
 ];
 
-const TEAM = [
-  { name: "Elena Marchetti", role: "Founder & Growth Lead", bio: "Ten years in ecommerce media. Ran paid for two eight-figure DTC brands before Flinza.", avatar: "/images/avatar_elena.jpg" },
-  { name: "Marcus Bell", role: "Head of Creative", bio: "Built the 48-hour production system. Previously film and commercial editing.", avatar: "/images/avatar_marcus.png" },
-  { name: "Sarah Whitfield", role: "Analyst & Attribution", bio: "Northbeam, GA4 and Triple Whale modelling. Finds the spend nobody can justify.", avatar: "/images/avatar_sarah.jpg" },
-  { name: "Charlie Nguyen", role: "Creator Partnerships", bio: "Runs the influencer programme — sourcing, negotiation and creator ad licensing.", avatar: "/images/avatar_charlie.png" },
-];
-
 /* The four figures in the stat band, from `@/data/stats` — the same file the hero, the social card
  * and the Organization schema read. Two of them were previously only on this page, which is how a
  * site ends up quoting a number in one place and contradicting it in another. */
@@ -86,11 +80,19 @@ export default function AboutPage() {
             about: {
               '@type': 'Organization',
               name: 'Flinza Works',
-              foundingDate: '2019',
+              foundingDate: FOUNDED,
               slogan: TAGLINE,
               areaServed: MARKETS.map((name) => ({ '@type': 'Place', name })),
             },
           },
+          /* The four people this page is about, as `Person` nodes. The tiles further down were
+             already printing their names, roles and bios; this makes the same four legible to a
+             parser and — because the Organization in the root layout points `founder` and
+             `employee` back at these `@id`s — ties them to the company instead of leaving them as
+             four unconnected strings in prose. They are array entries, not properties of the
+             AboutPage: a `Person` is its own node, and folding one into another would be
+             meaningless. */
+          ...teamSchema(),
         ]}
       />
       <div className="flinza-pagehead">

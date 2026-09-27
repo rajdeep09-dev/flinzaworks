@@ -20,6 +20,7 @@ import JsonLd from '@/components/JsonLd';
 import PageShell from '@/components/PageShell';
 import CamoCtaButton from '@/components/CamoCtaButton';
 import { breadcrumbSchema, profilePageSchema, DEVELOPER, socialMeta } from '@/data/seo';
+import { FOUNDER } from '@/data/team';
 
 export const metadata = {
   title: 'Colophon — Rajdeep Debnath',
@@ -103,7 +104,9 @@ export default function ColophonPage() {
           </a>
           . For anything about Flinza Works as an agency — services, pricing, working together —
           that is a different conversation and it starts on the{' '}
-          <a href="/contact">contact page</a>.
+          <a href="/contact">contact page</a>. Rajdeep built this website; he is not a member of the
+          Flinza Works growth team and is not the company&apos;s founder. The founder is{' '}
+          <a href="/about">{FOUNDER.name}</a>.
         </p>
       </div>
 

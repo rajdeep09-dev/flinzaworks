@@ -26,7 +26,7 @@ import { breadcrumbSchema, caseStudyListSchema, socialMeta } from "@/data/seo";
 export const metadata = {
   title: "Case Studies — Ecommerce Growth Results",
   description:
-    "Eight written ecommerce engagements: the situation, what we changed and the outcome. Real numbers, including the tests that failed. Meta ads, creative, creators and clipping.",
+    "Eight written ecommerce engagements: the situation, what we changed and the outcome. Real numbers, including the tests that failed. Meta ads and creative.",
   alternates: { canonical: "/work" },
   ...socialMeta({
     title: "Case studies — verified results, not promises | Flinza Works",

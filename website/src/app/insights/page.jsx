@@ -22,9 +22,9 @@ import { insights, insightCategories } from "@/data/insights";
 import { breadcrumbSchema, absolute, SITE_URL, socialMeta } from "@/data/seo";
 
 export const metadata = {
-  title: "Insights — Meta Ads, Creative & Creator Growth",
+  title: "Insights — Meta Ads & Creator Growth",
   description:
-    "Notes from inside live ecommerce accounts: profit-first Meta ads, 48-hour creative testing, briefing creators so content converts, and clipping strategy for launches.",
+    "Notes from inside live ecommerce accounts: profit-first Meta ads, 48-hour creative testing, briefing creators, and clipping strategy for launches.",
   alternates: { canonical: "/insights" },
   ...socialMeta({
     title: "Insights — notes from inside live ecommerce accounts | Flinza Works",

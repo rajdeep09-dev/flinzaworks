@@ -25,8 +25,9 @@
  * NEXT_PUBLIC_SITE_URL so the production domain can be set per environment.
  */
 
-import { ONE_LINER } from './stats';
+import { ONE_LINER, FOUNDED, TAGLINE } from './stats';
 import { SERVICES } from './services';
+import { TEAM, FOUNDER } from './team';
 
 export const SITE_NAME = 'Flinza Works';
 
@@ -132,6 +133,11 @@ export function socialMeta({ title, description, url, type = 'website', ...rest 
  * profile URL attached — stated the same way on the page, in the footer of every route and in
  * llms.txt. Prose alone does not become an entity.
  *
+ * He is also, deliberately, NOT one of the `TEAM` above and has no `worksFor` edge to the agency:
+ * he built the website, he is not the founder and he does not run the growth work. /colophon and
+ * /llms-full.txt both say so in those words, and the graph now agrees with them instead of quietly
+ * implying a fifth employee who is the site's designer.
+ *
  * `DEVELOPER.path` is a real page (app/colophon) rather than a link straight off-site: an entity
  * needs a first-party URL it can be the subject of, and a bare Instagram link gives a model
  * nothing to attach the name to beyond the profile itself. */
@@ -143,9 +149,18 @@ export const DEVELOPER = {
   path: '/colophon',
 };
 
-export const PERSON_ID = `${SITE_URL}${DEVELOPER.path}#${DEVELOPER.name
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-')}`;
+export const PERSON_ID = `${SITE_URL}${DEVELOPER.path}#${slugifyName(DEVELOPER.name)}`;
+
+/** `/about` is the page the team is the subject of, so it is the page they are the subject of. */
+export function personId(name) {
+  return `${SITE_URL}/about#${slugifyName(name)}`;
+}
+
+function slugifyName(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+export const FOUNDER_ID = personId(FOUNDER.name);
 
 /** Organization + WebSite + ProfessionalService, rendered once from the root layout. */
 export function rootSchema() {
@@ -166,9 +181,29 @@ export function rootSchema() {
       },
       image: LOGO_URL,
       description: ONE_LINER,
+      /* The one differentiating phrase, in the entity rather than only on the page. An answer engine
+         summarising this company to someone who has never heard of it has nothing to lead with
+         except a list of services every competitor also offers; this is the sentence that says who
+         they are. It is the same string /about and the social bios use, read from `./stats`. */
+      slogan: TAGLINE,
       email: SITE_EMAIL,
-      foundingDate: '2019',
+      foundingDate: FOUNDED,
       sameAs: SOCIALS,
+      /* ── The people, on the company node ──
+       *
+       * Until this, "Flinza Works" was a logo, a URL, an email and a founding year, and the four
+       * people named on /about were prose inside a page. A model asked who runs the place had
+       * nothing to attach: the founder existed on the site and not in the graph, so the two facts
+       * never met. `founder` and `employee` are what make them meet, on every route, because this
+       * block is rendered by the root layout — so the founder is now a property of the company
+       * everywhere the company appears, not only where /about happens to be rendered.
+       *
+       * `DEVELOPER` below is deliberately NOT in this list. Rajdeep Debnath built the website; he
+       * is not on the growth team and not the founder, and /colophon says so in those words. Two
+       * `Person` nodes that both appeared to work for the agency would be a false claim told
+       * twice. */
+      founder: { '@id': FOUNDER_ID },
+      employee: TEAM.map((person) => ({ '@id': personId(person.name) })),
       contactPoint: [
         {
           '@type': 'ContactPoint',
@@ -205,7 +240,8 @@ export function rootSchema() {
       description: ONE_LINER,
       email: SITE_EMAIL,
       parentOrganization: { '@id': `${SITE_URL}/#organization` },
-      foundingDate: '2019',
+      founder: { '@id': FOUNDER_ID },
+      foundingDate: FOUNDED,
       priceRange: '$$$',
       areaServed: [
         { '@type': 'Country', name: 'United States' },
@@ -271,6 +307,36 @@ export function rootSchema() {
       ],
     },
   ];
+}
+
+/**
+ * One `Person` per team member, for /about — the page they are the subject of.
+ *
+ * Written out rather than derived from the prose because these four were the largest hole in the
+ * graph: an agency that names a founder in its own words and then ships JSON-LD describing only an
+ * Organization has told a crawler the founder does not exist. Each node carries the role, the bio
+ * the page already prints, and `worksFor` back to the company, so the entity is closed rather than
+ * dangling.
+ *
+ * `worksFor` and the Organization's `employee` are the two halves of the same edge and have to
+ * agree on the `@id`, which is why both sides are generated from `personId()` rather than written
+ * out. The `@id` is a node identifier and nothing else: no `url` is set on these nodes, because
+ * there is no page per person, and claiming `/about#elena-marchetti` as one would be a fragment
+ * that resolves to nothing — the tiles carry no `id` attributes. For the same reason `sameAs` is
+ * absent rather than guessed at: a `sameAs` pointing at a profile that may not exist is worse
+ * than no claim at all.
+ */
+export function teamSchema(people = TEAM) {
+  return people.map((person) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': personId(person.name),
+    name: person.name,
+    jobTitle: person.role,
+    description: person.bio,
+    worksFor: { '@id': `${SITE_URL}/#organization` },
+    knowsAbout: person.focus,
+  }));
 }
 
 /** ProfilePage + Person, for /colophon. The page whose subject the person is. */

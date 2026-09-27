@@ -23,9 +23,9 @@ import { SERVICES } from "@/data/services";
 import { breadcrumbSchema, howToSchema, serviceListSchema, socialMeta } from "@/data/seo";
 
 export const metadata = {
-  title: "Services — Ecommerce Growth, Engineered for Profit",
+  title: "Services — Ecommerce Growth, Built for Profit",
   description:
-    "Meta ads, 48-hour creative testing, creator-led and founder-led content, launch clipping and profit-first optimisation for ecommerce brands spending $50K+ a month. See what each one is.",
+    "Meta ads, 48-hour creative testing, creator and founder content, launch clipping and profit-first optimisation for ecommerce brands spending $50K+ a month.",
   alternates: { canonical: "/services" },
   ...socialMeta({
     title: "Services — growth engineered for profit | Flinza Works",

@@ -17,7 +17,7 @@ import { breadcrumbSchema, SITE_EMAIL, socialMeta } from '@/data/seo';
 export const metadata = {
   title: 'Privacy Policy',
   description:
-    'What Flinza Works collects when you use this site, why we collect it, who processes it, how long we keep it, and how to have it deleted. Contact hello@flinzaworks.com.',
+    'What Flinza Works collects when you use this site, why, who processes it, how long we keep it, and how to have it deleted. Contact hello@flinzaworks.com.',
   alternates: { canonical: '/privacy' },
   ...socialMeta({
     title: 'Privacy policy | Flinza Works',

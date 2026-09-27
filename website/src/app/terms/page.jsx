@@ -17,7 +17,7 @@ import { breadcrumbSchema, SITE_EMAIL, socialMeta } from '@/data/seo';
 export const metadata = {
   title: 'Terms of Service',
   description:
-    'Terms of use for the Flinza Works website: acceptable use, intellectual property, submissions, liability limits and governing law. Client engagements are governed separately.',
+    'Terms for the Flinza Works website: acceptable use, intellectual property, submissions, liability and governing law. Client engagements are separate.',
   alternates: { canonical: '/terms' },
   ...socialMeta({
     title: 'Terms of use | Flinza Works',

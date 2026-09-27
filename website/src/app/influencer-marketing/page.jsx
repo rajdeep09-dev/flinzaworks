@@ -13,9 +13,9 @@ import CamoCtaButton from "@/components/CamoCtaButton";
 import { breadcrumbSchema, faqSchema, serviceSchema, socialMeta } from "@/data/seo";
 
 export const metadata = {
-  title: "Creator-Led Content & Influencer Marketing",
+  title: "Creator & Influencer Marketing for Ecommerce",
   description:
-    "Creator-led content for ecommerce brands: we bring the best creators to promote your product, handle scripting and editing end to end, and judge every deal on cost per customer.",
+    "Creator-led content for ecommerce brands: we source the right creators, handle scripting and editing end to end, and judge every deal on cost per customer.",
   alternates: { canonical: "/influencer-marketing" },
   ...socialMeta({
     title: "Creator-Led Content That Pays for Itself | Flinza Works",
