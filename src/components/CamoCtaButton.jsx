@@ -18,6 +18,7 @@
 import * as React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import guarded from "./guardedClient";
 
 /* The camo surface is a static, pre-mixed version of the shader's palette, and it is rendered
  * ALWAYS — not just as a loading fallback.
@@ -28,10 +29,18 @@ import dynamic from "next/dynamic";
  * transparent and the pill had no surface at all. Casting the static layer permanently underneath
  * means the pill is camo on the very first painted frame, and the shader simply paints over it
  * when it is ready. Nothing swaps, nothing flashes, nothing is ever empty. */
-const CamoLiquid = dynamic(() => import("./CamoLiquidButton/CamoLiquid"), {
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. The button's own label and shape are plain markup beneath it, so the
+ * CTA stays legible and clickable without the shader. */
+const CamoLiquidLoaded = dynamic(() => import("./CamoLiquidButton/CamoLiquid"), {
   ssr: false,
   loading: () => null,
 });
+
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. The button's own label and shape are plain markup beneath it, so the
+ * CTA stays legible and clickable without the shader. */
+const CamoLiquid = guarded(CamoLiquidLoaded, "CamoLiquid");
 
 /* Start the shader chunk download as soon as this module is evaluated on the client, in parallel
  * with hydration, instead of waiting for React to mount the button. The chunk is ~16-28 KB, so

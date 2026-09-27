@@ -14,16 +14,25 @@
 
 import * as React from "react";
 import Link from "next/link";
+import guarded from "./guardedClient";
 import dynamic from "next/dynamic";
 import CamoCtaButton from "./CamoCtaButton";
 import PageRail from "./PageRail";
 
-const LiquidMetal = dynamic(() => import("./LiquidMetal"), {
+/* Guarded, not a bare dynamic(): this renders from the root layout, which sits ABOVE the route
+ * error boundary, so an unguarded throw here skipped every boundary and replaced the whole
+ * document. See ./guardedClient.jsx. The still mark below paints regardless. */
+const LiquidMetalLoaded = dynamic(() => import("./LiquidMetal"), {
   ssr: false,
   /* The shader is decoration on top of a mark that is already on screen, so the async chunk
    * needs no fallback of its own — see the still image below it in the markup. */
   loading: () => null,
 });
+
+/* Guarded, not a bare dynamic(): this renders from the root layout, which sits ABOVE the route
+ * error boundary, so an unguarded throw here skipped every boundary and replaced the whole
+ * document. See ./guardedClient.jsx. The still mark below paints regardless. */
+const LiquidMetal = guarded(LiquidMetalLoaded, "LiquidMetal");
 
 /* Fetch the shader chunk as soon as this module is evaluated on the client rather than waiting for
  * hydration to reach the header. It is ~16 KB, and starting it early is the difference between the

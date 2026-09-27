@@ -15,12 +15,19 @@
 import * as React from "react";
 import { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
+import guarded from "./guardedClient";
 import { CalModal } from "./CalGlassModal";
 
-const LiquidChromeButton = dynamic(() => import("./LiquidChromeButton"), {
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. */
+const LiquidChromeLoaded = dynamic(() => import("./LiquidChromeButton"), {
   ssr: false,
   loading: () => <span className="flinza-chrome-orb-fallback" aria-hidden="true" />,
 });
+
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. */
+const LiquidChromeButton = guarded(LiquidChromeLoaded, "LiquidChromeButton");
 
 export default function ChromeBookButton({ label = "Open booking" }) {
   const [open, setOpen] = useState(false);

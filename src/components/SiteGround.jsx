@@ -31,11 +31,18 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
+import guarded from "./guardedClient";
 
-const EtherealShadow = dynamic(() => import("./EtherealShadow"), {
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. */
+const EtherealShadowLoaded = dynamic(() => import("./EtherealShadow"), {
   ssr: false,
   loading: () => null,
 });
+
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. */
+const EtherealShadow = guarded(EtherealShadowLoaded, "EtherealShadow");
 
 export default function SiteGround({ opacity = 0.26 }) {
   return (

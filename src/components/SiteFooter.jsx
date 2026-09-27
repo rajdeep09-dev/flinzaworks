@@ -23,6 +23,7 @@
 import * as React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import guarded from "./guardedClient";
 import CamoCtaButton from "./CamoCtaButton";
 import { MAILTO } from "@/lib/site";
 import { SITE_URL } from "@/data/seo";
@@ -45,10 +46,16 @@ const SocialFallback = () => (
   </div>
 );
 
-const SocialGlassRow = dynamic(() => import("./SocialGlassRow"), {
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. */
+const SocialGlassRowLoaded = dynamic(() => import("./SocialGlassRow"), {
   ssr: false,
   loading: SocialFallback,
 });
+
+/* Guarded, not a bare dynamic(): renders from the root layout, above the route error boundary.
+ * See ./guardedClient.jsx. */
+const SocialGlassRow = guarded(SocialGlassRowLoaded, "SocialGlassRow");
 
 /* ── The footer's link columns ──
  *
