@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import ClientBoundary from '@/components/ClientBoundary';
 import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
 import { faqItems } from '@/data/faqs';
@@ -33,8 +34,35 @@ import SiteFooter from '@/components/SiteFooter';
 
 /* Every client-only component on this page is loaded exactly one way: never during SSR, and
  * never with a fallback frame while its chunk arrives. That was nine copies of the same eight
- * lines, which is nine places for the policy to drift. */
-const dynamicClient = (path) => dynamic(() => import(path), { ssr: false, loading: () => null });
+ * lines, which is nine places for the policy to drift.
+ *
+ * Every one of them is also wrapped in its OWN error boundary, here, once — rather than at nine
+ * call sites. Two reasons, and the second is the one that matters:
+ *
+ *   1. It is the only place that can guarantee the property. A boundary added at a call site is
+ *      nine chances to forget one, and the component that was forgotten is the one that takes
+ *      the page down.
+ *   2. The boundary belongs at this level, not at the top. An app-level boundary sits ABOVE the
+ *      whole composition, so a throw anywhere inside it replaces the hero, the claim and the
+ *      case studies along with the broken part. That is exactly what happened: the home page came
+ *      up on a phone as a bare error screen with no hero at all, because one graphics component
+ *      could not run on that device.
+ *
+ * Wrapping here means a component that cannot run on this device is skipped and everything around
+ * it renders as designed. The boundary renders nothing on failure on purpose — these are
+ * decorative layers sitting beside plain markup that already reads — and logs the component name,
+ * because "something threw" is not debuggable and "LiquidMetal threw" is. */
+const dynamicClient = (path) => {
+  const Loaded = dynamic(() => import(path), { ssr: false, loading: () => null });
+  const label = path.replace('@/components/', '');
+  return function GuardedClientComponent(props) {
+    return (
+      <ClientBoundary label={label}>
+        <Loaded {...props} />
+      </ClientBoundary>
+    );
+  };
+};
 
 const EtherealShadow = dynamicClient('@/components/EtherealShadow');
 
