@@ -80,6 +80,7 @@ const COLUMNS = [
       { label: "Case Studies", href: "/work" },
       { label: "Contact", href: "/contact" },
       { label: "Blog", href: "/insights" },
+      { label: "Questions", href: "/questions" },
       { label: "Careers", href: "/careers" },
     ],
   },

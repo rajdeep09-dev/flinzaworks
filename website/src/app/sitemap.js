@@ -35,6 +35,10 @@ export default function sitemap() {
     { path: '/about', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/influencer-marketing', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/insights', priority: 0.8, changeFrequency: 'weekly' },
+    /* The answers hub. It sits at 0.8 rather than 0.7 because it is the page most likely to be
+       matched against a question-shaped query, and a question-shaped query is usually someone
+       close to buying. It is weekly for the same reason — it grows when a new question is added. */
+    { path: '/questions', priority: 0.8, changeFrequency: 'weekly' },
     { path: '/careers', priority: 0.6, changeFrequency: 'weekly' },
     /* Not a commercial page, so its priority is low — but it is listed rather than left out,
        because it is the first-party source for who built the site and a page that is not in the

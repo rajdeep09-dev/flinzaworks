@@ -44,6 +44,7 @@ const NAV = [
   { label: "Creators", href: "/influencer-marketing" },
   { label: "About", href: "/about" },
   { label: "Insights", href: "/insights" },
+  { label: "Questions", href: "/questions" },
   { label: "Careers", href: "/careers" },
 ];
 

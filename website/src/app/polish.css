@@ -123,3 +123,334 @@ body {
     margin-left: auto;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+ * /questions — THE ANSWERS HUB
+ * ════════════════════════════════════════════════════════════════════════
+ * A page this long is unreadable without a jump index and unusable on a phone
+ * without the tables restacking, so those two are the load-bearing decisions
+ * here. The Q&A itself is deliberately plain: a heading and a paragraph, which
+ * is the shape an answer engine quotes and the shape a screen reader can jump
+ * between. Everything below is spacing and the two responsive behaviours.
+ */
+
+/* Visually hidden but still announced. The comparison tables carry a leading
+ * header cell with no text — it holds the row-label column's header — and that
+ * needs to be hidden from sight without being hidden from assistive tech. */
+.flinza-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── The jump index ────────────────────────────────────────────────────
+ * Anchor targets sit under a pinned header, so every cluster and every table
+ * needs scroll-margin or clicking a link parks the heading behind the chrome. */
+.flinza-qindex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 clamp(48px, 6vw, 80px);
+  padding: 0;
+  list-style: none;
+}
+.flinza-qindex a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(23, 132, 155, 0.24);
+  background: rgba(23, 132, 155, 0.08);
+  color: var(--aqua-deep);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+.flinza-qindex a:hover,
+.flinza-qindex a:focus-visible {
+  background: rgba(23, 132, 155, 0.16);
+  border-color: rgba(23, 132, 155, 0.5);
+  transform: translateY(-1px);
+}
+.flinza-qindex a span {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+}
+
+/* ── A cluster ───────────────────────────────────────────────────────── */
+.flinza-qcluster {
+  scroll-margin-top: 120px;
+  margin: 0 0 clamp(56px, 7vw, 96px);
+}
+.flinza-qcluster-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 18px;
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid var(--ink-faint);
+}
+.flinza-qcluster-num {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--aqua);
+  opacity: 0.55;
+}
+.flinza-qcluster-head h2 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.2vw, 34px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+.flinza-qcluster-head p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+.flinza-qcluster-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ink-faint);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.flinza-qcluster-link:hover,
+.flinza-qcluster-link:focus-visible {
+  border-color: var(--aqua);
+  background: var(--aqua-soft);
+}
+
+/* ── A question and its answer ─────────────────────────────────────────
+ * `.flinza-faqrow-q` / `.flinza-faqrow-a` are the class names `faqSchema()`
+ * already names in its `speakable` selector, reused deliberately: one target
+ * list for both the home-page accordion and this hub, so if they are ever
+ * renamed there is a single string to change and it fails loudly. */
+.flinza-qa {
+  padding: 22px 0;
+  border-top: 1px solid rgba(9, 9, 11, 0.07);
+}
+.flinza-qa:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.flinza-qa-list {
+  display: flex;
+  flex-direction: column;
+}
+.flinza-qa .flinza-faqrow-q {
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
+  font-size: clamp(16.5px, 2vw, 19px);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.flinza-qa .flinza-faqrow-a {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 15.5px;
+  line-height: 1.68;
+  color: var(--ink-dim);
+}
+
+/* ── The comparison tables ───────────────────────────────────────────── */
+.flinza-cmp {
+  margin: 0 0 34px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid var(--ink-faint);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  scroll-margin-top: 120px;
+}
+.flinza-cmp-cap {
+  margin-bottom: 10px;
+  font-family: var(--font-ui);
+  font-size: clamp(17px, 2.2vw, 21px);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+.flinza-cmp-verdict {
+  margin: 0 0 20px;
+  max-width: 68ch;
+  font-size: 15px;
+  line-height: 1.62;
+  color: var(--ink-dim);
+}
+.flinza-cmp-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.flinza-cmp-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+.flinza-cmp-table th,
+.flinza-cmp-table td {
+  padding: 13px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid rgba(9, 9, 11, 0.08);
+  line-height: 1.5;
+}
+.flinza-cmp-table thead th {
+  border-top: 0;
+  padding-top: 0;
+  padding-bottom: 10px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--aqua-deep);
+}
+.flinza-cmp-table tbody th {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  width: 26%;
+}
+.flinza-cmp-table td {
+  color: var(--ink-dim);
+}
+/* The first data column is the one this page is arguing for, so it is given
+   the weight rather than a highlight colour — the site's aqua is reserved for
+   accents, and a tinted column on eight tables reads as eight adverts. */
+.flinza-cmp-table td:first-of-type {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ── The phone: the tables restack ─────────────────────────────────────
+ * A three-column comparison at 390px is 140px per column, which wraps every
+   cell to four or five lines and makes the table unreadable. Below 760px each
+ * row becomes a labelled block instead, with the column name carried in
+   `data-label` and surfaced by the `::before` below. That is why the markup
+ * repeats the column name on every cell — it is what makes the stacked layout
+ * self-describing rather than a wall of unlabelled text. */
+@media (max-width: 760px) {
+  .flinza-qcluster-head {
+    grid-template-columns: auto 1fr;
+  }
+  .flinza-qcluster-link {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+  .flinza-cmp {
+    padding: 18px 16px;
+  }
+  .flinza-cmp-table {
+    min-width: 0;
+  }
+  .flinza-cmp-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .flinza-cmp-table tbody th,
+  .flinza-cmp-table td {
+    display: block;
+    width: auto;
+    padding: 0 0 14px;
+    border-top: 0;
+  }
+  .flinza-cmp-table tbody tr {
+    display: block;
+    padding: 16px 0;
+    border-top: 1px solid rgba(9, 9, 11, 0.08);
+  }
+  .flinza-cmp-table tbody tr:first-child {
+    border-top: 0;
+  }
+  .flinza-cmp-table tbody th {
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--aqua-deep);
+  }
+  .flinza-cmp-table td {
+    margin-bottom: 10px;
+    font-size: 14.5px;
+  }
+  .flinza-cmp-table td:last-child {
+    padding-bottom: 0;
+  }
+  .flinza-cmp-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 3px;
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+}
+
+/* ── The close ──────────────────────────────────────────────────────── */
+.flinza-qclose {
+  margin: clamp(48px, 6vw, 80px) 0 0;
+  padding: clamp(28px, 4vw, 44px);
+  border: 1px solid var(--ink-faint);
+  border-radius: 20px;
+  background: rgba(23, 132, 155, 0.05);
+  text-align: center;
+}
+.flinza-qclose h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: -0.015em;
+}
+.flinza-qclose p {
+  margin: 0 auto 24px;
+  max-width: 54ch;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flinza-qindex a,
+  .flinza-qcluster-link {
+    transition: none;
+  }
+  .flinza-qindex a:hover,
+  .flinza-qindex a:focus-visible {
+    transform: none;
+  }
+}
