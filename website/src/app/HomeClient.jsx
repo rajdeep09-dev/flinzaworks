@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import ClientBoundary from '@/components/ClientBoundary';
+import guarded from '@/components/guardedClient';
 import FluidText from '@/components/FluidText';
 import { withCaseStudyTestimonial } from '@/data/testimonials';
 import { faqItems } from '@/data/faqs';
@@ -51,42 +51,65 @@ import SiteFooter from '@/components/SiteFooter';
  * Wrapping here means a component that cannot run on this device is skipped and everything around
  * it renders as designed. The boundary renders nothing on failure on purpose — these are
  * decorative layers sitting beside plain markup that already reads — and logs the component name,
- * because "something threw" is not debuggable and "LiquidMetal threw" is. */
-const dynamicClient = (path) => {
-  const Loaded = dynamic(() => import(path), { ssr: false, loading: () => null });
-  const label = path.replace('@/components/', '');
-  return function GuardedClientComponent(props) {
-    return (
-      <ClientBoundary label={label}>
-        <Loaded {...props} />
-      </ClientBoundary>
-    );
-  };
-};
+ * because "something threw" is not debuggable and "LiquidMetal threw" is.
+ *
+ * WHY EVERY IMPORT PATH BELOW IS A LITERAL: the bundler has to SEE the module specifier to split
+ * the chunk — `dynamic(() => import(path))` with a variable cannot be resolved, so every one of
+ * those imports failed at RUNTIME, the boundary rendered nothing on failure, and nine components
+ * vanished silently: no gradient ground, no fluid carousel, no metal mark, no voice notes, no
+ * footer glow. The literal path plus the literal options object (next/dynamic requires that too)
+ * is the whole fix; `guarded` only adds the boundary around the chunk it can now actually load. */
 
-const EtherealShadow = dynamicClient('@/components/EtherealShadow');
+const EtherealShadow = guarded(
+  dynamic(() => import('@/components/EtherealShadow'), { ssr: false, loading: () => null }),
+  'EtherealShadow'
+);
 
-const LiquidGlassCarousel = dynamicClient('@/components/LiquidGlassCarousel');
+const LiquidGlassCarousel = guarded(
+  dynamic(() => import('@/components/LiquidGlassCarousel'), { ssr: false, loading: () => null }),
+  'LiquidGlassCarousel'
+);
 
-const LiquidMetal = dynamicClient('@/components/LiquidMetal');
-
-
-const TableOfContent = dynamicClient('@/components/TableOfContent');
-
-
-const WhatsApAudioPlayer = dynamicClient('@/components/WhatsappAudioPlayer');
-
-const FramerStory = dynamicClient('@/components/FramerStory');
+const LiquidMetal = guarded(
+  dynamic(() => import('@/components/LiquidMetal'), { ssr: false, loading: () => null }),
+  'LiquidMetal'
+);
 
 
+const TableOfContent = guarded(
+  dynamic(() => import('@/components/TableOfContent'), { ssr: false, loading: () => null }),
+  'TableOfContent'
+);
 
-const ServicesShowcase = dynamicClient('@/components/ServicesShowcase');
 
-const DiaFooter = dynamicClient('@/components/DiaFooter');
+const WhatsApAudioPlayer = guarded(
+  dynamic(() => import('@/components/WhatsappAudioPlayer'), { ssr: false, loading: () => null }),
+  'WhatsApAudioPlayer'
+);
+
+const FramerStory = guarded(
+  dynamic(() => import('@/components/FramerStory'), { ssr: false, loading: () => null }),
+  'FramerStory'
+);
 
 
 
-const ContactButton = dynamicClient('@/components/ContactButton');
+const ServicesShowcase = guarded(
+  dynamic(() => import('@/components/ServicesShowcase'), { ssr: false, loading: () => null }),
+  'ServicesShowcase'
+);
+
+const DiaFooter = guarded(
+  dynamic(() => import('@/components/DiaFooter'), { ssr: false, loading: () => null }),
+  'DiaFooter'
+);
+
+
+
+const ContactButton = guarded(
+  dynamic(() => import('@/components/ContactButton'), { ssr: false, loading: () => null }),
+  'ContactButton'
+);
 
 /* The three WhatsApp voice notes. They were three near-identical copies of one card — the same
  * glass, the same quote block, the same metric pill, seventy-six lines each — so a change to any
@@ -403,19 +426,23 @@ export default function Page({ heroPhoto = null }) {
           Phones get a different composition, not a narrower one — see §MOBILE in hero.css. */}
       <section id="hero" className="flinza-hero-stage">
         {/* The figure. `heroPhoto` is the real photograph, resolved on the server at build time
-            (see app/page.jsx). It is layered ABOVE the vector and below the scrim, so supplying
-            it needs no edit here and removing it falls back to the vector rather than to nothing. */}
-        <div
-          className="flinza-hero-visual"
-          aria-hidden="true"
-        />
+            (see app/page.jsx). ONE layer renders, not two: the photograph when it resolves, the
+            vector only when it does not. Both are full-bleed at the same box, so stacking them
+            was two owners of one slot — and wherever the vector disagreed with the photo it
+            peeked out from behind the photo's edge. Removing the photo falls back to the vector
+            rather than to nothing. */}
         {heroPhoto ? (
           <div
             className="flinza-hero-photo"
             aria-hidden="true"
             style={{ backgroundImage: `url("${heroPhoto}")` }}
           />
-        ) : null}
+        ) : (
+          <div
+            className="flinza-hero-visual"
+            aria-hidden="true"
+          />
+        )}
         {/* The halo behind the word, and the two washes that seat the bottom row and hand the
             foot of the frame to the white page below it. Four static layers, no blur plate,
             no WebGL — see the note in hero.css. */}

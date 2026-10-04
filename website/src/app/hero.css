@@ -273,7 +273,19 @@
       rgba(247, 251, 252, 0.16) 56%,
       rgba(247, 251, 252, 0) 68%
     ),
-    /* 3 · the floor — full-width contrast for the bottom row, feathered away. */
+    /* 3 · THE RIGHT COLUMN — the veil's mirror. The veil gives the left half paper so the
+       type can sit on it; the call pill, the right note and the four figures sit on the
+       RIGHT rail, where the veil never reaches and the figure is deliberately crisp. One
+       right-anchored gradient seats them on the same paper and fades out well before the
+       figure (56–68%) is touched, so there is still no box and no rectangle for the eye to
+       catch — each column gets its own wash, and neither ever meets in the middle. */
+    linear-gradient(
+      270deg,
+      rgba(247, 251, 252, 0.9) 0%,
+      rgba(247, 251, 252, 0.45) 12%,
+      rgba(247, 251, 252, 0) 28%
+    ),
+    /* 4 · the floor — full-width contrast for the bottom row, feathered away. */
     linear-gradient(
       to top,
       rgba(247, 251, 252, 0.6) 0%,
