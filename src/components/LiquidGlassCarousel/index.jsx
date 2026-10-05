@@ -381,9 +381,13 @@ return /*#__PURE__*/_jsxs("div",{className:viewportLockClass,style:{...style,pos
   /*#__PURE__*/_jsx("div",{ref:mountRef,style:{position:"absolute",inset:0}}),
 
   
-  showLabels && /*#__PURE__*/_jsxs("div",{style:{
+  /* Text placement: the band around this engine already renders a live status row on desktop
+     (brand, index, result line), so a second caption here would duplicate it — the engine
+     label therefore renders only on compact/mobile viewports, where no external status row
+     exists; on mobile it stays a centred caption above the ring, clear of the cards. */
+  showLabels && compact && /*#__PURE__*/_jsxs("div",{style:{
     position:"absolute",
-    top:compact?74:96,
+    top:74,
     left:"50%",
     width:"min(92vw, 560px)",
     transform:"translateX(-50%)",
@@ -396,7 +400,7 @@ return /*#__PURE__*/_jsxs("div",{className:viewportLockClass,style:{...style,pos
     zIndex: 20,
   },children:[
     /*#__PURE__*/_jsx("div",{style:{
-      fontSize:18,
+      fontSize:17,
       fontWeight:700,
       letterSpacing:"-0.02em",
       color:"#09090b",

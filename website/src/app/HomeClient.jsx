@@ -208,6 +208,11 @@ export default function Page({ heroPhoto = null }) {
   // The fixed side rail must disappear over the FAQ/footer/contact region, where it collided with copy
   const [tocHidden, setTocHidden] = useState(false);
   const [focusedCaseStudy, setFocusedCaseStudy] = useState(false);
+  /* The rail must also step aside while a case study is open: the focused stage is a fixed,
+   * full-viewport sheet, and a 28px floating list of dashes pinned over it read as stray UI
+   * sitting on top of the case study the visitor is trying to read. One visibility value
+   * drives the nav's inline style — the collapse state wins over the focus state. */
+  const tocVisible = scrolledPastHero && isLoaded && !tocHidden && !focusedCaseStudy;
   /* Which of the eight cases the ring is currently resting on — drives the live `01 / 08` counter
    * and the crossfading outcome line under it (both added by the QA pass). */
   const [activeCase, setActiveCase] = useState(0);
@@ -582,7 +587,11 @@ export default function Page({ heroPhoto = null }) {
           {workInView ? (
           <LiquidGlassCarousel
           projects={carouselProjects.map(withCaseStudyTestimonial)}
-          panelHeight={560}
+          /* 560 was tuned for the old hero viewport. The band's stage is fluid now (clamp in
+           * polish.css), so the cap has to sit above it — otherwise the engine's fill factors
+           * never get a say and the cards stop growing on large screens. 760 clears the
+           * 68%-of-stage cap at every width the desktop layout runs. */
+          panelHeight={760}
           finePointer={finePointer}
           gap={16}
           glide={0.085}
@@ -667,9 +676,9 @@ export default function Page({ heroPhoto = null }) {
           top: '50%',
           transform: 'translateY(-50%)',
           zIndex: 999,
-          opacity: (scrolledPastHero && isLoaded && !tocHidden) ? 1 : 0,
-          pointerEvents: (scrolledPastHero && isLoaded && !tocHidden) ? 'auto' : 'none',
-          visibility: (scrolledPastHero && isLoaded && !tocHidden) ? 'visible' : 'hidden',
+          opacity: tocVisible ? 1 : 0,
+          pointerEvents: tocVisible ? 'auto' : 'none',
+          visibility: tocVisible ? 'visible' : 'hidden',
           transition: 'opacity 0.4s ease, transform 0.4s ease',
           display: 'flex',
           flexDirection: 'column',

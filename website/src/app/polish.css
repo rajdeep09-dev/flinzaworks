@@ -454,3 +454,237 @@ body {
     transform: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+ * SELECTED WORK — the band reads full-bleed, the cards scale with the
+ * screen, and the copy stops hovering over the middle of the stage.
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/* ── The stage: edge to edge, and as tall as the screen actually is ──
+ * Two things were wrong with the desktop band. WIDTH: `.flinza-work-stage`
+ * capped the ring at `min(100%, 1560px)`, so on anything wider the cards
+ * stopped well short of both edges and the band read as a centred strip
+ * floating in paper. The cap is off — the band's own `overflow: clip` keeps
+ * the off-screen ends of the ring from ever painting a scrollbar.
+ *
+ * HEIGHT: the desktop layout runs under `html { zoom: 0.75 }` (globals.css,
+ * ≥1024px + fine pointer), so the old `72vh` rendered as ~54% of the real
+ * screen — the "small on a big monitor" report. The hero solves the same
+ * mismatch at 133.333vh; the same convention, floored and capped, gives the
+ * band its room back. svh is preferred where supported (stable address-bar
+ * maths); the plain-vh fallback keeps the floor for older engines. */
+@media (min-width: 901px) {
+  .flinza-work-stage {
+    width: 100%;
+    height: clamp(520px, 96vh, 980px);
+  }
+}
+@supports (height: 100svh) {
+  @media (min-width: 901px) {
+    .flinza-work-stage {
+      height: clamp(520px, 96svh, 980px);
+    }
+  }
+}
+
+/* ── The copy: anchored, not floating ──
+ * The head, the status row and the ring used to share one implicit column:
+ * centred text over a full-width ring, which read as copy hovering over the
+ * middle of the stage with dead air either side. The head is anchored to the
+ * band's top-LEFT, the way the site's section labels are elsewhere, the title
+ * gets a measure cap so it breaks like a headline instead of a banner, and the
+ * status row keeps its own column under it. The engine draws the ring across
+ * the full stage regardless — it is a canvas, not a layout child. */
+@media (min-width: 901px) {
+  .flinza-work-head {
+    max-width: none;
+    padding: 0 clamp(28px, 4.5vw, 72px);
+    text-align: left;
+  }
+  .flinza-work-head .flinza-overline {
+    justify-content: flex-start;
+  }
+  .flinza-work-title {
+    max-width: 22ch;
+    font-size: clamp(34px, 3.6vw, 58px);
+  }
+  .flinza-work-sub {
+    margin: 0;
+    max-width: 52ch;
+  }
+  .flinza-work-status {
+    margin-left: 0;
+    padding-left: clamp(28px, 4.5vw, 72px);
+    padding-right: clamp(28px, 4.5vw, 72px);
+    max-width: none;
+  }
+  .flinza-work-status-main {
+    flex: 1 1 auto;
+  }
+  .flinza-work-hint {
+    white-space: normal;
+    max-width: 34ch;
+    text-align: right;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+ * FOCUSED CASE STUDY — nothing floats over it, and its copy sits on paper.
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/* The open stage is a fixed, full-viewport sheet; the TOC nav is a fixed
+ * list at zIndex 999. React already hides the home rail while a case study
+ * is open (tocVisible in HomeClient), and this is the belt to that braces:
+ * it also covers the inner pages' own rails, wherever the class is set. */
+.flinza-carousel-lock.is-focused ~ .flinza-toc-desktop,
+.flinza-carousel-lock.is-focused ~ .flinza-pagetoc {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* The stage's scrim held ~0.6 alpha behind the deliverables rows and let the
+ * cards ghost through the text at the copy edges. Deepening the mid stops —
+ * and holding the strong end well past the copy column before releasing the
+ * right third to the artwork (lensX 0.6) — gives every line a solid paper
+ * ground without covering the focused panel. `!important` is load-bearing:
+ * FocusedStage paints this exact property as an INLINE style, and an inline
+ * declaration outranks any stylesheet rule without it. */
+@media (min-width: 861px) {
+  .flinza-stage .flinza-stage-ground {
+    background: linear-gradient(
+      96deg,
+      rgba(245, 251, 253, 0.985) 0%,
+      rgba(244, 251, 253, 0.96) 38%,
+      rgba(244, 251, 253, 0.84) 52%,
+      rgba(244, 251, 253, 0.3) 66%,
+      rgba(244, 251, 253, 0) 80%
+    ) !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+ * CAREERS — white glass instead of the black card, and role rows that are
+ * always visible instead of hover-only.
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/* ── The talent-pool card: dark → white glass ──
+ * The dark card was the Atomik treatment, and it fought everything else on
+ * the page. This re-dresses it in the same white glass as the apply modal and
+ * the focused case-study quote: paper over the site's own ground, blur, a
+ * light rule, one soft shadow. Every dark-derived colour inside it flips to
+ * its ink counterpart, so the component itself stays untouched. */
+.flinza-talent-card {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.92) 0%, rgba(240, 250, 252, 0.86) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 50px 120px -40px rgba(9, 11, 16, 0.35),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.9);
+  color: #18181b;
+}
+.flinza-talent-glow {
+  background:
+    radial-gradient(46% 54% at 50% 30%, rgba(127, 209, 222, 0.2) 0%, rgba(127, 209, 222, 0) 70%),
+    radial-gradient(40% 46% at 82% 86%, rgba(46, 147, 172, 0.12) 0%, rgba(46, 147, 172, 0) 72%);
+}
+.flinza-talent-kicker {
+  color: #0e7c93;
+}
+.flinza-talent-kicker i {
+  background: #0e7c93;
+  box-shadow: 0 0 10px rgba(14, 124, 147, 0.55);
+}
+.flinza-talent-title {
+  color: var(--ink, #09090b);
+}
+.flinza-talent-title em {
+  color: var(--aqua-deep, #0e7c93);
+}
+.flinza-talent-sub {
+  color: #52525b;
+}
+.flinza-talent-label > span {
+  color: #71717a;
+}
+.flinza-talent-field {
+  border: 1px solid rgba(9, 9, 11, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+  color: #09090b;
+}
+.flinza-talent-field::placeholder {
+  color: rgba(9, 9, 11, 0.34);
+}
+.flinza-talent-field:focus {
+  border-color: #0e7c93;
+  background: rgba(255, 255, 255, 0.92);
+}
+.flinza-talent-file {
+  border: 1px dashed rgba(9, 9, 11, 0.24);
+  background: rgba(255, 255, 255, 0.55);
+}
+.flinza-talent-file:hover,
+.flinza-talent-file:focus-within {
+  border-color: #0e7c93;
+  background: rgba(255, 255, 255, 0.8);
+}
+.flinza-talent-file-btn {
+  color: #ffffff;
+  background: linear-gradient(135deg, #17849b, #0a3e4c);
+}
+.flinza-talent-file-name {
+  color: #52525b;
+}
+.flinza-talent-error {
+  color: #b91c1c;
+}
+.flinza-talent-note {
+  color: #71717a;
+}
+.flinza-talent-done h3 {
+  color: var(--ink, #09090b);
+}
+.flinza-talent-done p {
+  color: #52525b;
+}
+.flinza-talent-done-meta {
+  color: #a1a1aa !important;
+}
+.flinza-talent-tick {
+  color: #ffffff;
+}
+.flinza-talent-actions {
+  filter: drop-shadow(0 14px 30px rgba(9, 11, 16, 0.25));
+}
+select.flinza-talent-field option {
+  color: #09090b;
+  background: #ffffff;
+}
+
+/* ── Role rows: visible first, glass on hover ──
+ * The rows were transparent until hover, so a candidate landed on a list of
+ * borders with no surfaces and nothing to aim at. Each row now carries its
+ * white-glass sheet permanently (the modal's recipe, slightly diluted); the
+ * hover only deepens it, lifting the row and its shadow. Wins on file order
+ * over overrides.css — and the component's hover backgrounds still compose,
+ * because they paint on top of the sheet rather than replacing it. */
+.flinza-role-row {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.66), rgba(244, 250, 252, 0.42));
+}
+.flinza-role-row:hover {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.85), rgba(224, 242, 246, 0.55));
+}
+
+/* ── The band breaks out of the 130px lane, exactly as the hero does ──
+ * `.flinza-home-main` insets every band with `padding-inline: 130px` from
+ * 1101px up, which is why the stage still stopped short of the edges: it was
+ * full width of the LANE, not of the screen. The hero escapes the same inset
+ * with negative margins (`overrides.css`, §11); the work band now does too,
+ * under the same media query as the padding that creates it. `width: auto` is
+ * load-bearing for the same reason the hero's comment gives: at `100%` the
+ * band would resolve against the content box and land 130px short on one side. */
+@media (min-width: 1101px) {
+  .flinza-home-main > .flinza-work-band {
+    width: auto;
+    margin-inline: -130px;
+  }
+}

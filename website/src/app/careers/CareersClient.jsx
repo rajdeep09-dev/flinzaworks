@@ -470,10 +470,14 @@ export default function CareersPage() {
                   borderRadius: 22,
                   borderTop: i === 0 ? '1px solid rgba(9,9,11,0.08)' : undefined,
                   borderBottom: '1px solid rgba(9,9,11,0.08)',
-                  background: hovered === role.id ? 'linear-gradient(120deg, rgba(255,255,255,0.85), rgba(224,242,246,0.55))' : 'transparent',
-                  backdropFilter: hovered === role.id ? 'blur(18px) saturate(170%)' : undefined,
-                  WebkitBackdropFilter: hovered === role.id ? 'blur(18px) saturate(170%)' : undefined,
-                  boxShadow: hovered === role.id ? '0 24px 60px -28px rgba(14,124,147,0.35)' : undefined,
+                  /* White glass, always on. The rows used to be transparent until hover,
+                     which read as a bare list of borders with no surfaces. The sheet is the
+                     apply modal's recipe, diluted; the CSS layer in polish.css carries the
+                     resting state, and the hover only deepens it and lifts the shadow. */
+                  background: hovered === role.id ? 'linear-gradient(120deg, rgba(255,255,255,0.85), rgba(224,242,246,0.55))' : 'linear-gradient(120deg, rgba(255,255,255,0.66), rgba(244,250,252,0.42))',
+                  backdropFilter: 'blur(16px) saturate(160%)',
+                  WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+                  boxShadow: hovered === role.id ? '0 24px 60px -28px rgba(14,124,147,0.35)' : '0 12px 32px -22px rgba(9,11,16,0.16)',
                   transition: 'background 0.3s ease, box-shadow 0.3s ease',
                   cursor: 'pointer',
                 }}
@@ -509,7 +513,7 @@ export default function CareersPage() {
 
                 {/* Right: view role pill */}
                 <div style={{ flexShrink: 0, paddingTop: 34 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 700, color: '#09090b', background: hovered === role.id ? 'rgba(255,255,255,0.95)' : 'rgba(9,9,11,0.04)', border: '1px solid rgba(9,9,11,0.08)', borderRadius: 999, padding: '10px 18px', transition: 'background 0.25s ease' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 700, color: '#09090b', background: hovered === role.id ? '#ffffff' : 'rgba(255,255,255,0.72)', border: '1px solid rgba(14,124,147,0.28)', borderRadius: 999, padding: '10px 18px', transition: 'background 0.25s ease, border-color 0.25s ease' }}>
                     View role
                     <span aria-hidden="true" style={{ fontSize: 15, lineHeight: 1 }}>›</span>
                   </span>
